@@ -1,24 +1,26 @@
+import { NavParams } from "@/App"
+import TextButton from "@/components/TextButton"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { ThemeData } from "@/theme"
-import { ScrollView, TouchableOpacity } from "react-native"
-import { StyleSheet, Text, View } from "react-native"
+import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { StyleSheet, Text, View, ScrollView } from "react-native"
 
-export default function LandingPageScreen() {
+export default function LandingPageScreen(props: NativeStackScreenProps<NavParams, "home">) {
   const styles = useStyleSheet(getStyles)
   
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Banner styles={styles} />
+    <ScrollView style={styles.container}>
+      <Banner styles={styles} {...props} />
     </ScrollView>
   )
 }
 
-type BannerProps = {
+type BannerProps = NativeStackScreenProps<NavParams, "home"> & {
   // because no concrete type exists for stylesheets
   styles: ReturnType<typeof getStyles>,
 }
 
-const Banner = ({ styles }: BannerProps) => (
+const Banner = ({ navigation, styles }: BannerProps) => (
   <View style={styles.banner}>
     <Text style={styles.bannerTitle}>Find Your Perfect</Text>
     <Text style={styles.bannerTitleFlight}>Flight</Text>
@@ -26,9 +28,9 @@ const Banner = ({ styles }: BannerProps) => (
     <Text style={styles.bannerSubtitle}>Compare prices from dozens of airlines</Text>
     <Text style={styles.bannerSubtitle}>Book with confidence with the best price guarantee</Text>
     
-    <TouchableOpacity style={styles.searchButton}>
-      <Text style={styles.searchButtonText}>Search Flights</Text>
-    </TouchableOpacity>
+    <TextButton shape="circular" style={styles.searchButton} onPress={() => navigation.navigate("searchFlight")}>
+      Search Flights
+    </TextButton>
     
     {/* <Text style={fonts.displayLarge}>Display Large</Text>
     <Text style={fonts.displayMedium}>Display Medium</Text>
@@ -51,14 +53,10 @@ const Banner = ({ styles }: BannerProps) => (
 const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
   container: {
     backgroundColor: colors.background,
-    alignItems: "center",
-    justifyContent: "center",
   },
   banner: {
     padding: 28,
     backgroundColor: colors.card,
-    alignItems: "center",
-    width: "100%",
   },
   bannerTitle: {
     ...fonts.displaySmall,
@@ -75,14 +73,6 @@ const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
     color: colors.secondary,
   },
   searchButton: {
-    marginTop: 22,
-    padding: 13,
-    paddingHorizontal: 22,
-    backgroundColor: colors.button,
-    borderRadius: 24,
-  },
-  searchButtonText: {
-    ...fonts.labelLarge,
-    color: colors.background,
+    marginTop: 18,
   },
 })

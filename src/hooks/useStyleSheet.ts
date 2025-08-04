@@ -1,5 +1,5 @@
 import { ThemeData } from "@/theme"
-import { useMemo } from "react"
+import { DependencyList, useMemo } from "react"
 import { StyleSheet } from "react-native"
 import { useTheme } from "@/hooks/useTheme"
 
@@ -24,7 +24,9 @@ export type NamedStyles<T> = StyleSheet.NamedStyles<T>
 */
 export const useStyleSheet = <T extends NamedStyles<T> | NamedStyles<any>>(
   getStyles: (theme: ThemeData) => T,
+  deps?: DependencyList,
 ) => {
   const theme = useTheme()
-  return useMemo(() => getStyles(theme), [theme])
+  const dependencies = (deps ?? []).concat(theme)
+  return useMemo(() => getStyles(theme), dependencies)
 }

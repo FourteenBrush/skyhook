@@ -30,7 +30,9 @@ export type ColorTheme = {
   background: string,
   card: string,
   button: string,
+  text: string,
   buttonText: string,
+  border: string,
 }
 
 const colors: ColorTheme = {
@@ -39,7 +41,9 @@ const colors: ColorTheme = {
   background: "#FFF",
   card: "#F2F8FF",
   button: "#18181B",
+  text: "#020202",
   buttonText: "#FFF",
+  border: "#E4E4E7",
 }
 
 // Material design principles
