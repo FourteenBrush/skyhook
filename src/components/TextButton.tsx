@@ -1,5 +1,5 @@
 import { useStyleSheet } from "@/hooks/useStyleSheet"
-import { ThemeData } from "@/theme"
+import { BORDER_RADIUS_NORMAL, BORDER_RADIUS_ROUNDED_BUTTON, ThemeData } from "@/theme"
 import { ReactNode} from "react"
 import { StyleProp, TextStyle } from "react-native"
 import { StyleSheet, TouchableOpacity, TouchableOpacityProps, Text } from "react-native"
@@ -15,6 +15,7 @@ export type TextButtonProps = TouchableOpacityProps & {
 export type ButtonKind = "filled" | "outlined"
 export type ButtonShape = "circular" | "rectangular"
 
+/** Styled, accessible button containing text */
 export default function TextButton({
   kind = "filled",
   shape = "rectangular",
@@ -48,14 +49,15 @@ const getStyles = ({ colors, fonts }: ThemeData, kind: ButtonKind, shape: Button
       backgroundColor,
       padding: 11,
       paddingHorizontal: 22,
-      borderRadius: shape == "circular" ? 24 : 4,
+      borderRadius: shape == "circular" ? BORDER_RADIUS_ROUNDED_BUTTON : BORDER_RADIUS_NORMAL,
       // for outlined buttons
       borderColor,
-      borderWidth: 2,
+      borderWidth: 1,
     },
     textContent: {
       ...fonts.labelLarge,
       color: textColor,
+      textAlign: "center",
     },
   })
 }

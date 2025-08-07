@@ -8,3 +8,7 @@ custom backend that provides plane and ticket data.
 - List all applicable flights for a given destination
 - Purchase tickets (although without an actual payment system)
 - Get an overview of all booked flights, being able to cancel them when applicable
+
+## References
+
+- [Vector icons finder](https://oblador.github.io/react-native-vector-icons)
