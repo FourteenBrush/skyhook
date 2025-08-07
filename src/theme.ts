@@ -1,5 +1,8 @@
 import { TextStyle } from "react-native"
 
+export const BORDER_RADIUS_NORMAL = 4
+export const BORDER_RADIUS_ROUNDED_BUTTON = 24
+
 export type ThemeData = {
   fonts: TextTheme,
   colors: ColorTheme,
@@ -27,10 +30,13 @@ export type TextTheme = {
 export type ColorTheme = {
   primary: string,
   secondary: string,
+  /** App background */
   background: string,
   card: string,
-  button: string,
   text: string,
+  /** Slightly less visible text color */
+  textSecondary: string,
+  button: string,
   buttonText: string,
   border: string,
 }
@@ -40,10 +46,11 @@ const colors: ColorTheme = {
   secondary: "#4B5563",
   background: "#FFF",
   card: "#F2F8FF",
-  button: "#18181B",
   text: "#020202",
+  textSecondary: "#929299",
+  button: "#18181B",
   buttonText: "#FFF",
-  border: "#E4E4E7",
+  border: "#D4D4C4",
 }
 
 // Material design principles
