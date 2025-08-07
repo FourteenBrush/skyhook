@@ -34,22 +34,19 @@ export function DateInputField({ placeholderLeading, minDate, maxDate, ...props 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [pickerShown, setPickerShown] = useState(false)
   
-  const onPickerEvent = (event: DateTimePickerEvent, date?: Date) => {
-    if (event.type == "dismissed" || event.type == "set") {
+  const onPickerEvent = ({ type }: DateTimePickerEvent, date?: Date) => {
+    if (type == "dismissed" || type == "set") {
       setPickerShown(false)
     }
-    if (date !== undefined) {
+    if (date !== undefined && type !== "dismissed") {
       setSelectedDate(date)
     }
   }
   
-  // Wednesday, 6 August 2025
-  const formatDate = (d?: Date) => d?.toLocaleDateString(undefined, { dateStyle: "full" })
-  
   const inputField = (
     // because for some stupid reason, onPress and related callbacks are not called when
     // the input field is readonly or non editable (see https://github.com/facebook/react-native/issues/33649)
-    <Pressable onPress={() => setPickerShown(true)}>
+    <Pressable style={{ flex: 1 }} onPress={() => setPickerShown(true)}>
       {pickerShown && (
         <RNDateTimePicker
           mode="date"
@@ -63,7 +60,8 @@ export function DateInputField({ placeholderLeading, minDate, maxDate, ...props 
       
       <TextInput
         readOnly
-        value={formatDate(selectedDate)}
+        // Wednesday, 6 August 2025
+        value={selectedDate?.toLocaleDateString(undefined, { dateStyle: "full" })}
         // having a leading placeholder implies already using this style
         style={placeholderLeading === undefined && styles.input}
         {...props}
