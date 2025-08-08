@@ -3,8 +3,8 @@ import TextButton from "@/components/TextButton"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { useTheme } from "@/hooks/useTheme"
 import { ThemeData } from "@/theme"
+import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { PickerItemProps } from "@react-native-picker/picker"
-import { MaterialDesignIcons } from "@react-native-vector-icons/material-design-icons"
 import { useState } from "react"
 import { Text, StyleSheet, View } from "react-native"
 
@@ -85,7 +85,7 @@ export default function SearchFlightPage() {
           placeholder="Select date"
           onChange={setDepartureDate}
           accessibilityHint="select trip departure date"
-          placeholderLeading=<MaterialDesignIcons name="calendar-blank" size={25} />
+          placeholderLeading=<MaterialCommunityIcons name="calendar" size={25} />
         />
         {isRoundTrip && (
           <DateInputField
@@ -93,7 +93,7 @@ export default function SearchFlightPage() {
             placeholder="Select date"
             onChange={setArrivalDate}
             accessibilityHint="select trip return date"
-            placeholderLeading=<MaterialDesignIcons name="calendar-blank" size={25} />
+            placeholderLeading=<MaterialCommunityIcons name="calendar-blank" size={25} />
           />
         )}
         

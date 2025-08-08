@@ -11,4 +11,4 @@ custom backend that provides plane and ticket data.
 
 ## References
 
-- [Vector icons finder](https://oblador.github.io/react-native-vector-icons)
+- [Vector icons finder](https://icons.expo.fyi/Index)
