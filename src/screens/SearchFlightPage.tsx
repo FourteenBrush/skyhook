@@ -10,18 +10,34 @@ import { Text, StyleSheet, View } from "react-native"
 
 const MEDIA_QUERY_MEDIUM_BREAK = 768
 
+const SEAT_CLASSES = ["economy", "business"] as const
+type SeatClass = (typeof SEAT_CLASSES)[number] // union of strings
+
+const passengerChoices: PickerItemProps<number>[] = [1, 2, 3, 4].map((nr) => {
+  const label = `${nr} Passenger` + (nr > 1 ? "s" : "")
+  return { label, value: nr }
+})
+
+const seatClasses: PickerItemProps<SeatClass>[] = SEAT_CLASSES.map((fclass) => {
+  const label = fclass.charAt(0).toUpperCase() + fclass.substring(1)
+  return { label, value: fclass }
+})
+
 export default function SearchFlightPage() {
-  const [roundTrip, setIsRoundTrip] = useState(true)
-  const [departureDate, setDepartureDate] = useState<Date | undefined>(undefined)
-  const [passengerCount, setPassengerCount] = useState<number | undefined>(undefined)
+  const [isRoundTrip, setIsRoundTrip] = useState(true)
+  const [departureCity, setDepartureCity] = useState<string | undefined>()
+  const [arrivalCity, setArrivalCity] = useState<string | undefined>()
+  const [departureDate, setDepartureDate] = useState<Date | undefined>()
+  const [arrivalDate, setArrivalDate] = useState<Date | undefined>()
+  const [passengerCount, setPassengerCount] = useState(1) // keep in sync with `passengerChoices`
+  const [flightClass, setFlightClass] = useState<SeatClass>("economy")
   
-  const styles = useStyleSheet(getStyles, [roundTrip])
+  const styles = useStyleSheet(getStyles, [isRoundTrip])
   const { fonts } = useTheme()
   
-  const passengerChoices: PickerItemProps<number>[] = [1, 2, 3, 4].map((nr) => {
-    const label = `${nr} Passenger` + (nr > 1 ? "s" : "")
-    return { label, value: nr }
-  })
+  const submitForm = () => {
+    console.log(isRoundTrip, departureCity, arrivalCity, departureDate, arrivalDate, passengerCount, flightClass)
+  }
   
   return (
     <View style={styles.container}>
@@ -31,7 +47,7 @@ export default function SearchFlightPage() {
         
         <View style={styles.roundTripButtonsWrapper}>
           <TextButton
-            kind={roundTrip ? "filled" : "outlined"}
+            kind={isRoundTrip ? "filled" : "outlined"}
             onPress={() => setIsRoundTrip(true)}
             style={styles.roundTripButton}
             accessibilityLabel="round trip flight selector"
@@ -39,7 +55,7 @@ export default function SearchFlightPage() {
             Round Trip
           </TextButton>
           <TextButton
-            kind={roundTrip ? "outlined" : "filled"}
+            kind={isRoundTrip ? "outlined" : "filled"}
             onPress={() => setIsRoundTrip(false)}
             style={styles.roundTripButton}
             accessibilityLabel="one way flight selector"
@@ -49,42 +65,57 @@ export default function SearchFlightPage() {
         </View>
         
         {/* FIXME: add validation */}
-        <TextInputField label="From" placeholder="Departure City" accessibilityHint="departure city input field" />
-        {/* FIXME: as state is stored internally, showing this field again after it was hidden, does not restore its stored date */}
-        <TextInputField label="To" placeholder="Destination City" accessibilityHint="destination city input field" />
+        <TextInputField
+          value={departureCity}
+          onChangeText={setDepartureCity}
+          label="From"
+          placeholder="Departure City"
+          accessibilityHint="departure city input field"
+        />
+        <TextInputField
+          value={arrivalCity}
+          onChangeText={setArrivalCity}
+          label="To"
+          placeholder="Destination City"
+          accessibilityHint="destination city input field"
+        />
         
         <DateInputField
           label="Departure Date"
           placeholder="Select date"
+          onChange={setDepartureDate}
           accessibilityHint="select trip departure date"
-          placeholderLeading={<MaterialDesignIcons name="calendar-blank" size={25} />}
+          placeholderLeading=<MaterialDesignIcons name="calendar-blank" size={25} />
         />
-        {roundTrip && (
+        {isRoundTrip && (
           <DateInputField
             label="Return date"
             placeholder="Select date"
+            onChange={setArrivalDate}
             accessibilityHint="select trip return date"
-            placeholderLeading={<MaterialDesignIcons name="calendar-blank" size={25} />}
+            placeholderLeading=<MaterialDesignIcons name="calendar-blank" size={25} />
           />
         )}
         
         <Dropdown
-          mode="dropdown"
-          label="Passengers"
           items={passengerChoices}
           onValueChange={setPassengerCount}
+          mode="dropdown"
+          label="Passengers"
           accessibilityHint="select number of passengers"
         />
         
         <Dropdown
+          items={seatClasses}
+          selectedValue={flightClass}
+          onValueChange={setFlightClass}
           mode="dropdown"
           label="Class"
-          items={[ { label: "Economy" }, { label: "Business" } ]}
           accessibilityHint="seat class"
         />
       </View>
       
-      <TextButton style={styles.searchFlightsButton} accessibilityHint="search flights">Search Flights</TextButton>
+      <TextButton onPress={submitForm} style={styles.searchFlightsButton} accessibilityHint="search flights">Search Flights</TextButton>
     </View>
   )
 }

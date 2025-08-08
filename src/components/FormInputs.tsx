@@ -19,15 +19,17 @@ export function TextInputField({ label, ...props }: TextInputFieldProps) {
   )
 }
 
-export type DateInputFieldProps = TextInputFieldProps & {
+export type DateInputFieldProps = Omit<TextInputFieldProps, "onChangeText" | "onChange"> & {
   /** Leading component placed before the placeholder text */
   placeholderLeading?: ReactNode,
   minDate?: Date,
   maxDate?: Date,
+  /** Called when a date is picked */
+  onChange?: (date: Date) => void,
 }
 
 /** Date selection input field, similar to a HTML `<input type=date />`. Accessible by default */
-export function DateInputField({ placeholderLeading, minDate, maxDate, ...props }: DateInputFieldProps) {
+export function DateInputField({ placeholderLeading, minDate, maxDate, onChange, ...props }: DateInputFieldProps) {
   const styles = useStyleSheet(getStyles)
   
   // `undefined` for direct mapping to TextInput.value, without null -> undefined conversion
@@ -38,8 +40,11 @@ export function DateInputField({ placeholderLeading, minDate, maxDate, ...props 
     if (type == "dismissed" || type == "set") {
       setPickerShown(false)
     }
+    // NOTE: when dismissing, date refers to the current value of the picker
+    // date is probably nullable for event.type="neutralButtonPressed", which seems broken in recent versions
     if (date !== undefined && type !== "dismissed") {
       setSelectedDate(date)
+      if (onChange !== undefined) onChange(date)
     }
   }
   
@@ -49,6 +54,7 @@ export function DateInputField({ placeholderLeading, minDate, maxDate, ...props 
     <Pressable style={{ flex: 1 }} onPress={() => setPickerShown(true)}>
       {pickerShown && (
         <RNDateTimePicker
+          neutralButton={{ label: "Clear", textColor: "grey" }}
           mode="date"
           minimumDate={minDate}
           maximumDate={maxDate}
