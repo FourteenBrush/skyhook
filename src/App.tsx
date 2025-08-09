@@ -1,4 +1,4 @@
-import { NavigationContainer } from "@react-navigation/native"
+import { LinkingOptions, NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import LandingPageScreen from "@/screens/LandingPageScreen"
 import { ThemeProvider } from "@/hooks/useTheme"
@@ -14,11 +14,16 @@ export type NavParams = {
 
 const Stack = createNativeStackNavigator<NavParams>()
 
+// linking options, to configure url integration in web browser (history.push etc)
+const linking: LinkingOptions<NavParams> = {
+  prefixes: [],
+}
+
 export default function App() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <NavigationContainer>
-        <ThemeProvider>
+      <ThemeProvider>
+        <NavigationContainer linking={linking}>
           <Stack.Navigator initialRouteName="home" screenOptions={{
             title: "Skyhook",
             headerBackVisible: true,
@@ -27,8 +32,8 @@ export default function App() {
             <Stack.Screen name="home" component={LandingPageScreen} />
             <Stack.Screen name="searchFlight" component={SearchFlightPage} />
           </Stack.Navigator>
-        </ThemeProvider>
-      </NavigationContainer>
+        </NavigationContainer>
+      </ThemeProvider>
     </SafeAreaView>
   )
 }
