@@ -1,7 +1,7 @@
 import { LinkingOptions, NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import LandingPageScreen from "@/screens/LandingPageScreen"
-import { ThemeProvider } from "@/hooks/useTheme"
+import { ThemeProvider, useTheme } from "@/hooks/useTheme"
 import SearchFlightPage from "./screens/SearchFlightScreen"
 import { SafeAreaView } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
@@ -20,11 +20,15 @@ const linking: LinkingOptions<NavParams> = {
 }
 
 export default function App() {
+  const { colors } = useTheme()
+  
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <NavigationContainer linking={linking}>
         <ThemeProvider>
           <Stack.Navigator initialRouteName="home" screenOptions={{
+            // set screen background color for screens that don't explicitly need to do this
+            contentStyle: { backgroundColor: colors.background },
             title: "Skyhook",
             headerBackVisible: true,
             headerLeft: () => <MaterialCommunityIcons name="airplane-takeoff" size={25} color="#2563EB" style={{marginRight: 11}} />,

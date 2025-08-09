@@ -9,7 +9,7 @@ export default function LandingPageScreen(props: NativeStackScreenProps<NavParam
   const styles = useStyleSheet(getStyles)
   
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView>
       <Banner styles={styles} {...props} />
     </ScrollView>
   )
@@ -35,9 +35,6 @@ const Banner = ({ navigation, styles }: BannerProps) => (
 )
 
 const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
-  container: {
-    backgroundColor: colors.background,
-  },
   banner: {
     padding: 28,
     backgroundColor: colors.card,
