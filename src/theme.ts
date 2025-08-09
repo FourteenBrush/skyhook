@@ -50,7 +50,7 @@ const colors: ColorTheme = {
   textSecondary: "#929299",
   button: "#18181B",
   buttonText: "#FFF",
-  border: "#D4D4C4",
+  border: "#D4D0C9",
 }
 
 // Material design principles
