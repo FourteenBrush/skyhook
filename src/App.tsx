@@ -2,7 +2,7 @@ import { LinkingOptions, NavigationContainer } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import LandingPageScreen from "@/screens/LandingPageScreen"
 import { ThemeProvider } from "@/hooks/useTheme"
-import SearchFlightPage from "./screens/SearchFlightPage"
+import SearchFlightPage from "./screens/SearchFlightScreen"
 import { SafeAreaView } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 

@@ -31,22 +31,6 @@ const Banner = ({ navigation, styles }: BannerProps) => (
     <TextButton shape="circular" style={styles.searchButton} onPress={() => navigation.navigate("searchFlight")}>
       Search Flights
     </TextButton>
-    
-    {/* <Text style={fonts.displayLarge}>Display Large</Text>
-    <Text style={fonts.displayMedium}>Display Medium</Text>
-    <Text style={fonts.displaySmall}>Display Small</Text>
-    <Text style={fonts.headlineLarge}>Headline Large</Text>
-    <Text style={fonts.headlineMedium}>Headline Medium</Text>
-    <Text style={fonts.headlineSmall}>Headline Small</Text>
-    <Text style={fonts.titleLarge}>Title Large</Text>
-    <Text style={fonts.titleMedium}>Title Medium</Text>
-    <Text style={fonts.titleSmall}>Title Small</Text>
-    <Text style={fonts.labelLarge}>Label Large</Text>
-    <Text style={fonts.labelMedium}>Label Medium</Text>
-    <Text style={fonts.labelSmall}>Label Small</Text>
-    <Text style={fonts.bodyLarge}>Body Large</Text>
-    <Text style={fonts.bodyMedium}>Body Medium</Text>
-    <Text style={fonts.bodySmall}>Body Small</Text> */}
   </View>
 )
 
