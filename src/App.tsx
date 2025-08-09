@@ -22,8 +22,8 @@ const linking: LinkingOptions<NavParams> = {
 export default function App() {
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <ThemeProvider>
-        <NavigationContainer linking={linking}>
+      <NavigationContainer linking={linking}>
+        <ThemeProvider>
           <Stack.Navigator initialRouteName="home" screenOptions={{
             title: "Skyhook",
             headerBackVisible: true,
@@ -32,8 +32,8 @@ export default function App() {
             <Stack.Screen name="home" component={LandingPageScreen} />
             <Stack.Screen name="searchFlight" component={SearchFlightPage} />
           </Stack.Navigator>
-        </NavigationContainer>
-      </ThemeProvider>
+        </ThemeProvider>
+      </NavigationContainer>
     </SafeAreaView>
   )
 }
