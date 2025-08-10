@@ -26,10 +26,11 @@ export type DateInputFieldProps = Omit<TextInputFieldProps, "onChangeText" | "on
   maxDate?: Date,
   /** Called when a date is picked */
   onChange?: (date: Date) => void,
+  dialogTitle?: string,
 }
 
 /** Date selection input field, similar to a HTML `<input type=date />`. Accessible by default */
-export function DateInputField({ placeholderLeading, minDate, maxDate, onChange, ...props }: DateInputFieldProps) {
+export function DateInputField({ placeholderLeading, minDate, maxDate, onChange, dialogTitle, ...props }: DateInputFieldProps) {
   const styles = useStyleSheet(getStyles)
   
   // `undefined` for direct mapping to TextInput.value, without null -> undefined conversion
@@ -61,6 +62,7 @@ export function DateInputField({ placeholderLeading, minDate, maxDate, onChange,
           design="material"
           value={/* today */ new Date()}
           onChange={onPickerEvent}
+          title={dialogTitle}
         />
       )}
       
