@@ -3,9 +3,14 @@ import { TextStyle } from "react-native"
 export const BORDER_RADIUS_NORMAL = 4
 export const BORDER_RADIUS_ROUNDED_BUTTON = 24
 
+export const CONTAINER_MARGIN = 18
+export const MEDIA_QUERY_MEDIUM_BREAK = 768
+
+
 export type ThemeData = {
   fonts: TextTheme,
-  colors: ColorTheme,
+  colors: ColorScheme,
+  isDark: boolean,
 }
 
 // FIXME: encorporate default text colors
@@ -27,7 +32,7 @@ export type TextTheme = {
   bodySmall: TextStyle,
 }
 
-export type ColorTheme = {
+export type ColorScheme = {
   primary: string,
   secondary: string,
   /** App background */
@@ -41,16 +46,16 @@ export type ColorTheme = {
   border: string,
 }
 
-const colors: ColorTheme = {
-  primary: "#2563EB",
-  secondary: "#4B5563",
-  background: "#FFF",
-  card: "#F2F8FF",
-  text: "#020202",
-  textSecondary: "#929299",
-  button: "#18181B",
-  buttonText: "#FFF",
-  border: "#D4D0C9",
+const colors: ColorScheme = {
+  primary: "#2563EB",       // blue
+  secondary: "#4B5563",     // somewhat dark gray
+  background: "#FFF",       // white
+  card: "#F2F8FF",          // very slight blue
+  text: "#020202",          // black
+  textSecondary: "#929299", // light gray
+  button: "#18181B",        // black
+  buttonText: "#FFF",       // white
+  border: "#D4D0C9",        // light gray
 }
 
 // Material design principles
@@ -148,8 +153,11 @@ const fonts: TextTheme = {
 }
 
 export const lightTheme: ThemeData = {
-  fonts, colors,
+  fonts, colors, isDark: true,
 }
 
 // FIXME: implement dark mode
-export const darkTheme: ThemeData = lightTheme
+export const darkTheme: ThemeData = {
+  ...lightTheme,
+  isDark: false,
+}
