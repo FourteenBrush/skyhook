@@ -4,7 +4,7 @@ import RNDateTimePicker, { DateTimePickerEvent } from "@react-native-community/d
 import { Picker, PickerProps } from "@react-native-picker/picker"
 import { ItemValue, PickerItemProps } from "@react-native-picker/picker/typings/Picker"
 import { ReactNode, useState } from "react"
-import { View, Text, StyleSheet, TextInput, Pressable, TextInputProps, ViewProps } from "react-native"
+import { View, Text, StyleSheet, TextInput, Pressable, TextInputProps, ViewProps, Keyboard } from "react-native"
 
 export type TextInputFieldProps = TextInputProps & InputFieldBaseProps
 
@@ -26,6 +26,7 @@ export type DateInputFieldProps = Omit<TextInputFieldProps, "onChangeText" | "on
   maxDate?: Date,
   /** Called when a date is picked */
   onChange?: (date: Date) => void,
+  /** Dialog title for native date picker */
   dialogTitle?: string,
 }
 
@@ -45,17 +46,30 @@ export function DateInputField({ placeholderLeading, minDate, maxDate, onChange,
     // date is probably nullable for event.type="neutralButtonPressed", which seems broken in recent versions
     if (date !== undefined && type !== "dismissed") {
       setSelectedDate(date)
-      if (onChange !== undefined) onChange(date)
+      onChange?.(date)
+    }
+  }
+  
+  const showPicker = () => {
+    if (Keyboard.isVisible()) {
+      // NOTE: when the keyboard was shown, the picker animation appears to be following the same
+      // "sliding down" animation as the dissapearing keyboard, scheduling this the next event cycle
+      // makes it appear evenly
+      Keyboard.dismiss()
+      setTimeout(() => setPickerShown(true), 0)
+    } else {
+      setPickerShown(true)
     }
   }
   
   const inputField = (
     // because for some stupid reason, onPress and related callbacks are not called when
     // the input field is readonly or non editable (see https://github.com/facebook/react-native/issues/33649)
-    <Pressable style={{ flex: 1 }} onPress={() => setPickerShown(true)}>
+    // NOTE: date picker appears to be "sliding down" when the keyboard was visible,
+    // not really much we can do about this, without delaying a Keyboard.dismiss() (do we want this delayed?)
+    <Pressable style={{ flex: 1 }} onPress={showPicker}>
       {pickerShown && (
         <RNDateTimePicker
-          neutralButton={{ label: "Clear", textColor: "grey" }}
           mode="date"
           minimumDate={minDate}
           maximumDate={maxDate}
