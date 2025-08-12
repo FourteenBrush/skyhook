@@ -2,42 +2,59 @@ import { DateInputField, Dropdown, TextInputField } from "@/components/FormInput
 import TextButton from "@/components/TextButton"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { useTheme } from "@/hooks/useTheme"
-import { ThemeData } from "@/theme"
+import { CONTAINER_MARGIN, MEDIA_QUERY_MEDIUM_BREAK, ThemeData } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { PickerItemProps } from "@react-native-picker/picker"
 import { useState } from "react"
 import { Text, StyleSheet, View } from "react-native"
-
-const MEDIA_QUERY_MEDIUM_BREAK = 768
-
-const SEAT_CLASSES = ["economy", "business"] as const
-type SeatClass = (typeof SEAT_CLASSES)[number] // union of strings
+import { preconnect } from "react-dom"
+import { FlightQuery, SEAT_CLASSES, SeatClass } from "@/models/FlightQuery"
+import { NavParams } from "@/App"
+import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 const passengerChoices: PickerItemProps<number>[] = [1, 2, 3, 4].map((nr) => {
   const label = `${nr} Passenger` + (nr > 1 ? "s" : "")
   return { label, value: nr }
 })
 
-const seatClasses: PickerItemProps<SeatClass>[] = SEAT_CLASSES.map((fclass) => {
-  const label = fclass.charAt(0).toUpperCase() + fclass.substring(1)
-  return { label, value: fclass }
+const seatClasses: PickerItemProps<SeatClass>[] = SEAT_CLASSES.map((sclass) => {
+  const label = sclass.charAt(0).toUpperCase() + sclass.substring(1)
+  return { label, value: sclass }
 })
 
-export default function SearchFlightPage() {
+export type SearchFlightScreenProps = NativeStackScreenProps<NavParams, "searchFlight">
+
+export default function SearchFlightPage({ navigation }: SearchFlightScreenProps) {
   const [isRoundTrip, setIsRoundTrip] = useState(true)
   const [departureCity, setDepartureCity] = useState<string | undefined>()
-  const [arrivalCity, setArrivalCity] = useState<string | undefined>()
+  const [destinationCity, setDestinationCity] = useState<string | undefined>()
   const [departureDate, setDepartureDate] = useState<Date | undefined>()
-  const [arrivalDate, setArrivalDate] = useState<Date | undefined>()
+  // undefined for one way flights
+  const [returnDate, setArrivalDate] = useState<Date | undefined>()
   const [passengerCount, setPassengerCount] = useState(1) // keep in sync with `passengerChoices`
-  const [flightClass, setFlightClass] = useState<SeatClass>("economy")
+  const [seatClass, setFlightClass] = useState<SeatClass>("economy")
   
   const styles = useStyleSheet(getStyles, [isRoundTrip])
   const { fonts } = useTheme()
   
   const submitForm = () => {
-    console.log(isRoundTrip, departureCity, arrivalCity, departureDate, arrivalDate, passengerCount, flightClass)
+    console.log(isRoundTrip, departureCity, destinationCity, departureDate, returnDate, passengerCount, seatClass)
+    const query: FlightQuery = {
+      departureCity: departureCity!,
+      destinationCity: destinationCity!,
+      departureDateIsoStr: departureDate!.toISOString(),
+      // NOTE: returnDate might still hold a value when isRoundTrip is false (to restore ui on button press)
+      returnDateIsoStr: isRoundTrip ? returnDate!.toISOString() : undefined,
+      passengerCount,
+      seatClass,
+    }
+    
+    // hint browser to start connection handshake already
+    preconnect(process.env.EXPO_PUBLIC_API_URL)
+    navigation.navigate("flightList", query)
   }
+  
+  const today = new Date()
   
   return (
     <View style={styles.container}>
@@ -73,8 +90,8 @@ export default function SearchFlightPage() {
           accessibilityHint="departure city input field"
         />
         <TextInputField
-          value={arrivalCity}
-          onChangeText={setArrivalCity}
+          value={destinationCity}
+          onChangeText={setDestinationCity}
           label="To"
           placeholder="Destination City"
           accessibilityHint="destination city input field"
@@ -83,7 +100,9 @@ export default function SearchFlightPage() {
         <DateInputField
           label="Departure Date"
           placeholder="Select date"
+          dialogTitle="Select departure date"
           onChange={setDepartureDate}
+          minDate={today}
           accessibilityHint="select trip departure date"
           placeholderLeading=<MaterialCommunityIcons name="calendar" size={25} />
         />
@@ -91,7 +110,9 @@ export default function SearchFlightPage() {
           <DateInputField
             label="Return date"
             placeholder="Select date"
+            dialogTitle="Select return date"
             onChange={setArrivalDate}
+            minDate={departureDate ?? today}
             accessibilityHint="select trip return date"
             placeholderLeading=<MaterialCommunityIcons name="calendar-blank" size={25} />
           />
@@ -107,7 +128,7 @@ export default function SearchFlightPage() {
         
         <Dropdown
           items={seatClasses}
-          selectedValue={flightClass}
+          selectedValue={seatClass}
           onValueChange={setFlightClass}
           mode="dropdown"
           label="Class"
@@ -130,7 +151,7 @@ const getStyles = ({ colors }: ThemeData) => {
       flexDirection: "column",
       // make submit button stick to the bottom
       justifyContent: "space-between",
-      margin: 18,
+      margin: CONTAINER_MARGIN,
       padding: 16,
       borderWidth: 1,
       borderColor: colors.border,
