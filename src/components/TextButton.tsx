@@ -30,7 +30,7 @@ export default function TextButton({
   )
   
   return (
-    <TouchableOpacity style={[styles.container, style]} {...props}>
+    <TouchableOpacity style={[styles.container, style]} activeOpacity={0.5} {...props}>
       <Text style={[styles.textContent, textStyle]}>{children}</Text>
     </TouchableOpacity>
   )
