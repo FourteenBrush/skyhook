@@ -33,7 +33,7 @@ const Banner = ({ navigation, styles }: BannerProps) => (
     <Text style={styles.bannerSubtitle}>Compare prices from dozens of airlines</Text>
     <Text style={styles.bannerSubtitle}>Book with confidence with the best price guarantee</Text>
     
-    <TextButton shape="circular" style={styles.searchButton} onPress={() => navigation.navigate("login")}>
+    <TextButton shape="circular" style={styles.searchButton} onPress={() => navigation.navigate("searchFlight")}>
       Search Flights
     </TextButton>
   </View>

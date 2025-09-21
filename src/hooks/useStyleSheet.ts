@@ -24,9 +24,8 @@ export type NamedStyles<T> = StyleSheet.NamedStyles<T>
 */
 export const useStyleSheet = <T extends NamedStyles<T> | NamedStyles<any>>(
   getStyles: (theme: ThemeData) => T,
-  deps?: DependencyList,
+  deps: DependencyList = [],
 ) => {
   const theme = useTheme()
-  const dependencies = (deps ?? []).concat(theme)
-  return useMemo(() => getStyles(theme), dependencies)
+  return useMemo(() => getStyles(theme), [theme, ...deps])
 }

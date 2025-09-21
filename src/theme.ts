@@ -6,6 +6,8 @@ export const BORDER_RADIUS_ROUNDED_BUTTON = 24
 export const CONTAINER_MARGIN = 18
 export const MEDIA_QUERY_MEDIUM_BREAK = 768
 
+export const CARD_PADDING = 10
+
 
 export type ThemeData = {
   fonts: TextTheme,

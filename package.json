@@ -22,7 +22,8 @@
     "react-dom": "19.0.0",
     "react-native": "0.79.5",
     "react-native-web": "^0.20.0",
-    "superagent": "^10.2.3"
+    "superagent": "^10.2.3",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

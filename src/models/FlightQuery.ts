@@ -6,7 +6,7 @@ export type FlightQuery = {
   departureDateIsoStr: string,
   /** `undefined` on a one-way trip */
   returnDateIsoStr: string | undefined,
-  passengerCount: number,
+  // passengerCount: number,
   seatClass: SeatClass,
 }
 

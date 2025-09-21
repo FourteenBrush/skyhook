@@ -1,14 +1,17 @@
 import { useStyleSheet } from "@/hooks/useStyleSheet"
-import { useTheme } from "@/hooks/useTheme"
 import { Flight } from "@/models/Flight"
 import { FlightQuery } from "@/models/FlightQuery"
-import { BORDER_RADIUS_NORMAL, BORDER_RADIUS_ROUNDED_BUTTON, CONTAINER_MARGIN, ThemeData } from "@/theme"
+import { BORDER_RADIUS_NORMAL, CARD_PADDING, CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { ApiClient, QUERY_KEYS } from "@/api"
-import { AntDesign, Feather } from "@expo/vector-icons"
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
 import { useQuery } from "@tanstack/react-query"
-import { memo } from "react"
-import { FlatList, StyleSheet, Text, View } from "react-native"
-import { mockupFlights } from "@/utils/mockupData"
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { NavigationProp, useNavigation } from "@react-navigation/native"
+import { NavParams } from "@/App"
+import FlightRouteDisplay from "@/components/FlightRouteDisplay"
+import DirectFlightBadge from "@/components/DirectFlightBadge"
+import { LoadingIndicator, ErrorIndicator } from "@/components/Indicators"
+import { useTheme } from "@/hooks/useTheme"
 
 export type FlightListScreenProps = {
   query: FlightQuery,
@@ -16,25 +19,43 @@ export type FlightListScreenProps = {
 
 /** Screen responsable for loading available flights, based off users query */
 export default function FlightListScreen({ query }: FlightListScreenProps) {
-  const styles = useStyleSheet(getStyles)
-  const { fonts } = useTheme()
+  const { colors } = useTheme()
   
   const { isPending, error, data } = useQuery({
     queryKey: [QUERY_KEYS.GET_FLIGHTS, query],
     queryFn: () => ApiClient.getFlights(query),
   })
   
-  const flights = mockupFlights
-  console.log(isPending, error, data)
+  if (isPending) {
+    return (
+      <LoadingIndicator
+        title="Searching Flights"
+        subtitle={`${query.departureCity} -> ${query.destinationCity}`}
+        icon=<MaterialCommunityIcons name="airplane" size={48} color={colors.primary} />
+        userMessage="Finding the best deals..."
+      />
+    )
+  }
+  if (error !== null) {
+    return (
+      <ErrorIndicator
+        title="Search Failed"
+        subtitle="We encountered an issue while searching for flights."
+        icon=<Feather name="alert-circle" size={48} color="#EF4444" />
+        userMessage="Unable to connect to server"
+      />
+    )
+  }
+  return <FlightList query={query} flights={data} />
+}
+
+function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] }) {
+  const styles = useStyleSheet(getStyles)
   
   return (
     <View style={styles.container}>
       {/* From -> To */}
-      <Text style={fonts.headlineLarge}>
-        {query.departureCity}{" "}
-        <AntDesign name="arrowright" size={22} />
-        {" "}{query.destinationCity}
-      </Text>
+      <FlightRouteDisplay departure={query.departureCity} destination={query.destinationCity} />
       
       <Text style={styles.flightCount}>{flights.length} flights found</Text>
       
@@ -50,9 +71,14 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
 
 function FlightCard({ flight }: { flight: Flight }) {
   const styles = useStyleSheet(getStyles)
+  const navigation = useNavigation<NavigationProp<NavParams>>()
   
   return (
-    <View style={styles.flightCard}>
+    <TouchableOpacity
+      activeOpacity={0.5}
+      style={styles.flightCard}
+      onPress={() => navigation.navigate("flightDetails", { flight })}
+    >
       <View style={styles.flightCardTitle}>
         <Text accessibilityHint="airline">{flight.airline}{"  "}</Text>
         <Text accessibilityHint="flight number" style={styles.flightNr}>{flight.flightNr}{"  "}</Text>
@@ -61,19 +87,9 @@ function FlightCard({ flight }: { flight: Flight }) {
       
       <FlightSchedule flight={flight} />
       <Text accessibilityHint="flight price" style={styles.flightPrice}>&euro;{flight.price}</Text>
-    </View>
+    </TouchableOpacity>
   )
 }
-
-const DirectFlightBadge = memo(() => {
-  const styles = useStyleSheet(getStyles)
-  
-  return (
-    <View style={styles.directFlightBadge} accessible accessibilityLabel="direct flight badge">
-      <Text style={styles.directFlightBadgeText}>Direct</Text>
-    </View>
-  )
-})
 
 const FlightSchedule = ({ flight }: { flight: Flight }) => {
   const styles = useStyleSheet(getStyles)
@@ -114,7 +130,7 @@ const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
     borderRadius: BORDER_RADIUS_NORMAL * 2,
     borderColor: colors.border,
     borderWidth: 1,
-    padding: 10,
+    padding: CARD_PADDING,
     marginVertical: 8,
   },
   flightCardTitle: {
@@ -124,17 +140,6 @@ const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
   },
   flightNr: {
     color: colors.textSecondary,
-  },
-  directFlightBadge: {
-    borderRadius: BORDER_RADIUS_ROUNDED_BUTTON,
-    backgroundColor: colors.button,
-    color: colors.buttonText,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  directFlightBadgeText: {
-    ...fonts.labelMedium,
-    color: colors.buttonText,
   },
   flightSchedule: {
     flex: 1,

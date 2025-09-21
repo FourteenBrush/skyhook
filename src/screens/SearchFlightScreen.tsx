@@ -31,21 +31,20 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
   const [departureDate, setDepartureDate] = useState<Date | undefined>()
   // undefined for one way flights
   const [returnDate, setArrivalDate] = useState<Date | undefined>()
-  const [passengerCount, setPassengerCount] = useState(1) // keep in sync with `passengerChoices`
+  // const [passengerCount, setPassengerCount] = useState(1) // keep in sync with `passengerChoices`
   const [seatClass, setFlightClass] = useState<SeatClass>("economy")
   
   const styles = useStyleSheet(getStyles, [isRoundTrip])
   const { fonts } = useTheme()
   
   const submitForm = () => {
-    console.log(isRoundTrip, departureCity, destinationCity, departureDate, returnDate, passengerCount, seatClass)
     const query: FlightQuery = {
-      departureCity: departureCity!,
-      destinationCity: destinationCity!,
+      departureCity: departureCity!.toLowerCase(),
+      destinationCity: destinationCity!.toLowerCase(),
       departureDateIsoStr: departureDate!.toISOString(),
       // NOTE: returnDate might still hold a value when isRoundTrip is false (to restore ui on button press)
       returnDateIsoStr: isRoundTrip ? returnDate!.toISOString() : undefined,
-      passengerCount,
+      // passengerCount,
       seatClass,
     }
     
@@ -118,13 +117,13 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
           />
         )}
         
-        <Dropdown
+        {/* <Dropdown
           items={passengerChoices}
           onValueChange={setPassengerCount}
           mode="dropdown"
           label="Passengers"
           accessibilityHint="select number of passengers"
-        />
+        /> */}
         
         <Dropdown
           items={seatClasses}

@@ -1,3 +1,28 @@
+import z from "zod"
+
+const airportSchema = z.object({
+  city: z.string(),
+  /** Short airport name, e.g. "JFK" */
+  shortName: z.string(),
+  /** Long airport name, e.g. "John F. Kennedy International" */
+  longName: z.string(),
+})
+
+export type Airport = z.infer<typeof airportSchema>
+
+
+const flightPathSchema = z.object({
+  departureAirport: airportSchema,
+  destinationAirport: airportSchema,
+})
+
+/**
+ * Represents a flight path, which is a direct path between two airports,
+ * flown with a specific airplane as part of a {@link Flight}.
+ */
+export type FlightPath = z.infer<typeof flightPathSchema>
+
+
 /** One journey from origin to destination */
 export class Flight {
   constructor(
@@ -32,24 +57,27 @@ export class Flight {
     return new Date(this.arrivalTime.getTime() - this.departureTime.getTime())
   }
   
+  public static schema = z.object({
+    id: z.number(),
+    flightNr: z.string().nonempty(),
+    departureTime: z.coerce.date(),
+    arrivalTime: z.coerce.date(),
+    airline: z.string(),
+    price: z.number().positive(),
+    paths: z.array(flightPathSchema)
+  })
+  
+  /** @throws on validation failure */
   static fromDto(dto: unknown): Flight {
-    throw new Error("todo")
+    const data = Flight.schema.parse(dto)
+    return new Flight(
+      data.id,
+      data.flightNr,
+      data.departureTime,
+      data.arrivalTime,
+      data.airline,
+      data.price,
+      data.paths,
+    )
   }
-}
-
-/**
- * Represents a flight path, which is a direct path between two airports,
- * flown with a specific airplane as part of a {@link Flight}.
- */
-export type FlightPath = {
-  readonly departureAirport: Airport,
-  readonly destinationAirport: Airport,
-}
-
-export type Airport = {
-  city: string,
-  /** Short airport name, e.g. "JFK" */
-  shortName: string,
-  /** Long airport name, e.g. "John F. Kennedy International" */
-  longName: string,
 }
