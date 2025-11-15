@@ -7,7 +7,7 @@ import LoginScreen from "@/screens/LoginScreen"
 import RegisterScreen from "@/screens/RegisterScreen"
 
 import { ThemeProvider, useTheme } from "@/hooks/useTheme"
-import { Platform, SafeAreaView, StyleSheet, View } from "react-native"
+import { Platform, StyleSheet, View } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { Flight } from "@/models/Flight"
 import { FlightQuery } from "@/models/FlightQuery"
@@ -15,6 +15,7 @@ import TextButton from "@/components/TextButton"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import FlightDetailsScreen from "@/screens/FlightDetailsScreen"
 import BookingsScreen from "@/screens/BookingsScreen"
+import { SafeAreaView } from "react-native-safe-area-context"
 
 /** Mapping of params needed by route names */
 export type NavParams = {
