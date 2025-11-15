@@ -15,7 +15,7 @@ import TextButton from "@/components/TextButton"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import FlightDetailsScreen from "@/screens/FlightDetailsScreen"
 import BookingsScreen from "@/screens/BookingsScreen"
-import { SafeAreaView } from "react-native-safe-area-context"
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
 
 /** Mapping of params needed by route names */
 export type NavParams = {
@@ -57,23 +57,25 @@ export default function App() {
   }
   
   return (
-    <SafeAreaView style={styles.container}>
-      <QueryClientProvider client={queryClient}>
-        <NavigationContainer linking={linking}>
-          <ThemeProvider>
-            <Stack.Navigator initialRouteName="home" screenOptions={screenOptions}>
-              <Stack.Screen name="home" component={LandingPageScreen} />
-              <Stack.Screen name="searchFlight" component={SearchFlightScreen} />
-              <Stack.Screen name="flightList">{({ route }) => <FlightListScreen query={route.params} />}</Stack.Screen>
-              <Stack.Screen name="flightDetails">{({ route }) => <FlightDetailsScreen flight={route.params.flight} />}</Stack.Screen>
-              <Stack.Screen name="bookings" component={BookingsScreen} />
-              <Stack.Screen name="login" component={LoginScreen} />
-              <Stack.Screen name="register" component={RegisterScreen} />
-            </Stack.Navigator>
-          </ThemeProvider>
-        </NavigationContainer>
-      </QueryClientProvider>
-    </SafeAreaView>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <QueryClientProvider client={queryClient}>
+          <NavigationContainer linking={linking}>
+            <ThemeProvider>
+              <Stack.Navigator initialRouteName="home" screenOptions={screenOptions}>
+                <Stack.Screen name="home" component={LandingPageScreen} />
+                <Stack.Screen name="searchFlight" component={SearchFlightScreen} />
+                <Stack.Screen name="flightList">{({ route }) => <FlightListScreen query={route.params} />}</Stack.Screen>
+                <Stack.Screen name="flightDetails">{({ route }) => <FlightDetailsScreen flight={route.params.flight} />}</Stack.Screen>
+                <Stack.Screen name="bookings" component={BookingsScreen} />
+                <Stack.Screen name="login" component={LoginScreen} />
+                <Stack.Screen name="register" component={RegisterScreen} />
+              </Stack.Navigator>
+            </ThemeProvider>
+          </NavigationContainer>
+        </QueryClientProvider>
+      </SafeAreaView>
+    </SafeAreaProvider>
   )
 }
 
