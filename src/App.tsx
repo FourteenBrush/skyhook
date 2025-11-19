@@ -7,7 +7,7 @@ import LoginScreen from "@/screens/LoginScreen"
 import RegisterScreen from "@/screens/RegisterScreen"
 
 import { ThemeProvider, useTheme } from "@/hooks/useTheme"
-import { Platform, StyleSheet, View } from "react-native"
+import { Platform, StatusBar, StyleSheet, View } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { Flight } from "@/models/Flight"
 import { FlightQuery } from "@/models/FlightQuery"
@@ -56,12 +56,15 @@ export default function App() {
     prefixes: [],
   }
   
+  // NOTE: android 15 (sdk version 35) enforces edge-to-edge behaviour, so when using a SafeAreaView, the whole
+  // content is shifted (including the "safety" padding around it), instead of simply moving the 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["right", "bottom", "right"]}>
         <QueryClientProvider client={queryClient}>
           <NavigationContainer linking={linking}>
             <ThemeProvider>
+              <StatusBar barStyle="dark-content" />
               <Stack.Navigator initialRouteName="home" screenOptions={screenOptions}>
                 <Stack.Screen name="home" component={LandingPageScreen} />
                 <Stack.Screen name="searchFlight" component={SearchFlightScreen} />
