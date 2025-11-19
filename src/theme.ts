@@ -155,11 +155,11 @@ const fonts: TextTheme = {
 }
 
 export const lightTheme: ThemeData = {
-  fonts, colors, isDark: true,
+  fonts, colors, isDark: false,
 }
 
 // FIXME: implement dark mode
 export const darkTheme: ThemeData = {
   ...lightTheme,
-  isDark: false,
+  isDark: true,
 }
