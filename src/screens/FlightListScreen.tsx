@@ -12,6 +12,7 @@ import FlightRouteDisplay from "@/components/FlightRouteDisplay"
 import DirectFlightBadge from "@/components/DirectFlightBadge"
 import StatusIndicator from "@/components/StatusIndicator"
 import { useTheme } from "@/hooks/useTheme"
+import TextButton from "@/components/TextButton"
 
 export type FlightListScreenProps = {
   query: FlightQuery,
@@ -19,9 +20,10 @@ export type FlightListScreenProps = {
 
 /** Screen responsable for loading available flights, based off users query */
 export default function FlightListScreen({ query }: FlightListScreenProps) {
+  const styles = useStyleSheet(getStyles)
   const { colors } = useTheme()
   
-  const { isPending, error, data } = useQuery({
+  const { isPending, error, data, refetch } = useQuery({
     queryKey: [QUERY_KEYS.GET_FLIGHTS, query],
     queryFn: () => ApiClient.getFlights(query),
   })
@@ -29,8 +31,9 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
   if (isPending) {
     return (
       <StatusIndicator
-        title="Searching Flights"
+        title="Searching Flights.."
         subtitle={`${query.departureCity} -> ${query.destinationCity}`}
+        style={styles.queryIndicator}
         icon=<MaterialCommunityIcons name="airplane" size={48} color={colors.primary} />
         userMessage="Finding the best deals..."
       />
@@ -41,8 +44,10 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
       <StatusIndicator
         title="Search Failed"
         subtitle="We encountered an issue while searching for flights."
+        style={styles.queryIndicator}
         icon=<Feather name="alert-circle" size={48} color="#EF4444" />
-        userMessage="Unable to connect to server"
+        userMessage="Unable to connect to the server"
+        button=<TextButton shape="circular" onPress={() => refetch()}>Retry</TextButton>
       />
     )
   }
@@ -55,6 +60,7 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
   return (
     <View style={styles.container}>
       {/* From -> To */}
+      {/* FIXME: pass normalized names */}
       <FlightRouteDisplay departure={query.departureCity} destination={query.destinationCity} />
       
       <Text style={styles.flightCount}>{flights.length} flights found</Text>
@@ -117,6 +123,12 @@ const FlightSchedule = ({ flight }: { flight: Flight }) => {
 const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
   container: {
     margin: CONTAINER_MARGIN,
+  },
+  queryIndicator: {
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    transform: [{ translateY: -65 }], // move slightly up
   },
   flightCount: {
     ...fonts.bodyMedium,
