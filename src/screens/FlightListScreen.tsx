@@ -119,7 +119,7 @@ const FlightSchedule = ({ flight }: { flight: Flight }) => {
       
       <View>
         <Text style={styles.scheduleTime} accessibilityHint="flight arrival time">{arrivalTime}</Text>
-        <Text accessibilityHint="destination airport">{flight.destinationAirport.shortName}</Text>
+        <Text style={{ alignSelf: "flex-end" }} accessibilityHint="destination airport">{flight.arrivalAirport.shortName}</Text>
       </View>
     </View>
   )
