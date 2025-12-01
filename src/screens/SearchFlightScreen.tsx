@@ -5,7 +5,7 @@ import { useTheme } from "@/hooks/useTheme"
 import { CONTAINER_MARGIN, MEDIA_QUERY_MEDIUM_BREAK, ThemeData } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { PickerItemProps } from "@react-native-picker/picker"
-import { Text, StyleSheet, View } from "react-native"
+import { Text, StyleSheet, View, ScrollView } from "react-native"
 import { preconnect } from "react-dom"
 import { FlightQuery, SEAT_CLASSES, SeatClass } from "@/models/FlightQuery"
 import { NavParams } from "@/App"
@@ -44,7 +44,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
   const today = new Date()
   
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {/* form wrapper, for the sake of making the submit bottom stick to the bottom */}
       <View>
         <Text style={fonts.headlineLarge}>Search Flights</Text>
@@ -133,7 +133,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
         style={styles.searchFlightsButton}
         accessibilityHint="search flights">Search Flights
       </TextButton>
-    </View>
+    </ScrollView>
   )
 }
 
@@ -143,7 +143,6 @@ const getStyles = ({ colors }: ThemeData) => {
       // reasonable size for form width
       maxWidth: MEDIA_QUERY_MEDIUM_BREAK,
       maxHeight: 900,
-      flex: 1,
       flexDirection: "column",
       // make submit button stick to the bottom
       justifyContent: "space-between",
