@@ -45,7 +45,7 @@ const getStyles = ({ colors, fonts }: ThemeData, kind: ButtonKind, shape: Button
   
   return StyleSheet.create({
     container: {
-      alignSelf: "flex-start", // only take needed space
+      alignSelf: "baseline", // only take needed width essentially
       backgroundColor,
       padding: 11,
       paddingHorizontal: 22,
