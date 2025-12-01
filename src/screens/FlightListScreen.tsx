@@ -100,21 +100,25 @@ function FlightCard({ flight }: { flight: Flight }) {
 
 const FlightSchedule = ({ flight }: { flight: Flight }) => {
   const styles = useStyleSheet(getStyles)
+
+  const departureTime = flight.departureTime.toLocaleTimeString(undefined, { timeStyle: "short" })
+  const arrivalTime = flight.arrivalTime.toLocaleTimeString(undefined, { timeStyle: "short" })
+  const totalDuration = flight.totalDuration.toLocaleTimeString(undefined, { timeStyle: "short", timeZone: "UTC" })
   
   return (
     <View style={styles.flightSchedule}>
-      <View accessibilityHint="flight departure time">
-        <Text style={styles.scheduleTime}>{flight.departureTime.toLocaleTimeString(undefined, { timeStyle: "short" })}</Text>
+      <View>
+        <Text style={styles.scheduleTime} accessibilityHint="flight departure time">{departureTime}</Text>
         <Text accessibilityHint="departure airport">{flight.departureAirport.shortName}</Text>
       </View>
       
       <View style={styles.flightDuration} accessibilityHint="flight duration">
         <Feather name="clock" size={13} />
-        <Text>{flight.totalDuration.toLocaleTimeString(undefined, { timeStyle: "short", timeZone: "UTC" })}</Text>
+        <Text>{totalDuration}</Text>
       </View>
       
-      <View accessibilityHint="flight arrival time">
-        <Text style={styles.scheduleTime}>{flight.arrivalTime.toLocaleTimeString(undefined, { timeStyle: "short" })}</Text>
+      <View>
+        <Text style={styles.scheduleTime} accessibilityHint="flight arrival time">{arrivalTime}</Text>
         <Text accessibilityHint="destination airport">{flight.destinationAirport.shortName}</Text>
       </View>
     </View>
