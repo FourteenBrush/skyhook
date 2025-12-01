@@ -5,7 +5,7 @@ import { BORDER_RADIUS_NORMAL, CARD_PADDING, CONTAINER_MARGIN, ThemeData } from 
 import { ApiClient, QUERY_KEYS } from "@/api"
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
 import { useQuery } from "@tanstack/react-query"
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { FlatList, StyleSheet, Text, View } from "react-native"
 import { NavigationProp, useNavigation } from "@react-navigation/native"
 import { NavParams } from "@/App"
 import FlightRouteDisplay from "@/components/FlightRouteDisplay"
@@ -13,6 +13,7 @@ import DirectFlightBadge from "@/components/DirectFlightBadge"
 import StatusIndicator from "@/components/StatusIndicator"
 import { useTheme } from "@/hooks/useTheme"
 import TextButton from "@/components/TextButton"
+import Card from "@/components/Card"
 
 export type FlightListScreenProps = {
   query: FlightQuery,
@@ -60,7 +61,7 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
   return (
     <View style={styles.container}>
       {/* From -> To */}
-      {/* FIXME: pass normalized names */}
+      {/* FIXME: pass normalized names (capitalized and such) */}
       <FlightRouteDisplay departure={query.departureCity} destination={query.destinationCity} />
       
       <Text style={styles.flightCount}>{flights.length} flights found</Text>
@@ -78,11 +79,11 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
 function FlightCard({ flight }: { flight: Flight }) {
   const styles = useStyleSheet(getStyles)
   const navigation = useNavigation<NavigationProp<NavParams>>()
-  
+
   return (
-    <TouchableOpacity
+    <Card
+      clickable={true}
       activeOpacity={0.5}
-      style={styles.flightCard}
       onPress={() => navigation.navigate("flightDetails", { flight })}
     >
       <View style={styles.flightCardTitle}>
@@ -93,7 +94,7 @@ function FlightCard({ flight }: { flight: Flight }) {
       
       <FlightSchedule flight={flight} />
       <Text accessibilityHint="flight price" style={styles.flightPrice}>&euro;{flight.price}</Text>
-    </TouchableOpacity>
+    </Card>
   )
 }
 
