@@ -10,7 +10,7 @@ import { NavigationProp, useNavigation } from "@react-navigation/native"
 import { NavParams } from "@/App"
 import FlightRouteDisplay from "@/components/FlightRouteDisplay"
 import DirectFlightBadge from "@/components/DirectFlightBadge"
-import { LoadingIndicator, ErrorIndicator } from "@/components/Indicators"
+import StatusIndicator from "@/components/StatusIndicator"
 import { useTheme } from "@/hooks/useTheme"
 
 export type FlightListScreenProps = {
@@ -28,7 +28,7 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
   
   if (isPending) {
     return (
-      <LoadingIndicator
+      <StatusIndicator
         title="Searching Flights"
         subtitle={`${query.departureCity} -> ${query.destinationCity}`}
         icon=<MaterialCommunityIcons name="airplane" size={48} color={colors.primary} />
@@ -38,7 +38,7 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
   }
   if (error !== null) {
     return (
-      <ErrorIndicator
+      <StatusIndicator
         title="Search Failed"
         subtitle="We encountered an issue while searching for flights."
         icon=<Feather name="alert-circle" size={48} color="#EF4444" />
