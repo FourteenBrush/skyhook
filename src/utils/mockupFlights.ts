@@ -39,10 +39,11 @@ const generateTimedPaths = (
   for (let i = 0; i < segmentCount; i++) {
     const isLast = i === segmentCount - 1
 
-    // random 1-6h per segment, but last gets all remaining
+    // assign a random duration between 1 and min(6, remainingHours - minHoursForRemaining)
+    const maxSegment = Math.min(6, remainingHours - (segmentCount - i - 1)) // leave at least 1h for remaining
     const segmentHours = isLast
       ? remainingHours
-      : Math.max(1, Math.min(6, Math.floor(Math.random() * 6) + 1))
+      : Math.floor(Math.random() * (maxSegment - 1 + 1)) + 1
 
     remainingHours -= segmentHours
 
@@ -54,7 +55,10 @@ const generateTimedPaths = (
       arrival,
     ))
 
-    currentStart = arrival
+    // add realistic layover of 1–3 hours if not last segment
+    const layoverHours = isLast ? 0 : Math.floor(Math.random() * 3) + 1
+    currentStart = addHours(arrival, layoverHours)
+    remainingHours -= layoverHours
   }
   return result
 }
