@@ -7,7 +7,7 @@ export default function NumberOfStopsBadge({ stops }: { stops: number }) {
 
   return (
     <Text accessibilityLabel="direct flight" style={styles.container}>{
-      stops === 1 ? "Direct" : `${stops} stops`
+      stops === 0 ? "Direct" : `${stops} ${stops === 1 ? "stop" : "stops"}`
     }</Text>
   )
 }
