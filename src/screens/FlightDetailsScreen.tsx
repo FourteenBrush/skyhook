@@ -8,6 +8,7 @@ import { CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { StyleSheet, Text, View } from "react-native"
 import { useTheme } from "@/hooks/useTheme"
 import { formatDurationToReadable, formatTime } from "@/utils/utils"
+import { TimelineMarker } from "@/components/TimelineMarker"
 
 export type FlightDetailsScreenProps = {
   flight: Flight,
@@ -134,32 +135,6 @@ function FlightStop({ kind, airport, departureTime, arrivalTime }: FlightStopPro
   )
 }
 
-function TimelineMarker({ color }: { color: string }) {
-  return (
-    <View style={{ alignItems: "center", width: 24 }}>
-      {/* dot */}
-      <Text
-        style={{
-          width: 12,
-          height: 12,
-          borderRadius: 6,
-          backgroundColor: color,
-        }}
-      />
-
-      {/* vertical line */}
-      <View
-        style={{
-          width: 2,
-          flex: 1,
-          backgroundColor: "#ccc",
-          marginTop: 2,
-        }}
-      />
-      )
-    </View>
-  )
-}
 
 const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
   container: {
