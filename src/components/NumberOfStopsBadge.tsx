@@ -15,7 +15,7 @@ export default function NumberOfStopsBadge({ stops }: { stops: number }) {
 const getStyles = ({ fonts, colors }: ThemeData, stops: number) => StyleSheet.create({
   container: {
     ...fonts.bodySmall,
-    backgroundColor: stops === 1 ? colors.button : "#959595",
+    backgroundColor: stops === 0 ? colors.button : "#959595",
     color: colors.buttonText,
     paddingVertical: 2,
     paddingHorizontal: 6,
