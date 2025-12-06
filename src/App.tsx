@@ -24,15 +24,9 @@ export type NavParams = {
   "flightList": FlightQuery,
   "flightDetails": { flight: Flight },
   "bookings": undefined,
-  // allow undefined to avoid circular reference errors
-  "login": { returnUrl: ReturnUrlConfig } | undefined,
+  "login": undefined,
   "register": undefined,
 }
-
-/** Typescript fun to associate correct params to route names (we all love type safety, don't we?) */
-export type ReturnUrlConfig = {
-  [K in keyof NavParams]: { screen: K, params: NavParams[K] }
-}[keyof NavParams]
 
 const Stack = createNativeStackNavigator<NavParams>()
 

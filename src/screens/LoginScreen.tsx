@@ -1,4 +1,4 @@
-import { NavParams, ReturnUrlConfig } from "@/App"
+import { NavParams } from "@/App"
 import { TextInputField } from "@/components/FormInputs"
 import TextButton from "@/components/TextButton"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
@@ -9,15 +9,12 @@ import { Platform, StyleSheet, Text, View } from "react-native"
 
 export type LoginScreenProps = NativeStackScreenProps<NavParams, "login">
 
-export default function LoginScreen({ navigation, route }: LoginScreenProps) {
+export default function LoginScreen({ route }: LoginScreenProps) {
   const styles = useStyleSheet(getStyles)
   
   const login = () => {
     // TODO: some api stuff here
-    if (route.params !== undefined) {
-      const { screen, params } = route.params.returnUrl
-      // navigation.navigate(screen, params)
-    }
+    // TODO: use navigator routeNamesChangeBehavior instead
   }
   
   return (
