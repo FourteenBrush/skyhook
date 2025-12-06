@@ -9,6 +9,7 @@ import { StyleSheet, Text, View } from "react-native"
 import { useTheme } from "@/hooks/useTheme"
 import { formatDurationToReadable, formatTime } from "@/utils/utils"
 import { TimelineMarker } from "@/components/TimelineMarker"
+import Badge from "@/components/Badge"
 
 export type FlightDetailsScreenProps = {
   flight: Flight,
@@ -125,7 +126,9 @@ function FlightStop({ kind, airport, departureTime, arrivalTime }: FlightStopPro
         <View style={styles.routeLine}>
           <Text style={fonts.titleMedium}>{stopTitle}</Text>
           {kind !== "layover" && <Text>{airport.shortName}</Text>}
-          {kind === "layover" && <Text>{formatDurationToReadable(new Date(arrivalTime - departureTime))}</Text>}
+          {kind === "layover" && <Badge kind="outlined">{
+            formatDurationToReadable(new Date(arrivalTime - departureTime))
+          }</Badge>}
         </View>
 
         {kind === "layover" && <Text>Arrival: {formatTime(departureTime)}</Text>}
