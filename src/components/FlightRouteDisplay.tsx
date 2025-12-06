@@ -14,7 +14,7 @@ export default function FlightRouteDisplay({ departure, destination, size, style
   const styles = useStyleSheet(theme => getStyles(theme, size))
 
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, style]} accessibilityHint="flight route departure and arrival">
       <Text style={styles.text}>{departure}</Text>
       <FontAwesome name="long-arrow-right" size={size ===  "large" ? 18 : 15} />
       <Text style={styles.text}>{destination}</Text>

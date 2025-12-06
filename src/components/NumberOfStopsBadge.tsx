@@ -6,7 +6,7 @@ export default function NumberOfStopsBadge({ stops }: { stops: number }) {
   const styles = useStyleSheet(theme => getStyles(theme, stops))
 
   return (
-    <Text accessibilityLabel="direct flight" style={styles.container}>{
+    <Text accessibilityLabel="number of stops" style={styles.container}>{
       stops === 0 ? "Direct" : `${stops} ${stops === 1 ? "stop" : "stops"}`
     }</Text>
   )

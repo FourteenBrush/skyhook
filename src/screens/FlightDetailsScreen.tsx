@@ -20,7 +20,7 @@ export default function FlightDetailsScreen({ flight }: FlightDetailsScreenProps
   return (
     <View style={styles.container}>
       {/* general flight info */}
-      <Card clickable={false}>
+      <Card clickable={false} accessibilityHint="general flight information">
         <FlightRouteDisplay
           departure={flight.departureAirport.city}
           destination={flight.arrivalAirport.city}
@@ -29,12 +29,12 @@ export default function FlightDetailsScreen({ flight }: FlightDetailsScreenProps
         />
       
         <View style={styles.generalInfo}>
-          <Text>{flight.airline}</Text>
-          <Text style={styles.flightNr}>{flight.flightNr}</Text>
+          <Text accessibilityHint="airline">{flight.airline}</Text>
+          <Text accessibilityHint="flight number" style={styles.flightNr}>{flight.flightNr}</Text>
           <NumberOfStopsBadge stops={flight.paths.length - 1} />
         </View>
 
-        <Text style={styles.price}>&euro;{flight.price}</Text>
+        <Text accessibilityHint="flight price" style={styles.price}>&euro;{flight.price}</Text>
 
         <FlightTiming flight={flight} />
       </Card>
@@ -117,7 +117,7 @@ function FlightStop({ kind, airport, departureTime, arrivalTime }: FlightStopPro
       : "#3cb043" // green
 
   return (
-    <View style={{ flexDirection: "row" }}>
+    <View style={{ flexDirection: "row" }} accessibilityHint={`${kind} airport in flight route`}>
       <TimelineMarker color={markerColor} />
 
       {/* stop content */}
