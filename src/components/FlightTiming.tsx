@@ -1,4 +1,5 @@
 import { useStyleSheet } from "@/hooks/useStyleSheet"
+import { useTheme } from "@/hooks/useTheme"
 import { Airport, Flight } from "@/models/Flight"
 import { ThemeData } from "@/theme"
 import { formatDurationToReadable, formatTime } from "@/utils/utils"
@@ -22,7 +23,7 @@ export default function FlightTiming({ flight }: { flight: Flight }) {
         <Text accessibilityHint="total flight duration">{formatDurationToReadable(flight.totalDuration)}</Text>
       </View>
       <TimingSection
-        style={{ alignSelf: "flex-end", paddingTop: 12 }}
+        style={{ alignSelf: "flex-end", paddingTop: 8 }}
         title="Arrival"
         time={flight.arrivalTime}
         airport={flight.arrivalAirport}
@@ -41,14 +42,13 @@ type TimingSectionProps = ViewProps & {
 
 function TimingSection({ title, time, airport, style, ...props }: TimingSectionProps) {
   const styles = useStyleSheet(getStyles)
-
-  const { timeZone } = Intl.DateTimeFormat().resolvedOptions()
+  const { fonts } = useTheme()
 
   return (
     <View style={style} {...props}>
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.time}>{`${formatTime(time)} ${timeZone}`}</Text>
-      <Text>{`${airport.longName} (${airport.shortName})`}</Text>
+      <Text style={styles.time}>{`${formatTime(time)}`}</Text>
+      <Text style={fonts.titleSmall}>{`${airport.longName}`}</Text>
     </View>
   )
 }
@@ -66,6 +66,6 @@ const getStyles = ({ fonts }: ThemeData) => StyleSheet.create({
   flightDuration: {
     flexDirection: "column",
     alignItems: "center",
-    paddingVertical: 22,
+    paddingVertical: 12,
   },
 })
