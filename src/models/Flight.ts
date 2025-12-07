@@ -25,7 +25,7 @@ export class FlightPath {
     this.arrivalTimeIso = arrivalTime.toISOString()
 
     if (departureTime >= arrivalTime) {
-      throw new Error(`FlightPath arrivalTime must be after departureTime: ${departureTime} and ${arrivalTime}`)
+      throw new Error(`FlightPath arrivalTime must be after departureTime: ${arrivalTime} and ${departureTime}`)
     }
   }
 
@@ -50,8 +50,8 @@ export class FlightPath {
   .transform(val => new FlightPath(val.departureAirport, val.arrivalAirport, val.departureTime, val.arrivalTime))
 
   toString(): string {
-    return `${this.departureAirport.shortName} (${this.departureTime.toISOString()}) → ` +
-      `${this.arrivalAirport.shortName} (${this.arrivalTime.toISOString()})`
+    return `${this.departureAirport.shortName} (${this.departureTime.toLocaleString()}) → ` +
+      `${this.arrivalAirport.shortName} (${this.arrivalTime.toLocaleString()})`
   }
 }
 
