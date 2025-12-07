@@ -76,6 +76,8 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
         renderItem={({ item }) => <FlightCard flight={item} chosenClass={query.seatClass} />}
         keyExtractor={(flight) => flight.id.toString()}
         style={styles.flights}
+        persistentScrollbar={true}
+        indicatorStyle="black"
       />
     </View>
   )
