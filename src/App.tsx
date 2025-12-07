@@ -10,7 +10,7 @@ import { ThemeProvider, useTheme } from "@/hooks/useTheme"
 import { Platform, StatusBar, StyleSheet, View } from "react-native"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { Flight } from "@/models/Flight"
-import { FlightQuery } from "@/models/FlightQuery"
+import { FlightQuery, SeatClass } from "@/models/FlightQuery"
 import TextButton from "@/components/TextButton"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import FlightDetailsScreen from "@/screens/FlightDetailsScreen"
@@ -22,7 +22,7 @@ export type NavParams = {
   "home": undefined,
   "searchFlight": undefined,
   "flightList": FlightQuery,
-  "flightDetails": { flight: Flight },
+  "flightDetails": { flight: Flight, chosenClass: SeatClass },
   "bookings": undefined,
   "login": undefined,
   "register": undefined,
@@ -61,7 +61,9 @@ export default function App() {
                 <Stack.Screen name="home" component={LandingPageScreen} />
                 <Stack.Screen name="searchFlight" component={SearchFlightScreen} />
                 <Stack.Screen name="flightList">{({ route }) => <FlightListScreen query={route.params} />}</Stack.Screen>
-                <Stack.Screen name="flightDetails">{({ route }) => <FlightDetailsScreen flight={route.params.flight} />}</Stack.Screen>
+                <Stack.Screen name="flightDetails">
+                  {({ route }) => <FlightDetailsScreen flight={route.params.flight} chosenClass={route.params.chosenClass} />}
+                </Stack.Screen>
                 <Stack.Screen name="bookings" component={BookingsScreen} />
                 <Stack.Screen name="login" component={LoginScreen} />
                 <Stack.Screen name="register" component={RegisterScreen} />
