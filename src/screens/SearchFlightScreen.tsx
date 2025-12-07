@@ -10,12 +10,43 @@ import { preconnect } from "react-dom"
 import { FlightQuery, SEAT_CLASSES, SeatClass } from "@/models/FlightQuery"
 import { NavParams } from "@/App"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
-import { useFlightSearchForm } from "@/hooks/useFlightSearchForm"
+import z from "zod"
+import { useForm } from "@/hooks/useForm"
 
 // const passengerChoices: PickerItemProps<number>[] = [1, 2, 3, 4].map((nr) => {
 //   const label = `${nr} Passenger` + (nr > 1 ? "s" : "")
 //   return { label, value: nr }
 // })
+
+const citySchema = (requiredErr: string) => z.string({ error: requiredErr })
+  .min(2, "At least 2 characters are required").max(100)
+
+const formSchema = z.object({
+  isRoundTrip: z.boolean(),
+  departureCity: citySchema("Please enter a departure city"),
+  destinationCity: citySchema("Please enter a destination city"),
+  departureDate: z.date("Please enter a departure date"),
+  returnDate: z.date().optional(),
+  seatClass: z.enum(SEAT_CLASSES),
+})
+.refine(data => data.departureDate > new Date(), {
+  message: "Departure date must be after today",
+  path: ["departureDate"],
+  when: (_payload) => true,
+})
+.refine(data => data.isRoundTrip === (data.returnDate !== undefined), {
+  message: "Please enter a return date",
+  path: ["returnDate"],
+  when: (_payload) => true, // always run, even if other properties contain errors
+})
+.refine(data => data.isRoundTrip ? data.departureDate <= data.returnDate! : true, {
+  message: "Return data must not be before departure data",
+  path: ["returnDate"],
+  // run if departureDate and returnDate are valid
+  when: (payload) => formSchema
+    .pick({ isRoundTrip: true, departureDate: true, returnDate: true })
+    .safeParse(payload.value).success,
+})
 
 const seatClasses: PickerItemProps<SeatClass>[] = SEAT_CLASSES.map((sclass) => {
   const label = sclass.charAt(0).toUpperCase() + sclass.substring(1)
@@ -30,14 +61,22 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
     errors,
     updateField,
     validateAndSubmit,
-  } = useFlightSearchForm()
+  } = useForm(formSchema, { isRoundTrip: true, seatClass: "economy" })
 
   const styles = useStyleSheet(getStyles, [formState.isRoundTrip])
   const { fonts } = useTheme()
   
-  const navigateToFlightList = (query: FlightQuery) => {
+  const navigateToFlightList = () => {
     // hint browser to start connection handshake already
     preconnect(process.env.EXPO_PUBLIC_API_URL)
+
+    const query: FlightQuery = {
+      departureCity: formState.departureCity.toLowerCase(),
+      destinationCity: formState.destinationCity.toLowerCase(),
+      departureDateIsoStr: formState.departureDate.toISOString(),
+      returnDateIsoStr: formState.isRoundTrip ? formState.returnDate!.toISOString() : undefined,
+      seatClass: formState.seatClass,
+    }
     navigation.navigate("flightList", query)
   }
   
@@ -45,7 +84,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
   
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* form wrapper, for the sake of making the submit bottom stick to the bottom */}
+      {/* form wrapper, for the purpose of making the submit bottom stick to the bottom */}
       <View>
         <Text style={fonts.headlineLarge}>Search Flights</Text>
 
