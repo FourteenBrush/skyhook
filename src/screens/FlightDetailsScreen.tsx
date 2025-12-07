@@ -5,13 +5,14 @@ import FlightTiming from "@/components/FlightTiming"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { Airport, Flight } from "@/models/Flight"
 import { CONTAINER_MARGIN, ThemeData } from "@/theme"
-import { StyleSheet, Text, View } from "react-native"
+import { ScrollView, StyleSheet, Text, View } from "react-native"
 import { useTheme } from "@/hooks/useTheme"
 import { formatDurationToReadable, formatTime } from "@/utils/utils"
 import { TimelineMarker } from "@/components/TimelineMarker"
 import Badge from "@/components/Badge"
 import TextButton from "@/components/TextButton"
 import { SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
+import { EvilIcons } from "@expo/vector-icons"
 
 export type FlightDetailsScreenProps = {
   flight: Flight,
@@ -22,7 +23,7 @@ export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetai
   const styles = useStyleSheet(getStyles)
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       {/* general flight info */}
       <Card clickable={false} accessibilityHint="general flight information">
         <FlightRouteDisplay
@@ -45,54 +46,44 @@ export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetai
       <FlightStops flight={flight} />
 
       <FlightBookingSection flight={flight} chosenClass={chosenClass} />
-    </View>
+    </ScrollView>
   )
 }
+
 const getFlightStops = (flight: Flight): FlightStopProps[] => {
-  const stops = flight.paths.flatMap<FlightStopProps>((path, i, arr) => {
-    const isFirst = i === 0
-    const isLast = i === arr.length - 1
+  console.warn(flight.toString())
+  if (flight.isDirect) {
+    const { departureAirport, departureTime, arrivalAirport, arrivalTime } = flight.paths[0]
+    return [
+      { kind: "departure", airport: departureAirport, departureTime },
+      { kind: "arrival", airport: arrivalAirport, arrivalTime },
+    ]
+  }
 
-    // TODO: direct flights only get their departure mapped
+  return flight.paths.flatMap<FlightStopProps>((path, i, arr) => {
+    const isDeparture = i === 0
+    const isArrival = i === arr.length - 1
+    const { departureAirport, departureTime, arrivalAirport, arrivalTime } = path
 
-    if (isFirst) {
-      return [{
-        kind: "departure",
-        airport: path.departureAirport,
-        departureTime: path.departureTime,
-      }]
+    if (isDeparture) {
+      return [{ kind: "departure", airport: departureAirport, departureTime }]
     }
 
-    if (isLast) {
-      return [{
-        kind: "layover",
-        airport: path.departureAirport,
-        arrivalTime: path.arrivalTime,
-        departureTime: path.departureTime,
-      }, {
-        kind: "arrival",
-        airport: path.arrivalAirport,
-        arrivalTime: path.arrivalTime,
-      }]
+    if (isArrival) {
+      const prev = arr[i - 1] // safe as flight.isDirect is checked beforehand
+      return [
+        // layover starts from the moment prev flight arrived up till this flight departs
+        { kind: "layover", airport: departureAirport, departureTime: prev.arrivalTime, arrivalTime: departureTime },
+        { kind: "arrival", airport: arrivalAirport, arrivalTime }
+      ]
     }
 
     // middle = layover only
-    return [{
-      kind: "layover",
-      airport: path.departureAirport,
-      arrivalTime: path.arrivalTime,
-      departureTime: path.departureTime,
-    }]
+    const prev = arr[i - 1] // safe as flight.isDirect is checked beforehand
+    return [
+      { kind: "layover", airport: departureAirport, departureTime: prev.arrivalTime, arrivalTime: departureTime },
+    ]
   })
-
-  if (flight.isDirect) {
-    stops.push({
-      kind: "arrival",
-      airport: flight.arrivalAirport,
-      arrivalTime: flight.arrivalTime,
-    })
-  }
-  return stops
 }
 
 function FlightStops({ flight }: { flight: Flight }) {
@@ -113,6 +104,10 @@ function FlightStops({ flight }: { flight: Flight }) {
   )
 }
 
+/**
+ * departure and arrival are expressed in monotonic times, solely
+ * indicating the start and end of this "event".
+ */
 type FlightStopProps = (
   | { kind: "departure", departureTime: Date, arrivalTime?: never }
   | { kind: "layover", departureTime: Date, arrivalTime: Date }
@@ -120,6 +115,10 @@ type FlightStopProps = (
 ) & { airport: Airport }
 
 function FlightStop({ kind, airport, departureTime, arrivalTime }: FlightStopProps) {
+  if (kind === "layover") {
+    console.assert(departureTime < arrivalTime)
+  }
+
   const styles = useStyleSheet(getStyles)
   const { fonts } = useTheme()
 
@@ -141,14 +140,22 @@ function FlightStop({ kind, airport, departureTime, arrivalTime }: FlightStopPro
       <View style={{ paddingBottom: 6 }}>
         <View style={styles.routeLine}>
           <Text style={fonts.titleMedium}>{stopTitle}</Text>
-          {kind !== "layover" && <Text>{airport.shortName}</Text>}
-          {kind === "layover" && <Badge kind="outlined">{
-            formatDurationToReadable(new Date(arrivalTime.getTime() - departureTime.getTime()))
-          }</Badge>}
+
+          {kind === "layover" && <>
+            <Text>{airport.shortName}</Text>
+            <Badge kind="outlined">{
+              formatDurationToReadable(new Date(arrivalTime.getTime() - departureTime.getTime()))
+            }</Badge>
+          </>}
         </View>
 
         {kind === "layover" && <Text>Arrival: {formatTime(departureTime)}</Text>}
         <Text>{airport.longName}</Text>
+        {kind === "layover" && <Text>Connecting flight: {formatTime(arrivalTime)}</Text>}
+        {kind === "arrival" && <View style={{ flexDirection: "row" }}>
+          <EvilIcons name="location" color="#DC6717" size={18} />
+          <Text>Destination</Text>
+        </View>}
       </View>
     </View>
   )
