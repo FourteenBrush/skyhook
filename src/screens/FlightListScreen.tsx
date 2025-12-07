@@ -1,6 +1,6 @@
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { Flight } from "@/models/Flight"
-import { FlightQuery } from "@/models/FlightQuery"
+import { FlightQuery, SeatClass } from "@/models/FlightQuery"
 import { BORDER_RADIUS_NORMAL, CARD_PADDING, CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { ApiClient, QUERY_KEYS } from "@/api"
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
@@ -9,11 +9,12 @@ import { FlatList, StyleSheet, Text, View } from "react-native"
 import { NavigationProp, useNavigation } from "@react-navigation/native"
 import { NavParams } from "@/App"
 import FlightRouteDisplay from "@/components/FlightRouteDisplay"
-import DirectFlightBadge from "@/components/DirectFlightBadge"
+import NumberOfStopsBadge from "@/components/NumberOfStopsBadge"
 import StatusIndicator from "@/components/StatusIndicator"
 import { useTheme } from "@/hooks/useTheme"
 import TextButton from "@/components/TextButton"
 import Card from "@/components/Card"
+import { formatDuration, formatTime } from "@/utils/utils"
 
 export type FlightListScreenProps = {
   query: FlightQuery,
@@ -62,13 +63,17 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
     <View style={styles.container}>
       {/* From -> To */}
       {/* FIXME: pass normalized names (capitalized and such) */}
-      <FlightRouteDisplay departure={query.departureCity} destination={query.destinationCity} />
+      <FlightRouteDisplay
+        departure={query.departureCity}
+        destination={query.destinationCity}
+        size="large"
+      />
       
       <Text style={styles.flightCount}>{flights.length} flights found</Text>
       
       <FlatList
         data={flights}
-        renderItem={({ item }) => <FlightCard flight={item} />}
+        renderItem={({ item }) => <FlightCard flight={item} chosenClass={query.seatClass} />}
         keyExtractor={(flight) => flight.id.toString()}
         style={styles.flights}
       />
@@ -76,7 +81,7 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
   )
 }
 
-function FlightCard({ flight }: { flight: Flight }) {
+function FlightCard({ flight, chosenClass }: { flight: Flight, chosenClass: SeatClass }) {
   const styles = useStyleSheet(getStyles)
   const navigation = useNavigation<NavigationProp<NavParams>>()
 
@@ -84,12 +89,12 @@ function FlightCard({ flight }: { flight: Flight }) {
     <Card
       clickable={true}
       activeOpacity={0.5}
-      onPress={() => navigation.navigate("flightDetails", { flight })}
+      onPress={() => navigation.navigate("flightDetails", { flight, chosenClass })}
     >
       <View style={styles.flightCardTitle}>
         <Text accessibilityHint="airline">{flight.airline}{"  "}</Text>
         <Text accessibilityHint="flight number" style={styles.flightNr}>{flight.flightNr}{"  "}</Text>
-        {flight.isDirect && <DirectFlightBadge />}
+        <NumberOfStopsBadge stops={flight.paths.length - 1} />
       </View>
       
       <FlightSchedule flight={flight} />
@@ -101,24 +106,20 @@ function FlightCard({ flight }: { flight: Flight }) {
 const FlightSchedule = ({ flight }: { flight: Flight }) => {
   const styles = useStyleSheet(getStyles)
 
-  const departureTime = flight.departureTime.toLocaleTimeString(undefined, { timeStyle: "short" })
-  const arrivalTime = flight.arrivalTime.toLocaleTimeString(undefined, { timeStyle: "short" })
-  const totalDuration = flight.totalDuration.toLocaleTimeString(undefined, { timeStyle: "short", timeZone: "UTC" })
-  
   return (
     <View style={styles.flightSchedule}>
       <View>
-        <Text style={styles.scheduleTime} accessibilityHint="flight departure time">{departureTime}</Text>
+        <Text style={styles.scheduleTime} accessibilityHint="flight departure time">{formatTime(flight.departureTime)}</Text>
         <Text accessibilityHint="departure airport">{flight.departureAirport.shortName}</Text>
       </View>
       
       <View style={styles.flightDuration} accessibilityHint="flight duration">
         <Feather name="clock" size={13} />
-        <Text>{totalDuration}</Text>
+        <Text>{formatDuration(flight.totalDuration)}</Text>
       </View>
       
       <View>
-        <Text style={styles.scheduleTime} accessibilityHint="flight arrival time">{arrivalTime}</Text>
+        <Text style={styles.scheduleTime} accessibilityHint="flight arrival time">{formatTime(flight.arrivalTime)}</Text>
         <Text style={{ alignSelf: "flex-end" }} accessibilityHint="destination airport">{flight.arrivalAirport.shortName}</Text>
       </View>
     </View>
