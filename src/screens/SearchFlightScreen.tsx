@@ -7,7 +7,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { PickerItemProps } from "@react-native-picker/picker"
 import { Text, StyleSheet, View, ScrollView } from "react-native"
 import { preconnect } from "react-dom"
-import { FlightQuery, SEAT_CLASSES, SeatClass } from "@/models/FlightQuery"
+import { FlightQuery, SEAT_CLASSES, SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
 import { NavParams } from "@/App"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import z from "zod"
@@ -49,7 +49,7 @@ const formSchema = z.object({
 })
 
 const seatClasses: PickerItemProps<SeatClass>[] = SEAT_CLASSES.map((sclass) => {
-  const label = sclass.charAt(0).toUpperCase() + sclass.substring(1)
+  const label = seatClassToCapitalized(sclass)
   return { label, value: sclass }
 })
 

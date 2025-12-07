@@ -10,12 +10,15 @@ import { useTheme } from "@/hooks/useTheme"
 import { formatDurationToReadable, formatTime } from "@/utils/utils"
 import { TimelineMarker } from "@/components/TimelineMarker"
 import Badge from "@/components/Badge"
+import TextButton from "@/components/TextButton"
+import { SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
 
 export type FlightDetailsScreenProps = {
   flight: Flight,
+  chosenClass: SeatClass,
 }
 
-export default function FlightDetailsScreen({ flight }: FlightDetailsScreenProps) {
+export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetailsScreenProps) {
   const styles = useStyleSheet(getStyles)
 
   return (
@@ -40,13 +43,17 @@ export default function FlightDetailsScreen({ flight }: FlightDetailsScreenProps
         <FlightTiming flight={flight} />
       </Card>
       <FlightStops flight={flight} />
+
+      <FlightBookingSection flight={flight} chosenClass={chosenClass} />
     </View>
   )
 }
 const getFlightStops = (flight: Flight): FlightStopProps[] => {
-  return flight.paths.flatMap<FlightStopProps>((path, i, arr) => {
+  const stops = flight.paths.flatMap<FlightStopProps>((path, i, arr) => {
     const isFirst = i === 0
     const isLast = i === arr.length - 1
+
+    // TODO: direct flights only get their departure mapped
 
     if (isFirst) {
       return [{
@@ -77,6 +84,15 @@ const getFlightStops = (flight: Flight): FlightStopProps[] => {
       departureTime: path.departureTime,
     }]
   })
+
+  if (flight.isDirect) {
+    stops.push({
+      kind: "arrival",
+      airport: flight.arrivalAirport,
+      arrivalTime: flight.arrivalTime,
+    })
+  }
+  return stops
 }
 
 function FlightStops({ flight }: { flight: Flight }) {
@@ -92,7 +108,7 @@ function FlightStops({ flight }: { flight: Flight }) {
         {stops.map((stop, i) => <FlightStop key={i} {...stop} />)}
       </View>
 
-      <Text style={styles.timezoneNotice}>(All times are displayed in the curent system timezone)</Text>
+      <Text style={styles.timezoneNotice}>(All times are displayed in the current system timezone)</Text>
     </Card>
   )
 }
@@ -127,7 +143,7 @@ function FlightStop({ kind, airport, departureTime, arrivalTime }: FlightStopPro
           <Text style={fonts.titleMedium}>{stopTitle}</Text>
           {kind !== "layover" && <Text>{airport.shortName}</Text>}
           {kind === "layover" && <Badge kind="outlined">{
-            formatDurationToReadable(new Date(arrivalTime - departureTime))
+            formatDurationToReadable(new Date(arrivalTime.getTime() - departureTime.getTime()))
           }</Badge>}
         </View>
 
@@ -138,6 +154,21 @@ function FlightStop({ kind, airport, departureTime, arrivalTime }: FlightStopPro
   )
 }
 
+function FlightBookingSection({ flight, chosenClass }: { flight: Flight, chosenClass: SeatClass }) {
+  const styles = useStyleSheet(getStyles)
+  const { fonts } = useTheme()
+
+  return (
+    <Card clickable={false}>
+      <View style={styles.bookingSectionPrice}>
+        <Text style={fonts.titleLarge}>&euro;{flight.price}</Text>
+        <Text>per person &bull; {seatClassToCapitalized(chosenClass)}</Text>
+      </View>
+
+      <TextButton kind="filled" style={styles.bookFlightButton}>Book This Flight</TextButton>
+    </Card>
+  )
+}
 
 const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
   container: {
@@ -162,6 +193,10 @@ const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
     color: colors.textSecondary,
     paddingTop: 6,
   },
+  bookFlightButton: {
+    marginTop: 12,
+    width: "100%",
+  },
 
   routeTitle: {
     ...fonts.titleLarge,
@@ -172,5 +207,10 @@ const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  
+  bookingSectionPrice: {
+    alignItems: "flex-start",
+    alignSelf: "center"
   },
 })
