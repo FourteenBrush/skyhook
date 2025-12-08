@@ -51,7 +51,6 @@ export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetai
 }
 
 const getFlightStops = (flight: Flight): FlightStopProps[] => {
-  console.warn(flight.toString())
   if (flight.isDirect) {
     const { departureAirport, departureTime, arrivalAirport, arrivalTime } = flight.paths[0]
     return [
