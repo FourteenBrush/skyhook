@@ -6,7 +6,7 @@ import RNDateTimePicker, { DateTimePickerEvent } from "@react-native-community/d
 import { Picker, PickerProps } from "@react-native-picker/picker"
 import { ItemValue, PickerItemProps } from "@react-native-picker/picker/typings/Picker"
 import { ReactNode, useState } from "react"
-import { View, Text, StyleSheet, TextInput, Pressable, TextInputProps, ViewProps, Keyboard } from "react-native"
+import { View, Text, StyleSheet, TextInput, Pressable, TextInputProps, ViewProps, Keyboard, TextStyle } from "react-native"
 
 export type TextInputFieldProps = TextInputProps & InputFieldBaseProps
 
@@ -157,7 +157,7 @@ function InputFieldBase({ label, error, children, ...props }: InputFieldBaseProp
   )
 }
 
-const ErrorLabel = ({ error }: { error: string }) => {
+export const ErrorLabel = ({ error }: { error: string }) => {
   const styles = useStyleSheet(getStyles)
 
   return (
@@ -174,7 +174,8 @@ const getStyles = ({ fonts, colors }: ThemeData) => {
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: BORDER_RADIUS_NORMAL,
-  }
+    color: colors.text,
+  } satisfies TextStyle
   
   return StyleSheet.create({
     container: {
