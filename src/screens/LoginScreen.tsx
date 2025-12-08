@@ -24,7 +24,7 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
     validateAndSubmit,
   } = useForm(loginSchema, { email: "", password: "" })
 
-  const { mutate: login, error } = useMutation({
+  const { mutate: login, error, isPending } = useMutation({
     mutationFn: () => ApiClient.signIn(formState),
     onError: (error) => console.error("sign in failed: " + error),
   })
@@ -59,6 +59,7 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
           style={styles.signInButton}
           accessibilityHint="sign in button"
           onPress={validateAndSubmit.bind(null, () => login())}
+          disabled={isPending}
         >
           Sign in
         </TextButton>

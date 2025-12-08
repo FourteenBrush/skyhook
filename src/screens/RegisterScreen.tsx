@@ -29,7 +29,7 @@ export default function RegisterScreen() {
     validateAndSubmit,
   } = useForm(registerSchema, { fullName: "", email: "", password: "", confirmPassword: "" })
   
-  const { mutate: register, error } = useMutation({
+  const { mutate: register, error, isPending } = useMutation({
     mutationFn: () => ApiClient.register(formState),
     onError: (error) => console.error("sign up failed: " + error),
   })
@@ -81,7 +81,9 @@ export default function RegisterScreen() {
         <TextButton
           style={styles.signInButton}
           accessibilityHint="sign in button"
-          onPress={validateAndSubmit.bind(null, () => register())}>
+          onPress={validateAndSubmit.bind(null, () => register())}
+          disabled={isPending}
+        >
           Create account
         </TextButton>
 
