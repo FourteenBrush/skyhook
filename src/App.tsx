@@ -52,7 +52,7 @@ export default function App() {
   
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={styles.container} edges={["right", "bottom", "right"]}>
+      <SafeAreaView style={styles.container} edges={["left", "bottom", "right"]}>
         <QueryClientProvider client={queryClient}>
           <NavigationContainer linking={linking}>
             <ThemeProvider>
