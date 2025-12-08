@@ -42,7 +42,8 @@ export default function App() {
     title: "Skyhook",
     headerBackVisible: true, // not applicable to web
     headerLeft: () => <MaterialCommunityIcons name="airplane-takeoff" size={25} color="#2563EB" style={styles.headerIcon} />,
-    headerRight: () => <HeaderRight signedIn={isSignedIn} />
+    headerRight: () => <HeaderRight signedIn={isSignedIn} />,
+    animation: "ios_from_right",
   }
 
   // linking options, to configure url integration in web browser (history.push etc)
