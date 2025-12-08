@@ -1,19 +1,40 @@
+import { ApiClient } from "@/api"
 import { NavParams } from "@/App"
-import { TextInputField } from "@/components/FormInputs"
+import { ErrorLabel, TextInputField } from "@/components/FormInputs"
 import TextButton from "@/components/TextButton"
+import { useForm } from "@/hooks/useForm"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { BORDER_RADIUS_NORMAL, CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { Link } from "@react-navigation/native"
+import { useMutation } from "@tanstack/react-query"
 import { Platform, StyleSheet, Text, View } from "react-native"
+import z from "zod"
 
-// NOTE: mostly copied from LoginScreen
+const registerSchema = z.object({
+  fullName: z.string().min(2, "Name must be at least 2 characters long"),
+  email: z.email("Expected a valid email address"),
+  password: z.string().min(3, "A valid password consists of at least 3 characters"),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  error: "The two passwords do not match",
+  path: ["confirmPassword"],
+  when: () => true,
+})
 
 export default function RegisterScreen() {
-  const styles = useStyleSheet(getStyles)
+  const {
+    formState,
+    errors,
+    updateField,
+    validateAndSubmit,
+  } = useForm(registerSchema, { fullName: "", email: "", password: "", confirmPassword: "" })
   
-  const register = () => {
-    // TODO: some api stuff here
-  }
+  const { mutate: register, error } = useMutation({
+    mutationFn: () => ApiClient.register(formState),
+    onError: (error) => console.error("sign up failed: " + error),
+  })
+
+  const styles = useStyleSheet(getStyles)
   
   return (
     <View style={styles.container}>
@@ -22,36 +43,58 @@ export default function RegisterScreen() {
         <Text style={styles.subtitle}>Join Skyhook and start booking your flights today</Text>
         
         <TextInputField
+          value={formState.fullName}
+          onChangeText={updateField.bind(null, "fullName")}
+          error={errors.fullName}
           label="Full name"
           placeholder="John Doe"
           accessibilityHint="full name input field"
         />
         <TextInputField
+          value={formState.email}
+          onChangeText={updateField.bind(null, "email")}
+          error={errors.email}
           label="Email"
           placeholder="you@example.com"
           accessibilityHint="email input field"
         />
         {/* FIXME: make password placeholders show dots (same for login screen) */}
         <TextInputField
+          value={formState.password}
+          onChangeText={updateField.bind(null, "password")}
+          error={errors.password}
           secureTextEntry
           label="Password"
           placeholder="password"
           accessibilityHint="password input field"
         />
         <TextInputField
+          value={formState.confirmPassword}
+          onChangeText={updateField.bind(null, "confirmPassword")}
+          error={errors.confirmPassword}
           secureTextEntry
           label="Confirm password"
           placeholder="password"
           accessibilityHint="confirm password input field"
         />
         
-        <TextButton style={styles.signInButton} accessibilityHint="sign in button">
+        <TextButton
+          style={styles.signInButton}
+          accessibilityHint="sign in button"
+          onPress={validateAndSubmit.bind(null, () => register())}>
           Create account
         </TextButton>
+
+        {/* FIXME: show more detailed error message, user already exists, etc.. */}
+        {error != null && <ErrorLabel error="Something went wrong while creating an account" />}
         
         <Text style={styles.signinTitle}>
           Already have an account?{" "}
-          <Link<NavParams> style={styles.signinLink} onPress={register} screen="login">Sign in</Link>
+          <Link<NavParams>
+            style={styles.signinLink}
+            screen="login">
+            Sign in
+          </Link>
         </Text>
       </View>
     </View>

@@ -1,21 +1,35 @@
+import { ApiClient } from "@/api"
 import { NavParams } from "@/App"
-import { TextInputField } from "@/components/FormInputs"
+import { ErrorLabel, TextInputField } from "@/components/FormInputs"
 import TextButton from "@/components/TextButton"
+import { useForm } from "@/hooks/useForm"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { BORDER_RADIUS_NORMAL, CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { Link } from "@react-navigation/native"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { useMutation } from "@tanstack/react-query"
 import { Platform, StyleSheet, Text, View } from "react-native"
+import z from "zod"
 
-export type LoginScreenProps = NativeStackScreenProps<NavParams, "login">
+const loginSchema = z.object({
+  email: z.email("Expected a valid email address"),
+  password: z.string().min(3, "At least 3 characters are required"),
+})
 
-export default function LoginScreen({ route }: LoginScreenProps) {
+export default function LoginScreen({ navigation }: NativeStackScreenProps<NavParams, "login">) {
+  const {
+    formState,
+    errors,
+    updateField,
+    validateAndSubmit,
+  } = useForm(loginSchema, { email: "", password: "" })
+
+  const { mutate: login, error } = useMutation({
+    mutationFn: () => ApiClient.signIn(formState),
+    onError: (error) => console.error("sign in failed: " + error),
+  })
+
   const styles = useStyleSheet(getStyles)
-  
-  const login = () => {
-    // TODO: some api stuff here
-    // TODO: use navigator routeNamesChangeBehavior instead
-  }
   
   return (
     <View style={styles.container}>
@@ -24,24 +38,42 @@ export default function LoginScreen({ route }: LoginScreenProps) {
         <Text style={styles.subtitle}>Access your account to continue booking</Text>
         
         <TextInputField
+          value={formState.email}
+          onChangeText={updateField.bind(null, "email")}
+          error={errors.email}
           label="Email"
           placeholder="you@example.com"
           accessibilityHint="email input field"
         />
         <TextInputField
+          value={formState.password}
+          onChangeText={updateField.bind(null, "password")}
+          error={errors.password}
           secureTextEntry
           label="Password"
           placeholder="password"
           accessibilityHint="password input field"
         />
         
-        <TextButton style={styles.signInButton} accessibilityHint="sign in button">
+        <TextButton
+          style={styles.signInButton}
+          accessibilityHint="sign in button"
+          onPress={validateAndSubmit.bind(null, () => login())}
+        >
           Sign in
         </TextButton>
+
+        {error != null && <ErrorLabel error="Something went wrong while signing you in" />}
         
+
+      {/* TODO: use navigator routeNamesChangeBehavior */}
         <Text style={styles.signupTitle}>
           Don't have an account?{" "}
-          <Link<NavParams> style={styles.signupLink} onPress={login} screen="register">Create one</Link>
+          <Link<NavParams>
+            style={styles.signupLink}
+            onPress={() => navigation.navigate("register")} screen="register">
+            Create one instead
+          </Link>
         </Text>
       </View>
     </View>
