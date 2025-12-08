@@ -179,6 +179,9 @@ function FlightBookingSection({ flight, chosenClass }: { flight: Flight, chosenC
 const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
   container: {
     margin: CONTAINER_MARGIN,
+    // to not clip into bottom of screen
+    // FIXME: why is our scrollview even clipping in the first place?
+    paddingBottom: 20,
   },
   generalInfo: {
     flexDirection: "row",
