@@ -2,8 +2,9 @@ import { Flight } from "@/models/Flight"
 import { agent, SuperAgentRequest } from "superagent"
 import { FlightQuery } from "@/models/FlightQuery"
 import { Booking, BookingSchema } from "@/models/Booking"
+import * as mockupData from "@/utils/mockupFlights"
 
-/** Query keys to uniquely describe rest endpoints */
+/** Query keys which act as an unique identifier for identity based query hooks */
 export const QUERY_KEYS = {
   GET_FLIGHTS: "flights",
   GET_BOOKINGS: "bookings",
@@ -28,14 +29,15 @@ api.use((req: SuperAgentRequest) => {
 })
 
 const getFlights = async (query: FlightQuery): Promise<Flight[]> => {
-  const params = new URLSearchParams({
-    departureCity: query.departureCity,
-    destinationCity: query.destinationCity,
-    departureDate: new Date(Date.parse(query.departureDateIsoStr)).toISOString().slice(0, 10),
-    seatClass: query.seatClass,
-  });
-  const res = await fetch(`${baseUrl}/flight/search?${params.toString()}`)
-  const body = await res.json()
+  await new Promise(resolve => setTimeout(resolve, 500))
+  // const params = new URLSearchParams({
+  //   departureCity: query.departureCity,
+  //   destinationCity: query.destinationCity,
+  //   departureDate: new Date(Date.parse(query.departureDateIsoStr)).toISOString().slice(0, 10),
+  //   seatClass: query.seatClass,
+  // });
+  // const res = await fetch(`${baseUrl}/flight/search?${params.toString()}`)
+  // const body = await res.json()
   
   // console.log(query)
   // const { body } = await api.get("/flight/search").query({
@@ -47,11 +49,14 @@ const getFlights = async (query: FlightQuery): Promise<Flight[]> => {
   //   seatClass: query.seatClass,
   // })
   // console.warn(body)
-  if (!Array.isArray(body)) {
-    throw new Error("expected a json array to be returned")
-  }
-  // console.log(JSON.stringify(body, null, 2))
-  return (body as unknown[]).map(Flight.fromDto)
+  // if (!Array.isArray(body)) {
+  //   throw new Error("expected a json array to be returned")
+  // }
+  // // console.log(JSON.stringify(body, null, 2))
+  // return (body as unknown[]).map(Flight.fromDto)
+
+
+  return mockupData.flights
 }
 
 // TODO: map by user id from SecureStore
@@ -84,8 +89,48 @@ const createBooking = async (flight: Flight, userFullName: string): Promise<void
   console.debug("created booking")
 }
 
+export type AuthResponse = {
+  token: string,
+}
+
+export type SignInRequest = {
+  email: string,
+  password: string,
+}
+
+const signIn = async ({ email, password }: SignInRequest): Promise<AuthResponse> => {
+  await new Promise(resolve => setTimeout(resolve, 3000))
+
+  return {
+    token: "<some token>",
+  }
+}
+
+export type RegisterRequest = {
+  fullName: string,
+  email: string,
+  password: string,
+}
+
+const register = async ({ fullName, email, password }: RegisterRequest): Promise<undefined> => {
+  await new Promise(resolve => setTimeout(resolve, 500))
+}
+
+export type TokenValidationResponse = {
+  isValid: boolean,
+}
+
+const validateUserToken = async (token: string): Promise<TokenValidationResponse> => {
+
+  await new Promise(resolve => setTimeout(resolve, 500))
+  return { isValid: true }
+}
+
 export const ApiClient = {
   getFlights,
   getBookings,
   createBooking,
+  signIn,
+  register,
+  validateUserToken,
 }
