@@ -84,7 +84,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
   
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* form wrapper, for the purpose of making the submit bottom stick to the bottom */}
+      {/* form wrapper, for the purpose of making the submit button stick to the bottom */}
       <View>
         <Text style={fonts.headlineLarge}>Search Flights</Text>
 
