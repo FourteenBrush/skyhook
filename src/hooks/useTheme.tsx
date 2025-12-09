@@ -8,7 +8,9 @@ export const ThemeContext = createContext<ThemeData>(lightTheme)
 export const ThemeProvider = ({ children }: PropsWithChildren) => {
   // FIXME: settings override
   const preferredColorScheme = useColorScheme()
-  const scheme = preferredColorScheme == "dark" ? darkTheme : lightTheme
+  // TODO:
+  // const scheme = preferredColorScheme == "dark" ? darkTheme : lightTheme
+  const scheme = lightTheme
   
   return (
     <ThemeContext.Provider value={scheme}>
