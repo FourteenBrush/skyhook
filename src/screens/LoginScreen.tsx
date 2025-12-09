@@ -1,13 +1,12 @@
-import { ApiClient } from "@/api"
-import { NavParams } from "@/App"
 import { ErrorLabel, TextInputField } from "@/components/FormInputs"
 import TextButton from "@/components/TextButton"
+import { useAuth } from "@/hooks/useAuth"
 import { useForm } from "@/hooks/useForm"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
+import { NavParams } from "@/Routes"
 import { BORDER_RADIUS_NORMAL, CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { Link } from "@react-navigation/native"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
-import { useMutation } from "@tanstack/react-query"
 import { Platform, StyleSheet, Text, View } from "react-native"
 import z from "zod"
 
@@ -24,10 +23,13 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
     validateAndSubmit,
   } = useForm(loginSchema, { email: "", password: "" })
 
-  const { mutate: login, error, isPending } = useMutation({
-    mutationFn: () => ApiClient.signIn(formState),
-    onError: (error) => console.error("sign in failed: " + error),
-  })
+  const { signIn, isLoading, error, isSignedIn } = useAuth()
+  console.log(isLoading, error, isSignedIn)
+
+  const signInAndNavigate = () => {
+    signIn(formState.email, formState.password)
+    // NOTE: login happens async, automatic navigation occurs when auth state changed
+  }
 
   const styles = useStyleSheet(getStyles)
   
@@ -41,6 +43,7 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
           value={formState.email}
           onChangeText={updateField.bind(null, "email")}
           error={errors.email}
+          autoCapitalize="none"
           label="Email"
           placeholder="you@example.com"
           accessibilityHint="email input field"
@@ -49,6 +52,7 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
           value={formState.password}
           onChangeText={updateField.bind(null, "password")}
           error={errors.password}
+          autoCapitalize="none"
           secureTextEntry
           label="Password"
           placeholder="password"
@@ -58,8 +62,8 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
         <TextButton
           style={styles.signInButton}
           accessibilityHint="sign in button"
-          onPress={validateAndSubmit.bind(null, () => login())}
-          disabled={isPending}
+          onPress={validateAndSubmit.bind(null, signInAndNavigate)}
+          disabled={isLoading}
         >
           Sign in
         </TextButton>

@@ -1,9 +1,9 @@
 import { ApiClient } from "@/api"
-import { NavParams } from "@/App"
 import { ErrorLabel, TextInputField } from "@/components/FormInputs"
 import TextButton from "@/components/TextButton"
 import { useForm } from "@/hooks/useForm"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
+import { NavParams } from "@/Routes"
 import { BORDER_RADIUS_NORMAL, CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { Link } from "@react-navigation/native"
 import { useMutation } from "@tanstack/react-query"
@@ -54,15 +54,16 @@ export default function RegisterScreen() {
           value={formState.email}
           onChangeText={updateField.bind(null, "email")}
           error={errors.email}
+          autoCapitalize="none"
           label="Email"
           placeholder="you@example.com"
           accessibilityHint="email input field"
         />
-        {/* FIXME: make password placeholders show dots (same for login screen) */}
         <TextInputField
           value={formState.password}
           onChangeText={updateField.bind(null, "password")}
           error={errors.password}
+          autoCapitalize="none"
           secureTextEntry
           label="Password"
           placeholder="password"
@@ -72,6 +73,7 @@ export default function RegisterScreen() {
           value={formState.confirmPassword}
           onChangeText={updateField.bind(null, "confirmPassword")}
           error={errors.confirmPassword}
+          autoCapitalize="none"
           secureTextEntry
           label="Confirm password"
           placeholder="password"
