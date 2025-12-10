@@ -4,6 +4,8 @@ export const formatDurationToReadable = (d: Date) => {
   return `${d.getUTCHours()}h ${d.getUTCMinutes()}m`
 }
 
+export const formatDuration = (dur: Date) => dur.toLocaleTimeString(undefined, { timeStyle: "short", timeZone: "UTC" })
+
 export const formatTime = (time: Date) => time.toLocaleTimeString(undefined, { timeStyle: "short" })
 
-export const formatDuration = (dur: Date) => dur.toLocaleTimeString(undefined, { timeStyle: "short", timeZone: "UTC" })
+export const formatDate = (date: Date) => date.toLocaleDateString()
