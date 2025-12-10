@@ -11,13 +11,13 @@ import { View, Text, StyleSheet, TextInput, Pressable, TextInputProps, ViewProps
 export type TextInputFieldProps = TextInputProps & InputFieldBaseProps
 
 /** Text input field, accessible by default */
-export function TextInputField({ label, error, ...props }: TextInputFieldProps) {
+export function TextInputField({ label, error, style, ...props }: TextInputFieldProps) {
   const styles = useStyleSheet(getStyles)
   const { colors } = useTheme()
   
   return (
     <InputFieldBase label={label} error={error} accessible accessibilityRole="text" accessibilityHint="text input field">
-      <TextInput style={styles.input} placeholderTextColor={colors.textSecondary} cursorColor="#949494" {...props} />
+      <TextInput style={[styles.input, style]} placeholderTextColor={colors.textSecondary} cursorColor="#949494" {...props} />
     </InputFieldBase>
   )
 }
