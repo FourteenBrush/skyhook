@@ -14,14 +14,17 @@ export type TextInputFieldProps = TextInputProps & InputFieldBaseProps
 export function TextInputField({ label, error, style, ...props }: TextInputFieldProps) {
   const styles = useStyleSheet(getStyles)
   const { colors } = useTheme()
+
+  const handleColor = "#949494"
   
   return (
     <InputFieldBase label={label} error={error} accessible accessibilityRole="text" accessibilityHint="text input field">
       <TextInput
         style={[styles.input, style]}
         placeholderTextColor={colors.textSecondary}
-        cursorColor="#949494"
-        selectionColor="#949494"
+        cursorColor={handleColor}
+        selectionColor={handleColor}
+        selectionHandleColor={handleColor}
         {...props} />
     </InputFieldBase>
   )
