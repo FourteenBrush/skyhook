@@ -44,9 +44,9 @@ export default function TextButton({
 const getStyles = ({ colors, fonts }: ThemeData, kind: ButtonKind, shape: ButtonShape) => {
   // override certain colors when the button is outlined, so that its styling
   // acts more like text than an actual button
-  const [backgroundColor, textColor, borderColor] = kind == "filled"
-    ? [colors.button, colors.buttonText, undefined]
-    : [undefined, colors.text, colors.border]
+  const [backgroundColor, textColor, borderColor, borderWidth] = kind == "filled"
+    ? [colors.button, colors.buttonText, undefined, 0]
+    : [undefined, colors.text, colors.border, 1]
   
   return StyleSheet.create({
     container: {
@@ -57,7 +57,7 @@ const getStyles = ({ colors, fonts }: ThemeData, kind: ButtonKind, shape: Button
       borderRadius: shape == "circular" ? BORDER_RADIUS_ROUNDED_BUTTON : BORDER_RADIUS_NORMAL,
       // for outlined buttons
       borderColor,
-      borderWidth: 1,
+      borderWidth,
     },
     textContent: {
       ...fonts.labelLarge,
