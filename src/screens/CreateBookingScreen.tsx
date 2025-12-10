@@ -8,6 +8,7 @@ import TextButton from "@/components/TextButton"
 import { useForm } from "@/hooks/useForm"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { useTheme } from "@/hooks/useTheme"
+import { Booking } from "@/models/Booking"
 import { Flight } from "@/models/Flight"
 import { SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
 import { NavParams } from "@/Routes"
@@ -39,8 +40,9 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
     validateAndSubmit,
   } = useForm(passengerSchema, { passengerName: "" })
 
-  const createBookingMutation = useMutation<void, DefaultError, { passengerName: string }>({
+  const createBookingMutation = useMutation<Booking, DefaultError, { passengerName: string }>({
     mutationFn: ({ passengerName }) => ApiClient.createBooking({ flight, passengerName, chosenClass }),
+    onSuccess: (booking) => navigation.replace("bookingConfirmation", { booking }),
   })
 
   return (
@@ -92,10 +94,11 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
           </View>
 
           <TextInputField
-            autoFocus
             value={formState.passengerName}
             onChangeText={updateField.bind(null, "passengerName")}
             error={errors.passengerName}
+            autoFocus
+            autoCapitalize="words"
             label="Full Name (as on ID)"
             placeholder="Your name"
             style={styles.passengerNameInputField}
