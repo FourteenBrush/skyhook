@@ -3,6 +3,7 @@ import Badge from "@/components/Badge"
 import Card from "@/components/Card"
 import FlightTiming from "@/components/FlightTiming"
 import { ErrorLabel, TextInputField } from "@/components/FormInputs"
+import RoundedIconBackground from "@/components/RoundedIconBackground"
 import TextButton from "@/components/TextButton"
 import { useForm } from "@/hooks/useForm"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
@@ -47,9 +48,10 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.centeredHeaderSection}>
           {/* ticket icon */}
-          <View style={styles.ticketIconRounded}>
+          <RoundedIconBackground color="#E6EEFA" size={54}>
+
             <MaterialCommunityIcons name="ticket-confirmation-outline" size={34} color={colors.primary} />
-          </View>
+          </RoundedIconBackground>
 
           <Text style={styles.screenTitle}>Book Your Flight</Text>
           <Text style={styles.screenSubtitle}>Complete your booking details below</Text>
@@ -170,14 +172,6 @@ const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
     ...fonts.titleMedium,
     color: colors.textSecondary,
     paddingTop: 6,
-  },
-  ticketIconRounded: {
-    width: 54,
-    height: 54,
-    backgroundColor: "#E6EEFA",
-    borderRadius: 26,
-    justifyContent: "center",
-    alignItems: "center",
   },
 
   airlineAndFlightNr: {
