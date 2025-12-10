@@ -3,6 +3,8 @@ import { createContext, PropsWithChildren, useContext, useEffect, useReducer } f
 // NOTE: needs a * import as this is broken otherwise for some reason
 import * as SecureStore from "expo-secure-store"
 import { DefaultError, useMutation } from "@tanstack/react-query"
+import { Platform } from "react-native"
+import AsyncStorage from "@react-native-async-storage/async-storage"
 
 type InternalAuthState = {
   token: string | null,
@@ -66,13 +68,13 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   useEffect(() => {
     const bootstrap = async () => {
       try {
-        let userToken = await SecureStore.getItemAsync(TOKEN_KEY)
+        let userToken = await PlatformStorage.getItemAsync(TOKEN_KEY)
         if (userToken !== null) {
           const { isValid } = await validateTokenMutation.mutateAsync({ token: userToken })
 
           if (!isValid) {
             userToken = null
-            await SecureStore.deleteItemAsync(TOKEN_KEY)
+            await PlatformStorage.deleteValueAsync(TOKEN_KEY)
           }
         }
 
@@ -89,10 +91,10 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     dispatch({ type: "SET_LOADING", isLoading: true })
     try {
       const { token } = await loginMutation.mutateAsync({ email, password })
-      await SecureStore.setItemAsync(TOKEN_KEY, token)
+      await PlatformStorage.persistAsync(TOKEN_KEY, token)
         .catch(err => console.error("failed to persist user token after sign in: " + err))
 
-      dispatch({ type: "SET_LOADING", isLoading: false })
+      dispatch({ type: "RESTORE_TOKEN", token })
     } catch (e) {
       dispatch({ type: "ABORT_WITH_ERROR", error: e })
     }
@@ -129,4 +131,25 @@ export const useAuth = (): AuthState  => {
     throw new Error("AuthContext Provider not found in the component tree")
   }
   return ctx
+}
+
+// NOTE: web does not support secure store, use localStorage instead
+const PlatformStorage = {
+  async getItemAsync(key: string): Promise<string | null> {
+    return Platform.OS === "web"
+      ? AsyncStorage.getItem(key)
+      : SecureStore.getItemAsync(key)
+  },
+
+  async persistAsync(key: string, value: string): Promise<void> {
+    return Platform.OS === "web"
+      ? AsyncStorage.setItem(key, value)
+      : SecureStore.setItemAsync(key, value)
+  },
+
+  async deleteValueAsync(key: string): Promise<void> {
+    return Platform.OS === "web"
+      ? AsyncStorage.removeItem(key)
+      : SecureStore.deleteItemAsync(key)
+  }
 }
