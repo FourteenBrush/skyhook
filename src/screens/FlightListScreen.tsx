@@ -97,7 +97,7 @@ function FlightCard({ flight, chosenClass }: { flight: Flight, chosenClass: Seat
       <View style={styles.flightCardTitle}>
         <Text accessibilityHint="airline">{flight.airline}{"  "}</Text>
         <Text accessibilityHint="flight number" style={styles.flightNr}>{flight.flightNr}{"  "}</Text>
-        <NumberOfStopsBadge stops={flight.paths.length - 1} />
+        <NumberOfStopsBadge stops={flight.intermediaryStopCount} />
       </View>
       
       <FlightSchedule flight={flight} />

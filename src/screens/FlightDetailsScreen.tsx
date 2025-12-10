@@ -39,7 +39,7 @@ export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetai
         <View style={styles.generalInfo}>
           <Text accessibilityHint="airline">{flight.airline}</Text>
           <Text accessibilityHint="flight number" style={styles.flightNr}>{flight.flightNr}</Text>
-          <NumberOfStopsBadge stops={flight.paths.length - 1} />
+          <NumberOfStopsBadge stops={flight.intermediaryStopCount} />
         </View>
 
         <Text accessibilityHint="flight price" style={styles.price}>&euro;{flight.price}</Text>

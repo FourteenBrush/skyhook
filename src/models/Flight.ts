@@ -108,6 +108,10 @@ export class Flight {
   get isDirect(): boolean {
     return this.paths.length == 1
   }
+
+  get intermediaryStopCount(): number {
+    return this.paths.length - 1
+  }
   
   // returns duration as Date since UTC
   get totalDuration(): Date {
