@@ -1,6 +1,6 @@
-import { NavParams } from "@/App"
 import TextButton from "@/components/TextButton"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
+import { NavParams } from "@/Routes"
 import { ThemeData } from "@/theme"
 import { MaterialCommunityIcons } from "@expo/vector-icons"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"

@@ -23,8 +23,7 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
     validateAndSubmit,
   } = useForm(loginSchema, { email: "", password: "" })
 
-  const { signIn, isLoading, error, isSignedIn } = useAuth()
-  console.log(isLoading, error, isSignedIn)
+  const { signIn, isLoading, error } = useAuth()
 
   const signInAndNavigate = () => {
     signIn(formState.email, formState.password)

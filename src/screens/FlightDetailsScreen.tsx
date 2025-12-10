@@ -13,6 +13,9 @@ import Badge from "@/components/Badge"
 import TextButton from "@/components/TextButton"
 import { SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
 import { EvilIcons } from "@expo/vector-icons"
+import { NavigationProp, useNavigation } from "@react-navigation/native"
+import { NavParams } from "@/Routes"
+import { useAuth } from "@/hooks/useAuth"
 
 export type FlightDetailsScreenProps = {
   flight: Flight,
@@ -28,7 +31,7 @@ export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetai
       <Card clickable={false} accessibilityHint="general flight information">
         <FlightRouteDisplay
           departure={flight.departureAirport.city}
-          destination={flight.arrivalAirport.city}
+          arrival={flight.arrivalAirport.city}
           size="small"
           style={{ paddingBottom: 11 }}
         />
@@ -41,7 +44,7 @@ export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetai
 
         <Text accessibilityHint="flight price" style={styles.price}>&euro;{flight.price}</Text>
 
-        <FlightTiming flight={flight} />
+        <FlightTiming flight={flight} kind="large" />
       </Card>
       <FlightStops flight={flight} />
 
@@ -161,8 +164,19 @@ function FlightStop({ kind, airport, departureTime, arrivalTime }: FlightStopPro
 }
 
 function FlightBookingSection({ flight, chosenClass }: { flight: Flight, chosenClass: SeatClass }) {
+  const navigation = useNavigation<NavigationProp<NavParams>>()
+  const { isSignedIn } = useAuth()
   const styles = useStyleSheet(getStyles)
   const { fonts } = useTheme()
+
+  const navigateToBooking = () => {
+    // FIXME: could ideally create some useProtectedRoute hook or something
+    if (isSignedIn) {
+      navigation.navigate("createBooking", { flight, chosenClass })
+    } else {
+      navigation.navigate("login")
+    }
+  }
 
   return (
     <Card clickable={false}>
@@ -171,7 +185,9 @@ function FlightBookingSection({ flight, chosenClass }: { flight: Flight, chosenC
         <Text>per person &bull; {seatClassToCapitalized(chosenClass)}</Text>
       </View>
 
-      <TextButton kind="filled" style={styles.bookFlightButton}>Book This Flight</TextButton>
+      <TextButton kind="filled" style={styles.bookFlightButton} onPress={navigateToBooking}>
+        Book This Flight
+      </TextButton>
     </Card>
   )
 }
