@@ -17,7 +17,12 @@ export function TextInputField({ label, error, style, ...props }: TextInputField
   
   return (
     <InputFieldBase label={label} error={error} accessible accessibilityRole="text" accessibilityHint="text input field">
-      <TextInput style={[styles.input, style]} placeholderTextColor={colors.textSecondary} cursorColor="#949494" {...props} />
+      <TextInput
+        style={[styles.input, style]}
+        placeholderTextColor={colors.textSecondary}
+        cursorColor="#949494"
+        selectionColor="#949494"
+        {...props} />
     </InputFieldBase>
   )
 }
