@@ -8,10 +8,10 @@ import { PickerItemProps } from "@react-native-picker/picker"
 import { Text, StyleSheet, View, ScrollView } from "react-native"
 import { preconnect } from "react-dom"
 import { FlightQuery, SEAT_CLASSES, SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
-import { NavParams } from "@/App"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import z from "zod"
 import { useForm } from "@/hooks/useForm"
+import { NavParams } from "@/Routes"
 
 // const passengerChoices: PickerItemProps<number>[] = [1, 2, 3, 4].map((nr) => {
 //   const label = `${nr} Passenger` + (nr > 1 ? "s" : "")
@@ -34,7 +34,7 @@ const formSchema = z.object({
   path: ["departureDate"],
   when: (_payload) => true,
 })
-.refine(data => data.isRoundTrip === (data.returnDate !== undefined), {
+.refine(data => data.isRoundTrip ? (data.returnDate !== undefined) : true, {
   message: "Please enter a return date",
   path: ["returnDate"],
   when: (_payload) => true, // always run, even if other properties contain errors
