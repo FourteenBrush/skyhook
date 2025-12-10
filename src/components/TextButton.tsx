@@ -20,18 +20,23 @@ export default function TextButton({
   kind = "filled",
   shape = "rectangular",
   style,
+  disabled,
   textStyle,
   children,
   ...props
 }: TextButtonProps) {
+  // TODO: disabled=true, does not apply a certain style, it only locks interaction, do this ourselves
   const styles = useStyleSheet(
     (theme) => getStyles(theme, kind, shape),
     [kind, shape, style, textStyle],
   )
+
+  const textContent = <Text style={[styles.textContent, textStyle]}>{children}</Text>
+  const opacity = disabled ? 0.2 : 1.0
   
   return (
-    <TouchableOpacity style={[styles.container, style]} activeOpacity={0.5} {...props}>
-      <Text style={[styles.textContent, textStyle]}>{children}</Text>
+    <TouchableOpacity style={[styles.container, style, { opacity }]} activeOpacity={0.5} {...props}>
+      {textContent}
     </TouchableOpacity>
   )
 }
