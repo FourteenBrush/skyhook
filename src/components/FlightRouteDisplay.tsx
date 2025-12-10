@@ -5,12 +5,12 @@ import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native"
 
 export type FlightRouteDisplayProps = {
   departure: string,
-  destination: string,
+  arrival: string,
   size: "small" | "large"
   style?: StyleProp<ViewStyle>,
 }
 
-export default function FlightRouteDisplay({ departure, destination, size, style }: FlightRouteDisplayProps) {
+export default function FlightRouteDisplay({ departure, arrival: destination, size, style }: FlightRouteDisplayProps) {
   const styles = useStyleSheet(theme => getStyles(theme, size))
 
   return (

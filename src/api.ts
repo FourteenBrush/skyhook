@@ -1,6 +1,6 @@
 import { Flight } from "@/models/Flight"
 import { agent, SuperAgentRequest } from "superagent"
-import { FlightQuery } from "@/models/FlightQuery"
+import { FlightQuery, SeatClass } from "@/models/FlightQuery"
 import { Booking, BookingSchema } from "@/models/Booking"
 import * as mockupData from "@/utils/mockupFlights"
 
@@ -59,36 +59,6 @@ const getFlights = async (query: FlightQuery): Promise<Flight[]> => {
   return mockupData.flights
 }
 
-// TODO: map by user id from SecureStore
-const getBookings = async (): Promise<Array<Booking>> => {
-  try {
-    const res = await fetch(`${baseUrl}/booking`)
-    const body = await res.json() as unknown
-    if (!Array.isArray(body)) {
-      throw new Error("expected a json array to be returned")
-    }
-    
-    const items = body as unknown[]
-    items.forEach(u => BookingSchema.parse(u))
-    return (body as Booking[])
-  } catch (e) {
-    console.error("failed to load bookings:", e)
-    throw e
-  }
-}
-
-const createBooking = async (flight: Flight, userFullName: string): Promise<void> => {
-  const body =  JSON.stringify({
-    flightId: flight.id,
-    userFullName,
-  })
-  await fetch(`${baseUrl}/booking/create`, {
-    method: "POST", body,
-    headers: { "Content-Type": "application/json" },
-  })
-  console.debug("created booking")
-}
-
 export type AuthResponse = {
   token: string,
 }
@@ -126,11 +96,46 @@ const validateUserToken = async (token: string): Promise<TokenValidationResponse
   return { isValid: true }
 }
 
+const mockupBookings: Booking[] = [
+
+]
+
+// TODO: map by user id from SecureStore
+const getBookings = async (): Promise<Array<Booking>> => {
+  return mockupBookings
+  // try {
+  //   const res = await fetch(`${baseUrl}/booking`)
+  //   const body = await res.json() as unknown
+  //   if (!Array.isArray(body)) {
+  //     throw new Error("expected a json array to be returned")
+  //   }
+  //
+  //   const items = body as unknown[]
+  //   items.forEach(u => BookingSchema.parse(u))
+  //   return (body as Booking[])
+  // } catch (e) {
+  //   console.error("failed to load bookings:", e)
+  //   throw e
+  // }
+}
+
+export type CreateBookingRequest = {
+  flight: Flight,
+  passengerName: string,
+  chosenClass: SeatClass,
+}
+
+const createBooking = async ({ flight, passengerName, chosenClass }: CreateBookingRequest): Promise<void> => {
+  await new Promise(resolve => setTimeout(resolve, 100))
+
+  mockupBookings.push({ flight, bookedAt: new Date().toUTCString(), passengerName, chosenClass })
+}
+
 export const ApiClient = {
   getFlights,
-  getBookings,
-  createBooking,
   signIn,
   register,
   validateUserToken,
+  getBookings,
+  createBooking,
 }
