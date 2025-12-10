@@ -7,7 +7,6 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
 import { useQuery } from "@tanstack/react-query"
 import { FlatList, StyleSheet, Text, View } from "react-native"
 import { NavigationProp, useNavigation } from "@react-navigation/native"
-import { NavParams } from "@/App"
 import FlightRouteDisplay from "@/components/FlightRouteDisplay"
 import NumberOfStopsBadge from "@/components/NumberOfStopsBadge"
 import StatusIndicator from "@/components/StatusIndicator"
@@ -15,6 +14,7 @@ import { useTheme } from "@/hooks/useTheme"
 import TextButton from "@/components/TextButton"
 import Card from "@/components/Card"
 import { formatDuration, formatTime } from "@/utils/utils"
+import { NavParams } from "@/Routes"
 
 export type FlightListScreenProps = {
   query: FlightQuery,
@@ -28,6 +28,7 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
   const { isPending, error, data, refetch } = useQuery({
     queryKey: [QUERY_KEYS.GET_FLIGHTS, query],
     queryFn: () => ApiClient.getFlights(query),
+    staleTime: 4 * 60 * 1000, // ms
   })
   
   if (isPending) {
@@ -65,7 +66,7 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
       {/* FIXME: pass normalized names (capitalized and such) */}
       <FlightRouteDisplay
         departure={query.departureCity}
-        destination={query.destinationCity}
+        arrival={query.destinationCity}
         size="large"
       />
       
