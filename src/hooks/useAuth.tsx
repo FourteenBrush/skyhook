@@ -16,6 +16,8 @@ export type AuthState = {
   isSignedIn: boolean,
   /** Accounts for both loading async state and actually performing network calls */
   isLoading: boolean,
+  /** Token used for authentication, always set when `isSignedIn` is true */
+  authToken: string | null,
   /** Error which is set when both `isSignedIn` and `isLoading` are false */
   error: any | null,
   signIn: (email: string, password: string) => Promise<void>,
@@ -90,7 +92,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const signIn = async (email: string, password: string) => {
     dispatch({ type: "SET_LOADING", isLoading: true })
     try {
-      const { token } = await loginMutation.mutateAsync({ email, password })
+      const { authToken: token } = await loginMutation.mutateAsync({ email, password })
       await PlatformStorage.persistAsync(TOKEN_KEY, token)
         .catch(err => console.error("failed to persist user token after sign in: " + err))
 
@@ -113,6 +115,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const value: AuthState = {
     isSignedIn: state.token !== null,
     isLoading: state.isLoading,
+    authToken: state.token,
     error: state.error,
     signIn,
     signOut,
