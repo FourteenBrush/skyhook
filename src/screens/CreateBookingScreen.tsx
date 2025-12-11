@@ -1,4 +1,4 @@
-import { ApiClient } from "@/api"
+import { ApiClient, QUERY_KEYS } from "@/api"
 import Card from "@/components/Card"
 import FlightOverview from "@/components/FlightOverview"
 import { ErrorLabel, TextInputField } from "@/components/FormInputs"
@@ -16,7 +16,7 @@ import { NavParams } from "@/Routes"
 import { CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { MaterialCommunityIcons, Octicons } from "@expo/vector-icons"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
-import { DefaultError, useMutation } from "@tanstack/react-query"
+import { DefaultError, useMutation, useQueryClient } from "@tanstack/react-query"
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView } from "react-native"
 import z from "zod"
 
@@ -41,9 +41,14 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
   } = useForm(passengerSchema, { passengerName: "" })
   const { authToken } = useAuth()
 
+  const queryClient = useQueryClient()
+
   const createBookingMutation = useMutation<Booking, DefaultError, { passengerName: string }>({
     mutationFn: ({ passengerName }) => ApiClient.createBooking({ flight, passengerName, chosenClass, authToken: authToken! }),
-    onSuccess: (booking) => navigation.replace("bookingConfirmation", { booking }),
+    onSuccess: (booking) => {
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_BOOKINGS] })
+      navigation.replace("bookingConfirmation", { booking })
+    },
   })
 
   return (
@@ -104,7 +109,6 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
           </View>
         </Card>
 
-        {/* TODO: invalidate cache */}
         <TextButton
           kind="filled"
           style={styles.confirmButton}
