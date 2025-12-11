@@ -3,7 +3,7 @@ import { Flight } from "@/models/Flight"
 import { createNativeStackNavigator, NativeStackNavigationOptions } from "@react-navigation/native-stack"
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Platform, Pressable, StatusBar, StyleSheet, View } from "react-native"
-import { Link, useRoute } from "@react-navigation/native"
+import { Link, NavigationProp, useNavigation, useRoute } from "@react-navigation/native"
 import TextButton from "@/components/TextButton"
 import { useTheme } from "@/hooks/useTheme"
 import { useAuth } from "@/hooks/useAuth"
@@ -79,11 +79,18 @@ export default function Routes() {
   )
 }
 
-const SignInButton = () => (
-  <TextButton kind="outlined" style={styles.signInButton}>
-    <Link<NavParams> screen="login">Sign in</Link>
-  </TextButton>
-)
+const SignInButton = () => {
+  const navigation = useNavigation<NavigationProp<NavParams>>()
+
+  return (
+    <TextButton
+      kind="outlined"
+      style={styles.signInButton}
+      onPress={() => navigation.navigate("login")}
+    >Sign in
+    </TextButton>
+  )
+}
 
 const AuthHeader = () => {
   const { isSignedIn, signOut } = useAuth()
