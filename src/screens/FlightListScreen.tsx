@@ -139,9 +139,6 @@ const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
   container: {
     marginHorizontal: CONTAINER_MARGIN,
     marginTop: CONTAINER_MARGIN,
-    // to not clip into bottom of screen
-    // FIXME: why is there padding around the flatlist because of this,
-    // not caused by a safe area?
     flex: 1,
   },
   queryIndicator: {
