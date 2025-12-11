@@ -25,7 +25,7 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
   const styles = useStyleSheet(getStyles)
   const { colors } = useTheme()
   
-  const { isPending, error, data, refetch } = useQuery({
+  const { isPending, isError, data, refetch } = useQuery({
     queryKey: [QUERY_KEYS.GET_FLIGHTS, query],
     queryFn: () => ApiClient.getFlights(query),
     staleTime: 4 * 60 * 1000, // ms
@@ -42,7 +42,7 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
       />
     )
   }
-  if (error !== null) {
+  if (isError) {
     return (
       <StatusIndicator
         title="Search Failed"
@@ -59,6 +59,12 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
 
 function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] }) {
   const styles = useStyleSheet(getStyles)
+
+  const title = flights.length === 0
+    ? "No matching flights found"
+    : flights.length === 1
+      ? "1 matching flight found"
+      : `${flights.length} matching flights found`
   
   return (
     <View style={styles.container}>
@@ -70,7 +76,7 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
         size="large"
       />
       
-      <Text style={styles.flightCount}>{flights.length} flights found</Text>
+      <Text style={styles.flightCount}>{title}</Text>
       
       <FlatList
         data={flights}
@@ -132,6 +138,7 @@ const FlightSchedule = ({ flight }: { flight: Flight }) => {
 const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
   container: {
     marginHorizontal: CONTAINER_MARGIN,
+    marginTop: CONTAINER_MARGIN,
     // to not clip into bottom of screen
     // FIXME: why is there padding around the flatlist because of this,
     // not caused by a safe area?
@@ -149,8 +156,7 @@ const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
     marginTop: 8,
   },
   flights: {
-    marginVertical: CONTAINER_MARGIN,
-    // flex: 1,
+    marginTop: CONTAINER_MARGIN,
   },
   flightCard: {
     borderRadius: BORDER_RADIUS_NORMAL * 2,
