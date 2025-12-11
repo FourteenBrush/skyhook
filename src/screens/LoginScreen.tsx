@@ -43,6 +43,7 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
           onChangeText={updateField.bind(null, "email")}
           error={errors.email}
           autoCapitalize="none"
+          autoComplete="email"
           label="Email"
           placeholder="you@example.com"
           accessibilityHint="email input field"
@@ -52,6 +53,7 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
           onChangeText={updateField.bind(null, "password")}
           error={errors.password}
           autoCapitalize="none"
+          autoComplete="current-password"
           secureTextEntry
           label="Password"
           placeholder="password"

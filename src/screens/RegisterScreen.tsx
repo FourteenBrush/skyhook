@@ -46,6 +46,7 @@ export default function RegisterScreen() {
           value={formState.fullName}
           onChangeText={updateField.bind(null, "fullName")}
           error={errors.fullName}
+          autoComplete="name"
           label="Full name"
           placeholder="John Doe"
           accessibilityHint="full name input field"
@@ -55,6 +56,7 @@ export default function RegisterScreen() {
           onChangeText={updateField.bind(null, "email")}
           error={errors.email}
           autoCapitalize="none"
+          autoComplete="email"
           label="Email"
           placeholder="you@example.com"
           accessibilityHint="email input field"
@@ -64,6 +66,7 @@ export default function RegisterScreen() {
           onChangeText={updateField.bind(null, "password")}
           error={errors.password}
           autoCapitalize="none"
+          autoComplete="new-password"
           secureTextEntry
           label="Password"
           placeholder="password"
@@ -74,6 +77,7 @@ export default function RegisterScreen() {
           onChangeText={updateField.bind(null, "confirmPassword")}
           error={errors.confirmPassword}
           autoCapitalize="none"
+          autoComplete="new-password"
           secureTextEntry
           label="Confirm password"
           placeholder="password"
