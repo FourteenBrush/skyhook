@@ -5,7 +5,7 @@ import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native"
 
 export type IndicatorProps = {
   title: string,
-  subtitle: string,
+  subtitle?: string,
   icon: ReactElement,
   userMessage: string,
   button?: ReactNode,
@@ -19,7 +19,7 @@ export default function StatusIndicator({ title, subtitle, icon, userMessage, bu
     <View style={[styles.container, style]}>
       {icon}
       <Text style={styles.title}>{title}</Text>
-      <Text style={styles.subtitle}>{subtitle}</Text>
+      {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
       <Text style={styles.errorMsg}>{userMessage}</Text>
       <View style={styles.buttonPre}>{button}</View>
     </View>
@@ -35,6 +35,7 @@ const getStyles = ({ fonts }: ThemeData) => StyleSheet.create({
     ...fonts.headlineMedium,
     fontWeight: 500,
     paddingTop: 8,
+    textAlign: "center",
   },
   subtitle: {
     ...fonts.titleSmall,
