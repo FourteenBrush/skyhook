@@ -36,6 +36,7 @@ export type TextTheme = {
 
 export type ColorScheme = {
   primary: string,
+  primaryShaded: string,
   secondary: string,
   /** App background */
   background: string,
@@ -50,6 +51,7 @@ export type ColorScheme = {
 
 const colors: ColorScheme = {
   primary: "#2563EB",       // blue
+  primaryShaded: "#E6EEFA", // lighter blue
   secondary: "#4B5563",     // somewhat dark gray
   background: "#FFF",       // white
   card: "#F2F8FF",          // very slight blue

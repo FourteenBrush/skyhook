@@ -1,20 +1,20 @@
 import { ApiClient } from "@/api"
-import Badge from "@/components/Badge"
 import Card from "@/components/Card"
-import FlightTiming from "@/components/FlightTiming"
+import FlightOverview from "@/components/FlightOverview"
 import { ErrorLabel, TextInputField } from "@/components/FormInputs"
+import HorizontalLine from "@/components/HorizontalLine"
 import RoundedIconBackground from "@/components/RoundedIconBackground"
 import TextButton from "@/components/TextButton"
+import { useAuth } from "@/hooks/useAuth"
 import { useForm } from "@/hooks/useForm"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { useTheme } from "@/hooks/useTheme"
 import { Booking } from "@/models/Booking"
 import { Flight } from "@/models/Flight"
-import { SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
+import { SeatClass } from "@/models/FlightQuery"
 import { NavParams } from "@/Routes"
 import { CONTAINER_MARGIN, ThemeData } from "@/theme"
-import { formatDate } from "@/utils/utils"
-import { Ionicons, MaterialCommunityIcons, Octicons } from "@expo/vector-icons"
+import { MaterialCommunityIcons, Octicons } from "@expo/vector-icons"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { DefaultError, useMutation } from "@tanstack/react-query"
 import { View, Text, StyleSheet, ScrollView, KeyboardAvoidingView } from "react-native"
@@ -39,9 +39,10 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
     errors,
     validateAndSubmit,
   } = useForm(passengerSchema, { passengerName: "" })
+  const { authToken } = useAuth()
 
   const createBookingMutation = useMutation<Booking, DefaultError, { passengerName: string }>({
-    mutationFn: ({ passengerName }) => ApiClient.createBooking({ flight, passengerName, chosenClass }),
+    mutationFn: ({ passengerName }) => ApiClient.createBooking({ flight, passengerName, chosenClass, authToken: authToken! }),
     onSuccess: (booking) => navigation.replace("bookingConfirmation", { booking }),
   })
 
@@ -50,8 +51,7 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.centeredHeaderSection}>
           {/* ticket icon */}
-          <RoundedIconBackground color="#E6EEFA" size={54}>
-
+          <RoundedIconBackground color={colors.primaryShaded} size={54}>
             <MaterialCommunityIcons name="ticket-confirmation-outline" size={34} color={colors.primary} />
           </RoundedIconBackground>
 
@@ -61,29 +61,7 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
 
         {/* flight information card */}
         <Card clickable={false}>
-          {/* airline and flight nr */}
-          <View style={styles.airlineAndFlightNr}>
-            <View style={{ flexDirection: "row", gap: 7 }}>
-              <Ionicons name="airplane-outline" color={colors.primary} size={17} style={{ transform: [{ rotateZ: "-45deg" }] }} />
-              <Text style={fonts.titleMedium}>{flight.airline}</Text>
-            </View>
-
-            <Badge kind="light">{flight.flightNr}</Badge>
-          </View>
-
-          <FlightTiming flight={flight} kind="small" />
-          <HorizontalLine />
-
-          {/* departure, class and price */}
-          <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <View style={{ flexDirection: "row", gap: 6 }}>
-              <MaterialCommunityIcons name="calendar-blank" size={16} />
-              <Text>{formatDate(flight.departureTime)}</Text>
-              <Text>{seatClassToCapitalized(chosenClass)}</Text>
-            </View>
-
-            <Text style={styles.price}>&euro;{flight.price}</Text>
-          </View>
+          <FlightOverview flight={flight} chosenClass={chosenClass} />
         </Card>
 
         {/* passenger details */}
@@ -102,12 +80,13 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
             label="Full Name (as on ID)"
             placeholder="Your name"
             style={styles.passengerNameInputField}
+            accessibilityHint="passenger name input field"
           />
           <Text style={{ color: colors.textSecondary }}>(note: we only support adding one passenger)</Text>
         </Card>
 
         {/* pricing */}
-        <Card clickable={false}>
+        <Card clickable={false} accessibilityHint="pricing">
           <View style={styles.invoiceLine}>
             <Text style={styles.invoiceLineText}>Base fare</Text>
             <Text style={fonts.titleSmall}>&euro;{flight.price}</Text>
@@ -125,19 +104,22 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
           </View>
         </Card>
 
+        {/* TODO: invalidate cache */}
         <TextButton
           kind="filled"
           style={styles.confirmButton}
           onPress={validateAndSubmit.bind(null, ({ passengerName }) => createBookingMutation.mutate({ passengerName }))}
           disabled={createBookingMutation.isPending}
+          accessibilityHint="confirm booking button"
         >
           Confirm Booking
         </TextButton>
-        {createBookingMutation.isError && <ErrorLabel error={"Something went wrong while booking your flight, please try again later"} />}
+        {createBookingMutation.isError && <ErrorLabel error={"Something went wrong while booking, please try again later"} />}
         <TextButton
           kind="outlined"
           style={styles.backButton}
           onPress={() => navigation.pop()}
+          accessibilityHint="back to flight list button"
         >
           Back to Flight Details
         </TextButton>
@@ -145,18 +127,6 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
     </KeyboardAvoidingView>
   )
 }
-
-const HorizontalLine = ({ color = "#E0E0E0", thickness = 1, marginVertical = 10 }) => (
-  <View
-    style={{
-      width: "100%",
-      alignSelf: "center",
-      backgroundColor: color,
-      height: thickness,
-      marginVertical,
-    }}
-  />
-);
 
 const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
   container: {
@@ -175,16 +145,6 @@ const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
     ...fonts.titleMedium,
     color: colors.textSecondary,
     paddingTop: 6,
-  },
-
-  airlineAndFlightNr: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  price: {
-    ...fonts.titleLarge,
-    color: colors.primary,
   },
 
   passengerDetailsTitle: {

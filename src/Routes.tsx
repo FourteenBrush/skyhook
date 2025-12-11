@@ -14,9 +14,10 @@ import SearchFlightScreen from "@/screens/SearchFlightScreen"
 import FlightListScreen from "@/screens/FlightListScreen"
 import FlightDetailsScreen from "@/screens/FlightDetailsScreen"
 import RegisterScreen from "@/screens/RegisterScreen"
-import { Booking } from "./models/Booking"
-import AccountScreen from "./screens/account/AccountScreen"
+import { Booking } from "@/models/Booking"
+import AccountScreen from "@/screens/account/AccountScreen"
 import { ReactNode } from "react"
+import BookingConfirmationScreen from "@/screens/BookingConfirmationScreen"
 
 /** Mapping of params needed by route names */
 export type NavParams = {
@@ -27,7 +28,8 @@ export type NavParams = {
   "createBooking": { flight: Flight, chosenClass: SeatClass },
   "login": undefined,
   "register": undefined,
-  "account": { bookings: Booking[] },
+  "account": undefined,
+  "bookingConfirmation": { booking: Booking },
 }
 
 const Stack = createNativeStackNavigator<NavParams>()
@@ -64,8 +66,9 @@ export default function Routes() {
           <Stack.Screen name="createBooking">
             {(props) => <CreateBookingScreen {...props.route.params} {...props} />}
           </Stack.Screen>
-          <Stack.Screen name="account">
-            {(props) => <AccountScreen bookings={props.route.params.bookings} {...props} />}
+          <Stack.Screen name="account" component={AccountScreen} />
+          <Stack.Screen name="bookingConfirmation">
+            {(props) => <BookingConfirmationScreen {...props.route.params} {...props} />}
           </Stack.Screen>
         </>) : (<>
           <Stack.Screen name="login" component={LoginScreen} options={{ animationTypeForReplace: "push" }} />
@@ -96,7 +99,7 @@ const AuthHeader = () => {
       <FontAwesome name="sign-out" size={28} style={{ opacity: 0.65 }} />
     </Pressable>
   } else {
-    content = <Link<NavParams> screen="account" params={{ bookings: [] }}>
+    content = <Link<NavParams> screen="account">
       <MaterialCommunityIcons name="account-circle" size={35} color="#656565" style={{ opacity: 0.55 }} />
     </Link>
   }
