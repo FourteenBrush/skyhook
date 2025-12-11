@@ -135,6 +135,7 @@ const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
   },
   signInButton: {
     marginTop: 5,
+    marginBottom: 4,
     alignSelf: "stretch",
   },
   signinTitle: {
