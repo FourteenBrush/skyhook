@@ -1,7 +1,7 @@
 import { Flight } from "@/models/Flight"
 import { agent, SuperAgentRequest } from "superagent"
 import { FlightQuery, SeatClass } from "@/models/FlightQuery"
-import { Booking, BookingSchema } from "@/models/Booking"
+import { Booking } from "@/models/Booking"
 import * as mockupData from "@/utils/mockupFlights"
 
 /** Query keys which act as an unique identifier for identity based query hooks */
@@ -60,7 +60,7 @@ const getFlights = async (query: FlightQuery): Promise<Flight[]> => {
 }
 
 export type AuthResponse = {
-  token: string,
+  authToken: string,
 }
 
 export type SignInRequest = {
@@ -72,7 +72,7 @@ const signIn = async ({ email, password }: SignInRequest): Promise<AuthResponse>
   await new Promise(resolve => setTimeout(resolve, 3000))
 
   return {
-    token: "<some token>",
+    authToken: "<some token>",
   }
 }
 
@@ -90,18 +90,19 @@ export type TokenValidationResponse = {
   isValid: boolean,
 }
 
-const validateUserToken = async (token: string): Promise<TokenValidationResponse> => {
+const validateUserToken = async ({ authToken }: AuthOption): Promise<TokenValidationResponse> => {
 
   await new Promise(resolve => setTimeout(resolve, 500))
   return { isValid: true }
 }
 
-const mockupBookings: Booking[] = [
+const mockupBookings: Booking[] = []
 
-]
+export type AuthOption = {
+  authToken: string,
+}
 
-// TODO: map by user id from SecureStore
-const getBookings = async (): Promise<Array<Booking>> => {
+const getBookings = async ({ authToken }: AuthOption): Promise<Array<Booking>> => {
   return mockupBookings
   // try {
   //   const res = await fetch(`${baseUrl}/booking`)
@@ -119,16 +120,18 @@ const getBookings = async (): Promise<Array<Booking>> => {
   // }
 }
 
-export type CreateBookingRequest = {
+export type CreateBookingRequest = AuthOption & {
   flight: Flight,
   passengerName: string,
   chosenClass: SeatClass,
 }
 
-const createBooking = async ({ flight, passengerName, chosenClass }: CreateBookingRequest): Promise<void> => {
+const createBooking = async ({ flight, passengerName, chosenClass, authToken }: CreateBookingRequest): Promise<Booking> => {
   await new Promise(resolve => setTimeout(resolve, 100))
 
-  mockupBookings.push({ flight, bookedAt: new Date().toUTCString(), passengerName, chosenClass })
+  const booking = new Booking(flight, chosenClass, passengerName, new Date(), "BR-023-RND")
+  mockupBookings.push(booking)
+  return booking
 }
 
 export const ApiClient = {
