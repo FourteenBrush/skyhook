@@ -20,6 +20,9 @@ export type AuthState = {
   error: any | null,
   signIn: (email: string, password: string) => Promise<void>,
   signOut: () => Promise<void>,
+
+  /** A function to update a setting, is a no-op when `isSignedIn` is false */
+  updateUserSetting: SettingsUpdateFunc,
 }
 
 export type UserSettings = {
@@ -27,8 +30,6 @@ export type UserSettings = {
   /** Null indicates to rely on the device default */
   darkMode: boolean | null,
   defaultTripType: TripTypePreference,
-  /** A function to update a setting, is a no-op when the user is not signed in */
-  updateState: SettingsUpdateFunc,
 }
 
 export type SettingsUpdateFunc = <K extends keyof Omit<UserSettings, "updateState">>(
@@ -53,7 +54,7 @@ type InternalAuthState = {
 const AuthContext = createContext<AuthState | null>(null)
 
 type AuthAction =
-  | { type: "RESTORE_SAVED_STATE", restoredState: SavedState | null, updateFunc: SettingsUpdateFunc }
+  | { type: "RESTORE_SAVED_STATE", restoredState: SavedState | null }
   | { type: "REFRESH_USER_SETTINGS", settings: UserSettings }
   | { type: "RESTORE_TOKEN", token: string }
   | { type: "SIGN_OUT" }
@@ -69,13 +70,12 @@ const authStateReducer = (state: InternalAuthState, action: AuthAction): Interna
         darkMode: restoredState?.darkMode ?? defaultUserSettings.darkMode,
         defaultTripType: restoredState?.defaultTripType ?? defaultUserSettings.defaultTripType,
         preferredCurrency: restoredState?.preferredCurrency ?? defaultUserSettings.preferredCurrency,
-        updateState: action.updateFunc,
       }
       const token = restoredState !== null ? restoredState.token : null
 
       return { ...state, isLoading: false, token, userSettings }
     case "REFRESH_USER_SETTINGS":
-      const settings: UserSettings = { ...action.settings, updateState: state.userSettings.updateState }
+      const settings: UserSettings = { ...action.settings }
       return { ...state, isLoading: false, userSettings: settings }
     case "RESTORE_TOKEN":
       return { ...state, isLoading: false, token: action.token }
@@ -92,7 +92,6 @@ const defaultUserSettings: UserSettings = {
   darkMode: null,
   defaultTripType: "roundTrip",
   preferredCurrency: "euro",
-  updateState: async (_key, _value) => {}, // no-op as not signed in
 }
 
 /**
@@ -117,6 +116,8 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   })
 
   const updateUserSetting: SettingsUpdateFunc = async (key, value) => {
+    if (state.token === null) return // no-op
+
     const newSettings = { ...state.userSettings, [key]: value }
     await persistUserSettings(newSettings)
     dispatch({ type: "REFRESH_USER_SETTINGS", settings: newSettings })
@@ -129,7 +130,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
         if (restoredState === null) {
           // user might not be signed in, or an error occured while restoring state,
           // either way, they will have to sign in again
-          dispatch({ type: "RESTORE_SAVED_STATE", restoredState: null, updateFunc: async () => {} })
+          dispatch({ type: "RESTORE_SAVED_STATE", restoredState: null })
           return
         }
 
@@ -139,11 +140,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           await deleteSavedToken()
         }
 
-        dispatch({
-          type: "RESTORE_SAVED_STATE",
-          restoredState: isValid ? restoredState : null,
-          updateFunc: isValid ? updateUserSetting : async () => {},
-        })
+        dispatch({ type: "RESTORE_SAVED_STATE", restoredState: isValid ? restoredState : null })
       } catch (e) {
         dispatch({ type: "ABORT_WITH_ERROR", error: e })
       }
@@ -183,6 +180,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     error: state.error,
     signIn,
     signOut,
+    updateUserSetting,
   }
 
   return (
