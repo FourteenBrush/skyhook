@@ -6,7 +6,6 @@ import { DefaultError, useMutation } from "@tanstack/react-query"
 import { Platform } from "react-native"
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import z from "zod"
-import _ from "lodash"
 
 export type AuthState = {
   isSignedIn: boolean,
@@ -90,7 +89,7 @@ const authStateReducer = (state: InternalAuthState, action: AuthAction): Interna
 }
 
 const defaultUserSettings: UserSettings = {
-  appearance: "system",
+  appearance: "light",
   defaultTripType: "roundTrip",
   preferredCurrency: "euro",
 }
