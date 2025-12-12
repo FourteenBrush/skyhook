@@ -100,7 +100,8 @@ const AuthHeader = () => {
   let content: ReactNode
   if (!isSignedIn) {
     // hide the login button on the login screen, as ..whats the point?
-    content = routeName === "login" ? undefined : <SignInButton />
+    const authRoutes: Array<keyof NavParams> = ["login", "register"]
+    content = authRoutes.includes(route.name as keyof NavParams) ? undefined : <SignInButton />
   } else if (routeName === "account") {
     content = <Pressable onPress={signOut}>
       <FontAwesome name="sign-out" size={28} style={{ opacity: 0.65 }} />
