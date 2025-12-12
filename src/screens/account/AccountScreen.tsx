@@ -12,11 +12,12 @@ export type TabNavParams = {
 const Tab = createBottomTabNavigator<TabNavParams>()
 
 export default function AccountScreen() {
-  const { colors } = useTheme()
+  const { colors, isDark } = useTheme()
 
   const screenOptions: BottomTabNavigationOptions = {
     sceneStyle: { backgroundColor: colors.background },
     headerShown: false,
+    tabBarStyle: { backgroundColor: colors.background, borderColor: colors.border, borderTopWidth: isDark ? 2 : 1 },
     tabBarLabelPosition: "beside-icon", // shift icon down as we hide the label
     tabBarShowLabel: false,
     animation: "shift",
