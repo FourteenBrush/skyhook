@@ -28,7 +28,7 @@ export type AuthState = {
 export type UserSettings = {
   preferredCurrency: CurrencyPreference,
   /** Null indicates to rely on the device default */
-  darkMode: boolean | null,
+  appearance: "light" | "dark" | "system",
   defaultTripType: TripTypePreference,
 }
 
@@ -67,7 +67,7 @@ const authStateReducer = (state: InternalAuthState, action: AuthAction): Interna
       const { restoredState } = action
       // use default user settings when not logged in
       const userSettings: UserSettings = {
-        darkMode: restoredState?.darkMode ?? defaultUserSettings.darkMode,
+        appearance: restoredState?.appearance ?? defaultUserSettings.appearance,
         defaultTripType: restoredState?.defaultTripType ?? defaultUserSettings.defaultTripType,
         preferredCurrency: restoredState?.preferredCurrency ?? defaultUserSettings.preferredCurrency,
       }
@@ -89,7 +89,7 @@ const authStateReducer = (state: InternalAuthState, action: AuthAction): Interna
 }
 
 const defaultUserSettings: UserSettings = {
-  darkMode: null,
+  appearance: "system",
   defaultTripType: "roundTrip",
   preferredCurrency: "euro",
 }
@@ -136,7 +136,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
         const { isValid } = await validateTokenMutation.mutateAsync({ authToken: restoredState.token })
         if (!isValid) {
-          // only delete token, keep user settings
+          // delete token, keep user settings (not used), so the user is forced to sign in again
           await deleteSavedToken()
         }
 
@@ -201,29 +201,38 @@ export const useAuth = (): AuthState  => {
 const savedStateSchema = z.object({
   preferredCurrency: z.enum(CURRENCIES),
   defaultTripType: z.enum(TRIP_TYPES),
-  darkMode: z.boolean().nullable(),
+  appearance: z.enum(["light", "dark", "system"]),
 })
 type SavedState = z.infer<typeof savedStateSchema> & {
   token: string,
 }
 
+// TODO: support multiple users, probably via tagged state keys
 const TOKEN_KEY = "__TOKEN"
 const SETTINGS_KEY = "__SETTINGS"
 
+/** Returns null when state is incomplete or absent, rejects on failure  */
 const restoreSavedState = async (): Promise<SavedState | null> => {
   const token = await PlatformStorage.getItemAsync(TOKEN_KEY)
   if (token === null) return null
-  const settings = await PlatformStorage.getItemAsync(SETTINGS_KEY)
-  if (settings === null) return null
+  const encodedSettings = await PlatformStorage.getItemAsync(SETTINGS_KEY)
+  if (encodedSettings === null) return null
 
-  const decodedSettings = JSON.parse(settings)
-  return {
-    ...savedStateSchema.parse(decodedSettings),
-    token,
+  const decodedSettings = JSON.parse(encodedSettings)
+  try {
+    const settings = savedStateSchema.parse(decodedSettings)
+    return { ...settings, token }
+  } catch (e) {
+    console.error(e)
+    // stored data does not match validation schema, delete it so
+    // it can be re-written on next sign in, this should only happen during schema definition
+    // changes or when manually tampering with persisted state
+    await PlatformStorage.deleteValueAsync(SETTINGS_KEY)
+    return Promise.reject(e)
   }
 }
 
-const persistLoginState = async (token: string) => {
+const persistLoginState = async (token: string): Promise<void> => {
   const [_, encodedSettings] = await Promise.all([
     PlatformStorage.persistAsync(TOKEN_KEY, token),
     PlatformStorage.getItemAsync(SETTINGS_KEY),

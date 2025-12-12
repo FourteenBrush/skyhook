@@ -1,16 +1,22 @@
 import { darkTheme, lightTheme, ThemeData } from "@/theme"
 import { createContext, PropsWithChildren, useContext } from "react"
 import { useColorScheme } from "react-native"
+import { useAuth } from "@/hooks/useAuth"
 
 export const ThemeContext = createContext<ThemeData>(lightTheme)
 
-/** Provides a theme based on the os settings */
+/** Provides a theme based on the os settings, depends on the auth provider */
 export const ThemeProvider = ({ children }: PropsWithChildren) => {
-  // FIXME: settings override
+  const { userSettings } = useAuth()
   const preferredColorScheme = useColorScheme()
-  // TODO:
-  // const scheme = preferredColorScheme == "dark" ? darkTheme : lightTheme
-  const scheme = lightTheme
+
+  const scheme = function() {
+    switch (userSettings.appearance) {
+      case "system": return preferredColorScheme === "dark" ? darkTheme : lightTheme
+      case "light": return lightTheme
+      case "dark": return darkTheme
+    }
+  }()
   
   return (
     <ThemeContext.Provider value={scheme}>
