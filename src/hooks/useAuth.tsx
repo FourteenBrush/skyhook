@@ -28,19 +28,20 @@ export type AuthState = {
 export type UserSettings = {
   preferredCurrency: CurrencyPreference,
   /** Null indicates to rely on the device default */
-  appearance: "light" | "dark" | "system",
+  appearance: Appearance,
   defaultTripType: TripTypePreference,
 }
+
+const CURRENCIES = ["dollar", "euro"] as const
+export type CurrencyPreference = (typeof CURRENCIES)[number]
+export type Appearance = "light" | "dark" | "system"
+const TRIP_TYPES = ["oneWay", "roundTrip"] as const
+export type TripTypePreference = (typeof TRIP_TYPES)[number]
 
 export type SettingsUpdateFunc = <K extends keyof Omit<UserSettings, "updateState">>(
   key: K,
   value: UserSettings[K],
 ) => Promise<void>
-
-const CURRENCIES = ["dollar", "euro"] as const
-export type CurrencyPreference = (typeof CURRENCIES)[number]
-const TRIP_TYPES = ["oneWay", "roundTrip"] as const
-export type TripTypePreference = (typeof TRIP_TYPES)[number]
 
 type InternalAuthState = {
   token: string | null,
