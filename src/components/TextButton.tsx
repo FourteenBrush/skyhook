@@ -25,7 +25,6 @@ export default function TextButton({
   children,
   ...props
 }: TextButtonProps) {
-  // TODO: disabled=true, does not apply a certain style, it only locks interaction, do this ourselves
   const styles = useStyleSheet(
     (theme) => getStyles(theme, kind, shape),
     [kind, shape, style, textStyle],
@@ -46,7 +45,7 @@ const getStyles = ({ colors, fonts }: ThemeData, kind: ButtonKind, shape: Button
   // acts more like text than an actual button
   const [backgroundColor, textColor, borderColor, borderWidth] = kind == "filled"
     ? [colors.button, colors.buttonText, undefined, 0]
-    : [undefined, colors.text, colors.border, 1]
+    : [colors.buttonOutlined, colors.text, colors.border, 1]
   
   return StyleSheet.create({
     container: {
