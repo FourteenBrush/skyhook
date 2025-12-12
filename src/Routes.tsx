@@ -41,7 +41,9 @@ export default function Routes() {
   const screenOptions: NativeStackNavigationOptions = {
     // set screen background color for screens that don't explicitly override this
     contentStyle: { backgroundColor: colors.background },
+    headerStyle: { backgroundColor: colors.background },
     title: "Skyhook",
+    headerTintColor: colors.text, // back button and title
     headerBackVisible: true, // not applicable to web
     headerLeft: () => <MaterialCommunityIcons name="airplane-takeoff" size={25} color="#2563EB" style={styles.headerIcon} />,
     headerRight: () => <AuthHeader />,
@@ -50,7 +52,7 @@ export default function Routes() {
 
   return (
     <>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"}/>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
 
       <Stack.Navigator initialRouteName="home" screenOptions={screenOptions}>
         <Stack.Screen name="home" component={LandingPageScreen} />
@@ -94,6 +96,7 @@ const SignInButton = () => {
 
 const AuthHeader = () => {
   const { isSignedIn, signOut } = useAuth()
+  const { colors } = useTheme()
   const route = useRoute()
   const routeName = route.name as keyof NavParams
 
@@ -104,7 +107,7 @@ const AuthHeader = () => {
     content = authRoutes.includes(route.name as keyof NavParams) ? undefined : <SignInButton />
   } else if (routeName === "account") {
     content = <Pressable onPress={signOut}>
-      <FontAwesome name="sign-out" size={28} style={{ opacity: 0.65 }} />
+      <FontAwesome name="sign-out" size={28} style={{ opacity: 0.65 }} color={colors.text} />
     </Pressable>
   } else {
     content = <Link<NavParams> screen="account">

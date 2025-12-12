@@ -118,7 +118,7 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
         >
           Confirm Booking
         </TextButton>
-        {createBookingMutation.isError && <ErrorLabel error={"Something went wrong while booking, please try again later"} />}
+        {createBookingMutation.isError && <ErrorLabel error="Something went wrong while booking, please try again later" />}
         <TextButton
           kind="outlined"
           style={styles.backButton}
