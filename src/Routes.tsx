@@ -39,15 +39,21 @@ export default function Routes() {
   const { isSignedIn } = useAuth()
 
   const screenOptions: NativeStackNavigationOptions = {
+    title: "Skyhook",
+    animation: "ios_from_right",
+
     // set screen background color for screens that don't explicitly override this
     contentStyle: { backgroundColor: colors.background },
-    headerStyle: { backgroundColor: colors.background },
-    title: "Skyhook",
+    headerStyle: { backgroundColor: colors.card },
     headerTintColor: colors.text, // back button and title
     headerBackVisible: true, // not applicable to web
-    headerLeft: () => <MaterialCommunityIcons name="airplane-takeoff" size={25} color="#2563EB" style={styles.headerIcon} />,
+    headerLeft: () => <MaterialCommunityIcons
+      name="airplane-takeoff"
+      size={25}
+      color={colors.headerIcon}
+      style={styles.headerIcon}
+    />,
     headerRight: () => <AuthHeader />,
-    animation: "ios_from_right",
   }
 
   return (
@@ -94,15 +100,17 @@ const SignInButton = () => {
   )
 }
 
+/** Auth header, showing a sign in -, account button, or nothing at all, depending on the route */
 const AuthHeader = () => {
   const { isSignedIn, signOut } = useAuth()
   const { colors } = useTheme()
   const route = useRoute()
-  const routeName = route.name as keyof NavParams
 
+  const routeName = route.name as keyof NavParams
   let content: ReactNode
+
   if (!isSignedIn) {
-    // hide the login button on the login screen, as ..whats the point?
+    // hide the login button on the login and register screen
     const authRoutes: Array<keyof NavParams> = ["login", "register"]
     content = authRoutes.includes(route.name as keyof NavParams) ? undefined : <SignInButton />
   } else if (routeName === "account") {

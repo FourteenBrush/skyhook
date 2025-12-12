@@ -23,7 +23,7 @@ const getStyles = ({ fonts, colors }: ThemeData, kind: "dark" | "light" | "outli
   text: {
     ...fonts.bodySmall,
     color: kind === "outlined" ? colors.text : colors.buttonText,
-    backgroundColor: kind === "outlined" ? undefined : (kind === "dark" ? colors.button : "#959595"),
+    backgroundColor: kind === "outlined" ? undefined : (kind === "dark" ? colors.button : colors.badge),
     borderRadius: BORDER_RADIUS_ROUNDED_BUTTON,
     borderColor: kind === "outlined" ? colors.border : undefined,
     borderWidth: kind === "outlined" ? 1 : undefined,

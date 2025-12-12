@@ -64,7 +64,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
   } = useForm(formSchema, { isRoundTrip: true, seatClass: "economy" })
 
   const styles = useStyleSheet(getStyles, [formState.isRoundTrip])
-  const { fonts } = useTheme()
+  const { fonts, colors } = useTheme()
   
   const navigateToFlightList = () => {
     // hint browser to start connection handshake already
@@ -133,7 +133,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
           onChange={updateField.bind(null, "departureDate")}
           minDate={today}
           accessibilityHint="select trip departure date"
-          placeholderLeading=<MaterialCommunityIcons name="calendar-blank" size={25} />
+          placeholderLeading=<MaterialCommunityIcons name="calendar-blank" size={25} color={colors.text} />
         />
         {formState.isRoundTrip && (
           <DateInputField
@@ -145,7 +145,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
             onChange={updateField.bind(null, "returnDate")}
             minDate={formState.departureDate ?? today}
             accessibilityHint="select trip return date"
-            placeholderLeading=<MaterialCommunityIcons name="calendar-blank" size={25} />
+            placeholderLeading=<MaterialCommunityIcons name="calendar-blank" size={25} color={colors.text} />
           />
         )}
         

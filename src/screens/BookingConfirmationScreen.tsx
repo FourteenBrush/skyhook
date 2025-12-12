@@ -90,7 +90,9 @@ const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
   },
 
   bookingRefCard: {
-    backgroundColor: "#EFF4FB",
+    backgroundColor: colors.card,
+    borderColor: colors.primaryShaded,
+    borderWidth: 1,
     alignItems: "center",
   },
   bookingNr: {

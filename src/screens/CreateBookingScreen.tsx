@@ -158,8 +158,8 @@ const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
     marginBottom: 16,
   },
   passengerNameInputField: {
-    backgroundColor: "#F8FAFB",
-    borderColor: "#E1E7EF",
+    backgroundColor: colors.cardAlternative,
+    borderColor: colors.border,
     marginTop: 12,
   },
 

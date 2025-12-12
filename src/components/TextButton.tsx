@@ -1,14 +1,13 @@
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { BORDER_RADIUS_NORMAL, BORDER_RADIUS_ROUNDED_BUTTON, ThemeData } from "@/theme"
 import { ReactNode} from "react"
-import { StyleProp, TextStyle } from "react-native"
 import { StyleSheet, TouchableOpacity, TouchableOpacityProps, Text } from "react-native"
 
 // Use the same props as a TouchableOpacity, making children not undefined
 export type TextButtonProps = TouchableOpacityProps & {
   kind?: ButtonKind,
   shape?: ButtonShape,
-  textStyle?: StyleProp<TextStyle>,
+  pre?: ReactNode,
   children: ReactNode,
 }
 
@@ -21,20 +20,21 @@ export default function TextButton({
   shape = "rectangular",
   style,
   disabled,
-  textStyle,
+  pre,
   children,
   ...props
 }: TextButtonProps) {
   const styles = useStyleSheet(
     (theme) => getStyles(theme, kind, shape),
-    [kind, shape, style, textStyle],
+    [kind, shape, style],
   )
 
-  const textContent = <Text style={[styles.textContent, textStyle]}>{children}</Text>
+  const textContent = <Text style={[styles.textContent]}>{children}</Text>
   const opacity = disabled ? 0.2 : 1.0
   
   return (
     <TouchableOpacity style={[styles.container, style, { opacity }]} activeOpacity={0.5} {...props}>
+      {pre}
       {textContent}
     </TouchableOpacity>
   )

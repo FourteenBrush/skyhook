@@ -32,9 +32,9 @@ export default function FlightOverview({ flight, chosenClass }: { flight: Flight
       {/* departure, class and price */}
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <View style={{ flexDirection: "row", gap: 6 }}>
-          <MaterialCommunityIcons name="calendar-blank" size={16} />
-          <Text accessibilityHint="departure time">{formatDate(flight.departureTime)}</Text>
-          <Text accessibilityHint="seat class">{seatClassToCapitalized(chosenClass)}</Text>
+          <MaterialCommunityIcons name="calendar-blank" size={16} color={colors.text} />
+          <Text style={fonts.bodyMedium} accessibilityHint="departure time">{formatDate(flight.departureTime)}</Text>
+          <Text style={fonts.bodyMedium} accessibilityHint="seat class">{seatClassToCapitalized(chosenClass)}</Text>
         </View>
 
         <Text style={styles.price} accessibilityHint="flight price">&euro;{flight.price}</Text>

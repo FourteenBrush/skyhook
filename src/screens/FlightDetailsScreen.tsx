@@ -24,6 +24,7 @@ export type FlightDetailsScreenProps = {
 
 export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetailsScreenProps) {
   const styles = useStyleSheet(getStyles)
+  const { fonts } = useTheme()
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -37,7 +38,7 @@ export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetai
         />
       
         <View style={styles.generalInfo}>
-          <Text accessibilityHint="airline">{flight.airline}</Text>
+          <Text style={fonts.bodyMedium} accessibilityHint="airline">{flight.airline}</Text>
           <Text accessibilityHint="flight number" style={styles.flightNr}>{flight.flightNr}</Text>
           <NumberOfStopsBadge stops={flight.intermediaryStopCount} />
         </View>
@@ -144,19 +145,19 @@ function FlightStop({ kind, airport, departureTime, arrivalTime }: FlightStopPro
           <Text style={fonts.titleMedium}>{stopTitle}</Text>
 
           {kind === "layover" && <>
-            <Text>{airport.shortName}</Text>
+            <Text style={fonts.bodyMedium}>{airport.shortName}</Text>
             <Badge kind="outlined">{
               formatDurationToReadable(new Date(arrivalTime.getTime() - departureTime.getTime()))
             }</Badge>
           </>}
         </View>
 
-        {kind === "layover" && <Text>Arrival: {formatTime(departureTime)}</Text>}
-        <Text>{airport.longName}</Text>
-        {kind === "layover" && <Text>Connecting flight: {formatTime(arrivalTime)}</Text>}
+        {kind === "layover" && <Text style={fonts.bodyMedium}>Arrival: {formatTime(departureTime)}</Text>}
+        <Text style={fonts.bodyMedium}>{airport.longName}</Text>
+        {kind === "layover" && <Text style={fonts.bodyMedium}>Connecting flight: {formatTime(arrivalTime)}</Text>}
         {kind === "arrival" && <View style={{ flexDirection: "row" }}>
           <EvilIcons name="location" color="#DC6717" size={18} />
-          <Text>Destination</Text>
+          <Text style={fonts.bodyMedium}>Destination</Text>
         </View>}
       </View>
     </View>
@@ -182,7 +183,7 @@ function FlightBookingSection({ flight, chosenClass }: { flight: Flight, chosenC
     <Card clickable={false}>
       <View style={styles.bookingSectionPrice}>
         <Text style={fonts.titleLarge}>&euro;{flight.price}</Text>
-        <Text>per person &bull; {seatClassToCapitalized(chosenClass)}</Text>
+        <Text style={fonts.bodyMedium}>per person &bull; {seatClassToCapitalized(chosenClass)}</Text>
       </View>
 
       <TextButton kind="filled" style={styles.bookFlightButton} onPress={navigateToBooking}>

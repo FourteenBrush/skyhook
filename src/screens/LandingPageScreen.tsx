@@ -8,6 +8,8 @@ import { StyleSheet, Text, View, ScrollView } from "react-native"
 
 export default function LandingPageScreen(props: NativeStackScreenProps<NavParams, "home">) {
   const styles = useStyleSheet(getStyles)
+
+  // TODO: when auth is loading, return splash screen
   
   return (
     <ScrollView contentContainerStyle={{ flex: 1, justifyContent: "space-between" }}>
@@ -59,7 +61,7 @@ const CopyrightFooter = ({ styles }: BannerProps) => (
   </View>
 )
 
-const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
+const getStyles = ({ colors, fonts, isDark }: ThemeData) => StyleSheet.create({
   banner: {
     padding: 28,
     backgroundColor: colors.card,
@@ -79,6 +81,7 @@ const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
     color: colors.secondary,
   },
   searchButton: {
+    backgroundColor: isDark ? colors.primary : colors.button,
     marginTop: 18,
   },
   
@@ -101,7 +104,6 @@ const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
     color: "#99B6F6",
   },
   bookFlightButton: {
-    backgroundColor: "#fff",
     alignSelf: "center",
   },
   

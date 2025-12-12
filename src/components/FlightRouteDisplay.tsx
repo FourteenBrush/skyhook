@@ -1,4 +1,5 @@
 import { useStyleSheet } from "@/hooks/useStyleSheet"
+import { useTheme } from "@/hooks/useTheme"
 import { ThemeData } from "@/theme"
 import { FontAwesome } from "@expo/vector-icons"
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native"
@@ -12,11 +13,12 @@ export type FlightRouteDisplayProps = {
 
 export default function FlightRouteDisplay({ departure, arrival: destination, size, style }: FlightRouteDisplayProps) {
   const styles = useStyleSheet(theme => getStyles(theme, size))
+  const { colors } = useTheme()
 
   return (
     <View style={[styles.container, style]} accessibilityHint="flight route departure and arrival">
       <Text style={styles.text}>{departure}</Text>
-      <FontAwesome name="long-arrow-right" size={size ===  "large" ? 18 : 15} />
+      <FontAwesome name="long-arrow-right" size={size ===  "large" ? 18 : 15} color={colors.text} />
       <Text style={styles.text}>{destination}</Text>
     </View>
   )

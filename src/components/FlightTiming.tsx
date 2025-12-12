@@ -19,6 +19,7 @@ export type FlightTimingProps = ViewProps & {
 
 export default function FlightTiming({ flight, kind, ...props }: FlightTimingProps) {
   const styles = useStyleSheet(getStyles)
+  const { colors } = useTheme()
 
   const style: ViewStyle = kind === "large"
     ? { flexDirection: "column" }
@@ -40,8 +41,8 @@ export default function FlightTiming({ flight, kind, ...props }: FlightTimingPro
         accessibilityHint="departure timing info"
       />
       <View style={styles.flightDuration}>
-        <Feather name="clock" size={13} />
-        <Text accessibilityHint="total flight duration">{formatDurationToReadable(flight.totalDuration)}</Text>
+        <Feather name="clock" size={13} color={colors.text} />
+        <Text style={{ color: colors.text }} accessibilityHint="total flight duration">{formatDurationToReadable(flight.totalDuration)}</Text>
       </View>
       <TimingSection
         kind={kind}
@@ -74,7 +75,7 @@ function TimingSection({ kind, title, time, airport, style, ...props }: TimingSe
       {title && <Text style={styles.title}>{title}</Text>}
       <Text style={styles.time}>{`${formatTime(time)}`}</Text>
       <Text style={fonts.titleSmall}>{`${airportName}`}</Text>
-      {kind === "small" && <Text>{airport.city}</Text>}
+      {kind === "small" && <Text style={fonts.bodyMedium}>{airport.city}</Text>}
     </View>
   )
 }

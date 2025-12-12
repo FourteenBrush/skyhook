@@ -83,8 +83,6 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
         renderItem={({ item }) => <FlightCard flight={item} chosenClass={query.seatClass} />}
         keyExtractor={(flight) => flight.id.toString()}
         style={styles.flights}
-        persistentScrollbar={true}
-        indicatorStyle="black"
       />
     </View>
   )
@@ -93,6 +91,7 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
 function FlightCard({ flight, chosenClass }: { flight: Flight, chosenClass: SeatClass }) {
   const styles = useStyleSheet(getStyles)
   const navigation = useNavigation<NavigationProp<NavParams>>()
+  const { fonts } = useTheme()
 
   return (
     <Card
@@ -101,7 +100,7 @@ function FlightCard({ flight, chosenClass }: { flight: Flight, chosenClass: Seat
       onPress={() => navigation.navigate("flightDetails", { flight, chosenClass })}
     >
       <View style={styles.flightCardTitle}>
-        <Text accessibilityHint="airline">{flight.airline}{"  "}</Text>
+        <Text style={fonts.bodyMedium} accessibilityHint="airline">{flight.airline}{"  "}</Text>
         <Text accessibilityHint="flight number" style={styles.flightNr}>{flight.flightNr}{"  "}</Text>
         <NumberOfStopsBadge stops={flight.intermediaryStopCount} />
       </View>
@@ -114,22 +113,23 @@ function FlightCard({ flight, chosenClass }: { flight: Flight, chosenClass: Seat
 
 const FlightSchedule = ({ flight }: { flight: Flight }) => {
   const styles = useStyleSheet(getStyles)
+  const { fonts, colors } = useTheme()
 
   return (
     <View style={styles.flightSchedule}>
       <View>
         <Text style={styles.scheduleTime} accessibilityHint="flight departure time">{formatTime(flight.departureTime)}</Text>
-        <Text accessibilityHint="departure airport">{flight.departureAirport.shortName}</Text>
+        <Text style={fonts.bodyMedium} accessibilityHint="departure airport">{flight.departureAirport.shortName}</Text>
       </View>
       
       <View style={styles.flightDuration} accessibilityHint="flight duration">
-        <Feather name="clock" size={13} />
-        <Text>{formatDuration(flight.totalDuration)}</Text>
+        <Feather name="clock" size={13} color={colors.text} />
+        <Text style={fonts.bodyMedium}>{formatDuration(flight.totalDuration)}</Text>
       </View>
       
       <View>
         <Text style={styles.scheduleTime} accessibilityHint="flight arrival time">{formatTime(flight.arrivalTime)}</Text>
-        <Text style={{ alignSelf: "flex-end" }} accessibilityHint="destination airport">{flight.arrivalAirport.shortName}</Text>
+        <Text style={styles.arrivalAirport} accessibilityHint="destination airport">{flight.arrivalAirport.shortName}</Text>
       </View>
     </View>
   )
@@ -178,6 +178,10 @@ const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
   flightDuration: {
      alignItems: "center",
      gap: 4,
+  },
+  arrivalAirport: {
+    ...fonts.bodyMedium,
+    alignSelf: "flex-end",
   },
   scheduleTime: {
     ...fonts.labelLarge,

@@ -17,6 +17,7 @@ export default function Card({ clickable, style, ...props }: CardProps) {
 
 const getStyles = ({ colors }: ThemeData) => StyleSheet.create({
   container: {
+    backgroundColor: colors.card,
     borderRadius: BORDER_RADIUS_NORMAL * 2,
     borderColor: colors.border,
     borderWidth: 1,

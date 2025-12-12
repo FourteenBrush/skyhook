@@ -93,7 +93,7 @@ export function DateInputField({ placeholderLeading, minDate, maxDate, value, on
         value={value?.toLocaleDateString(undefined, { dateStyle: "full" })}
         placeholderTextColor={colors.textSecondary}
         // having a leading placeholder implies already using this style
-        style={placeholderLeading === undefined && styles.input}
+        style={[{ color: colors.text }, placeholderLeading === undefined && styles.input]}
         {...props}
       />
     </Pressable>
@@ -158,7 +158,7 @@ function InputFieldBase({ label, error, children, ...props }: InputFieldBaseProp
 
   return (
     <View style={label !== undefined && styles.container} {...props}>
-      {label !== undefined && <Text>{label}</Text>}
+      {label !== undefined && <Text style={styles.label}>{label}</Text>}
       {children}
       {error && <ErrorLabel error={error} />}
     </View>
@@ -167,11 +167,12 @@ function InputFieldBase({ label, error, children, ...props }: InputFieldBaseProp
 
 export const ErrorLabel = ({ error }: { error: string }) => {
   const styles = useStyleSheet(getStyles)
+  const { colors } = useTheme()
 
   return (
     <View style={styles.errorLabel}>
       <AntDesign name="close-circle" color="red" />
-      <Text style={{ color: "red" }}>{error}</Text>
+      <Text style={{ color: colors.errorRed }}>{error}</Text>
     </View>
   )
 }
@@ -188,6 +189,10 @@ const getStyles = ({ fonts, colors }: ThemeData) => {
   return StyleSheet.create({
     container: {
       marginVertical: 6,
+    },
+    label: {
+      ...fonts.titleSmall,
+      fontWeight: 400,
     },
     input: inputStyle,
     // we need a different class apart from input, because applying flexDirection:row to a <Picker> shifts ui

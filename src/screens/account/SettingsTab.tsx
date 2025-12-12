@@ -1,22 +1,19 @@
 import Card from "@/components/Card"
 import RoundedIconBackground from "@/components/RoundedIconBackground"
+import SegmentedControl from "@/components/SegmentedControl"
 import TextButton from "@/components/TextButton"
-import { CurrencyPreference, useAuth } from "@/hooks/useAuth"
+import { Appearance, CurrencyPreference, useAuth } from "@/hooks/useAuth"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { useTheme } from "@/hooks/useTheme"
 import { CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { Feather, FontAwesome, MaterialIcons, Octicons } from "@expo/vector-icons"
-import { ReactNode } from "react"
+import { PropsWithChildren, ReactNode } from "react"
 import { StyleSheet, Switch, Text, View } from "react-native"
 
 export default function SettingsTab() {
   const styles = useStyleSheet(getStyles)
   const { colors, fonts } = useTheme()
-  const { signOut, userSettings } = useAuth()
-
-
-  // TODO: default booking name, currency icon, theme, direct or indirect flight default
-  console.warn("SettingsTab settings:", userSettings)
+  const { signOut, userSettings, updateUserSetting } = useAuth()
 
   return (
     <View style={styles.container}>
@@ -29,79 +26,117 @@ export default function SettingsTab() {
 
           <View>
             <Text style={fonts.titleMedium}>Username</Text>
-            <Text>username@example.com</Text>
+            <Text style={styles.email}>username@example.com</Text>
           </View>
         </View>
 
-        <TextButton kind="outlined" onPress={signOut}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <FontAwesome name="sign-out" size={18} style={{ opacity: 0.60, marginRight: 10 }} />
-            <Text>Sign Out</Text>
-          </View>
+        <TextButton
+          kind="outlined"
+          onPress={signOut} style={styles.signOutButton}
+          pre=<FontAwesome name="sign-out" size={18} color={colors.text} style={{ opacity: 0.60, marginRight: 10 }} />
+        >
+          Sign Out
         </TextButton>
       </Card>
 
-      {/* FIXME: show error label when updateState failed */}
-      <SettingsCard<CurrencyPreference>
+      {/* FIXME: show error label in the unlikely case updateUserSetting failed */}
+      <SettingsCard
         title="Currency"
         subtitle="Select your preferred currency for prices"
-        leftOption={{ value: "dollar", text: "USD", icon: ({ color }) => <Feather name="dollar-sign" color={color} size={24} /> }}
-        rightOption={{ value: "euro", text: "EUR", icon: ({ color }) => <MaterialIcons name="euro-symbol" color={color} size={24} /> }}
-        selection={userSettings.preferredCurrency === "dollar" ? "left" : "right"}
-        onChange={userSettings.updateState.bind(null, "preferredCurrency")}
+      >
+        <BooleanControl<CurrencyPreference>
+          leftOption={{ value: "dollar", text: "USD", icon: ({ color }) => <Feather name="dollar-sign" color={color} size={24} /> }}
+          rightOption={{ value: "euro", text: "EUR", icon: ({ color }) => <MaterialIcons name="euro-symbol" color={color} size={24} /> }}
+          selected={userSettings.preferredCurrency === "dollar" ? "left" : "right"}
+          onChange={updateUserSetting.bind(null, "preferredCurrency")}
+        />
+      </SettingsCard>
+
+      <SettingsCard
+        title="Appearance"
+        subtitle="Choose your preferred color scheme"
+      >
+        <SegmentedControl<Appearance>
+          options={[
+            { label: "Light", value: "light", icon: ({ color }) => <Feather name="sun" size={20} color={color} /> },
+            { label: "Dark", value: "dark", icon: ({ color }) => <Feather name="moon" size={20} color={color} /> },
+            { label: "System", value: "system", icon: ({ color }) => <Feather name="monitor" size={20} color={color} /> }
+          ]}
+          selected={userSettings.appearance}
+          onChange={updateUserSetting.bind(null, "appearance")}
+        />
+      </SettingsCard>
+
+      {/*
+      <SettingsCard
+        title="Default Trip Type"
+        subtitle="Pre-select trip type when searching flights"
+        leftOption={{ value: "light", text: "Light", icon: ({ color }) => <Feather name="sun" color={color} size={24} /> }}
+        rightOption=
       />
+      */}
     </View>
   )
 }
 
-type SettingsCardProps<T> = {
+type SettingsCardProps = PropsWithChildren & {
   title: string,
   subtitle: string,
+}
+
+const SettingsCard = ({ title, subtitle, children }: SettingsCardProps) => {
+  const styles = useStyleSheet(getStyles)
+
+  return (
+    <Card clickable={false} style={{ paddingBottom: 20 }}>
+      <Text style={styles.settingsTitle}>{title}</Text>
+      <Text style={styles.settingsSubtitle}>{subtitle}</Text>
+      {children}
+    </Card>
+  )
+}
+
+type BooleanControlProps<T> = {
   leftOption: { value: T, icon: ({ color }: { color: string | undefined }) => ReactNode, text: string },
   rightOption: { value: T, icon: ({ color }: { color: string | undefined }) => ReactNode, text: string },
-  selection: "left" | "right",
+  selected: "left" | "right",
   onChange: (value: T) => void,
 }
 
 /**
  * @template T the type stored in every option
  */
-const SettingsCard = <T,>({ title, subtitle, leftOption, rightOption, selection, onChange }: SettingsCardProps<T>) => {
+const BooleanControl = <T,>({ leftOption, rightOption, selected, onChange }: BooleanControlProps<T>) => {
   const styles = useStyleSheet(getStyles)
   const { fonts, colors } = useTheme()
 
-  const [leftIconColor, rightIconColor] = selection === "left"
-    ? [colors.primary, undefined]
-    : [undefined, colors.primary]
+  const [leftIconColor, rightIconColor] = selected === "left"
+    ? [colors.primary, colors.secondary]
+    : [colors.secondary, colors.primary]
 
   return (
-    <Card clickable={false}>
-      <Text style={styles.settingsTitle}>{title}</Text>
-      <Text style={styles.settingsSubtitle}>{subtitle}</Text>
-
-      <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <View style={styles.settingsOption}>
-          <RoundedIconBackground color={colors.primaryShaded} size={38}>
-            {leftOption.icon({ color: leftIconColor })}
-          </RoundedIconBackground>
-          <Text style={fonts.titleMedium}>{leftOption.text}</Text>
-        </View>
-
-        <Switch
-          value={selection === "right"}
-          onValueChange={(right) => onChange(right ? rightOption.value : leftOption.value)}
-          trackColor={{ false: '#767577', true: '#3B82F6' }} // blue
-          thumbColor={selection === "left" ? '#fff' : '#f4f3f4'}
-        />
-
-        <View style={styles.settingsOption}>
-          <Text style={fonts.titleMedium}>{rightOption.text}</Text>
-          <RoundedIconBackground color={colors.primaryShaded} size={38}>
-            {rightOption.icon({ color: rightIconColor })}
-          </RoundedIconBackground>
-        </View>
+    <View style={styles.booleanControl}>
+      <View style={styles.settingsOption}>
+        <RoundedIconBackground color={colors.primaryShaded} size={38}>
+          {leftOption.icon({ color: leftIconColor })}
+        </RoundedIconBackground>
+        <Text style={fonts.titleMedium}>{leftOption.text}</Text>
       </View>
-    </Card> 
+
+      <Switch
+        value={selected === "right"}
+        onValueChange={(right) => onChange(right ? rightOption.value : leftOption.value)}
+        trackColor={{ false: '#767577', true: '#3B82F6' }} // blue
+        thumbColor={selected === "left" ? '#fff' : '#f4f3f4'}
+      />
+
+      <View style={styles.settingsOption}>
+        <Text style={fonts.titleMedium}>{rightOption.text}</Text>
+        <RoundedIconBackground color={colors.primaryShaded} size={38}>
+          {rightOption.icon({ color: rightIconColor })}
+        </RoundedIconBackground>
+      </View>
+    </View>
   )
 }
 
@@ -119,9 +154,24 @@ const getStyles = ({ colors, fonts }: ThemeData) => StyleSheet.create({
     alignItems: "center",
     gap: 9,
   },
+  email: {
+    ...fonts.titleSmall,
+    color: colors.textSecondary,
+  },
+  signOutButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+  },
+
+  booleanControl: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
 
   settingsTitle: {
     ...fonts.titleMedium,
+    color: colors.text,
     fontWeight: 600,
     marginBottom: 6,
   },
