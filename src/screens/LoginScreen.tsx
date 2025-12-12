@@ -6,7 +6,6 @@ import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { NavParams } from "@/Routes"
 import { BORDER_RADIUS_NORMAL, CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { Link } from "@react-navigation/native"
-import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import { Platform, StyleSheet, Text, View } from "react-native"
 import z from "zod"
 
@@ -15,7 +14,7 @@ const loginSchema = z.object({
   password: z.string().min(3, "At least 3 characters are required"),
 })
 
-export default function LoginScreen({ navigation }: NativeStackScreenProps<NavParams, "login">) {
+export default function LoginScreen() {
   const {
     formState,
     errors,
@@ -72,12 +71,11 @@ export default function LoginScreen({ navigation }: NativeStackScreenProps<NavPa
         {error != null && <ErrorLabel error="Something went wrong while signing you in" />}
         
 
-      {/* TODO: use navigator routeNamesChangeBehavior */}
         <Text style={styles.signupTitle}>
           Don't have an account?{" "}
           <Link<NavParams>
             style={styles.signupLink}
-            onPress={() => navigation.navigate("register")} screen="register">
+            screen="register">
             Create one instead
           </Link>
         </Text>
