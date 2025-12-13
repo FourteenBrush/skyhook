@@ -41,25 +41,18 @@ export type ColorScheme = {
   /** App background */
   background: string,
   card: string,
+  cardAlternative: string,
   text: string,
   /** Slightly less visible text color */
   textSecondary: string,
   button: string,
+  buttonOutlined: string,
   buttonText: string,
   border: string,
-}
-
-const colors: ColorScheme = {
-  primary: "#2563EB",       // blue
-  primaryShaded: "#E6EEFA", // lighter blue
-  secondary: "#4B5563",     // somewhat dark gray
-  background: "#FFF",       // white
-  card: "#F2F8FF",          // very slight blue
-  text: "#020202",          // black
-  textSecondary: "#929299", // light gray
-  button: "#18181B",        // black
-  buttonText: "#FFF",       // white
-  border: "#D4D0C9",        // light gray
+  badge: string,
+  horizontalLine: string,
+  errorRed: string,
+  headerIcon: string,
 }
 
 // Material design principles
@@ -157,11 +150,47 @@ const fonts: TextTheme = {
 }
 
 export const lightTheme: ThemeData = {
-  fonts, colors, isDark: false,
+  fonts,
+  isDark: false,
+  colors: {
+    primary: "#2563EB",         // blue
+    primaryShaded: "#E6EEFA",   // lighter blue
+    secondary: "#4B5563",       // somewhat dark gray
+    background: "#F9FAFB",      // white
+    card: "#FFF",               // very slight blue
+    cardAlternative: "#F3F5F7", // light gray
+    text: "#020202",            // black
+    textSecondary: "#929299",   // light gray
+    button: "#18181B",          // black
+    buttonOutlined: "#FFF",     // white
+    buttonText: "#FFF",         // white
+    border: "#D4D0C9",          // light gray
+    badge: "#959585",           // gray
+    horizontalLine: "#E0E0E0",  // white-gray like
+    errorRed: "red",
+    headerIcon: "#2563EB",      // blue
+  },
 }
 
-// FIXME: implement dark mode
 export const darkTheme: ThemeData = {
-  ...lightTheme,
+  fonts,
   isDark: true,
+  colors: {
+    ...lightTheme.colors,
+    primary: "#3C83F6",
+    primaryShaded: "#111E38",
+    background: "#080C16",
+    card: "#0C1322",
+    cardAlternative: "#1D283A",
+    text: "#F9FAFB",
+    textSecondary: "#8391A6",
+    button: "#2563EB",
+    buttonOutlined: "#1D283A",
+    buttonText: "#FCFDFF",
+    border: "#1D283A",
+    badge: "#1D283A",
+    horizontalLine: "#1D283A",
+    errorRed: "#C12D2F",
+    headerIcon: "#3C83F6",
+  },
 }
