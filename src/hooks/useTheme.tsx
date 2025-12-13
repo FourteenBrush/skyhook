@@ -1,5 +1,5 @@
-import { darkTheme, lightTheme, ThemeData } from "@/theme"
-import { createContext, PropsWithChildren, useContext } from "react"
+import { darkTheme, lightTheme, TextTheme, ThemeData } from "@/theme"
+import { createContext, PropsWithChildren, useContext, useMemo } from "react"
 import { useColorScheme } from "react-native"
 import { useAuth } from "@/hooks/useAuth"
 
@@ -17,6 +17,17 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
       case "dark": return darkTheme
     }
   }()
+
+  // merge fonts with a default text color, so fonts.* definitions are already styled appropriately
+  scheme.fonts = useMemo<TextTheme>(() => {
+    const base = { ...scheme.fonts }
+    const defaultColor = scheme.colors.text
+
+    Object.entries(base).forEach(([name, fontConfig]) => {
+      base[name as keyof typeof base] = { ...fontConfig, color: defaultColor }
+    })
+    return base
+  }, [scheme.colors])
   
   return (
     <ThemeContext.Provider value={scheme}>
