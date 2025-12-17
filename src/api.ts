@@ -28,16 +28,16 @@ api.interceptors.request.use(null, (error: any) => {
     const details = error.message ?? error.cause
     console.error(`request error for path ${error.config!.url}: ${details}`)
   } else {
-    console.error(error)
+    console.error("api request error:", error)
   }
   return Promise.reject(error)
 })
 api.interceptors.response.use(null, (error: any) => {
   if (axios.isAxiosError(error)) {
     const details = error.message ?? error.cause
-    console.error(`response error ${error.status} for path ${error.config!.url}: ${details}'`)
+    console.error(`response error ${error.status} for path ${error.config!.url}: ${details}`)
   } else {
-    console.error(error)
+    console.error("api response error:", error)
   }
   return Promise.reject(error)
 })
