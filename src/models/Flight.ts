@@ -44,8 +44,8 @@ export class FlightPath {
   static schema = z.object({
     departureAirport: airportSchema,
     arrivalAirport: airportSchema,
-    departureTime: z.date(),
-    arrivalTime: z.date(),
+    departureTime: z.coerce.date(),
+    arrivalTime: z.coerce.date(),
   })
   .transform(val => new FlightPath(val.departureAirport, val.arrivalAirport, val.departureTime, val.arrivalTime))
 
@@ -130,8 +130,6 @@ export class Flight {
   public static schema = z.object({
     id: z.number(),
     flightNr: z.string().nonempty(),
-    departureTime: z.coerce.date(),
-    arrivalTime: z.coerce.date(),
     airline: z.string(),
     price: z.number().positive(),
     paths: z.array(FlightPath.schema),
