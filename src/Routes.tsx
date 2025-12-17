@@ -1,6 +1,7 @@
 import { FlightQuery, SeatClass } from "@/models/FlightQuery"
 import { Flight } from "@/models/Flight"
 import { createNativeStackNavigator, NativeStackNavigationOptions } from "@react-navigation/native-stack"
+import * as SplashScreen from "expo-splash-screen"
 import { FontAwesome, MaterialCommunityIcons } from "@expo/vector-icons"
 import { Platform, Pressable, StatusBar, StyleSheet, View } from "react-native"
 import { Link, NavigationProp, useNavigation, useRoute } from "@react-navigation/native"
@@ -16,7 +17,7 @@ import FlightDetailsScreen from "@/screens/FlightDetailsScreen"
 import RegisterScreen from "@/screens/RegisterScreen"
 import { Booking } from "@/models/Booking"
 import AccountScreen from "@/screens/account/AccountScreen"
-import { ReactNode } from "react"
+import { ReactNode, useEffect } from "react"
 import BookingConfirmationScreen from "@/screens/BookingConfirmationScreen"
 
 /** Mapping of params needed by route names */
@@ -36,7 +37,14 @@ const Stack = createNativeStackNavigator<NavParams>()
 
 export default function Routes() {
   const { colors, isDark } = useTheme()
-  const { isSignedIn } = useAuth()
+  const { isSignedIn, isLoading } = useAuth()
+
+  useEffect(() => {
+    // when auth state is loaded (or errored out), hide the splash screen
+    if (!isLoading) {
+      SplashScreen.hide()
+    }
+  }, [isLoading])
 
   const screenOptions: NativeStackNavigationOptions = {
     title: "Skyhook",

@@ -1,10 +1,16 @@
 import { NavigationContainer } from "@react-navigation/native"
+import * as SplashScreen from "expo-splash-screen"
 import { ThemeProvider } from "@/hooks/useTheme"
 import { StyleSheet } from "react-native"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
 import { AuthProvider } from "@/hooks/useAuth"
 import Routes from "@/Routes"
+
+// prevent hiding splash screen automatically the moment the app is loaded
+// (for auth related purposes), a call to SplashScreen.hide must be manually inserted
+// NOTE: must be called in global scope
+SplashScreen.preventAutoHideAsync()
 
 export default function App() {
   const queryClient = new QueryClient()
