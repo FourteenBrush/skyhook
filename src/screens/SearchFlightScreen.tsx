@@ -112,6 +112,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
           error={errors.departureCity}
           onChangeText={updateField.bind(null, "departureCity")}
           label="From"
+          autoCapitalize="words"
           placeholder="Departure City"
           accessibilityHint="departure city input field"
         />
@@ -120,6 +121,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
           error={errors.destinationCity}
           onChangeText={updateField.bind(null, "destinationCity")}
           label="To"
+          autoCapitalize="words"
           placeholder="Destination City"
           accessibilityHint="destination city input field"
         />
