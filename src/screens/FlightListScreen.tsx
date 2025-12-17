@@ -25,7 +25,7 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
   const styles = useStyleSheet(getStyles)
   const { colors } = useTheme()
   
-  const { isPending, isError, data, refetch } = useQuery({
+  const { isPending, isError, error, data, refetch } = useQuery({
     queryKey: [QUERY_KEYS.GET_FLIGHTS, query],
     queryFn: () => ApiClient.getFlights(query),
     staleTime: 4 * 60 * 1000, // ms
@@ -43,13 +43,14 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
     )
   }
   if (isError) {
+    const userMessage = ApiClient.friendlyErrorMessage(error)
     return (
       <StatusIndicator
         title="Search Failed"
         subtitle="We encountered an issue while searching for flights."
         style={styles.queryIndicator}
         icon=<Feather name="alert-circle" size={48} color="#EF4444" />
-        userMessage="Unable to connect to the server"
+        userMessage={userMessage}
         button=<TextButton shape="circular" onPress={() => refetch()}>Retry</TextButton>
       />
     )

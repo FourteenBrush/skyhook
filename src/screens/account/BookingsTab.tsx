@@ -14,12 +14,11 @@ import TextButton from "@/components/TextButton"
 import FlightOverview from "@/components/FlightOverview"
 
 export default function BookingsTab() {
-
   const styles = useStyleSheet(getStyles)
   const { fonts, colors } = useTheme()
   const { authToken } = useAuth()
 
-  const { data: bookings, isPending, isError, refetch } = useQuery({
+  const { data: bookings, isPending, isError, error, refetch } = useQuery({
     queryFn: () => ApiClient.getBookings({ authToken: authToken! }),
     queryKey: [QUERY_KEYS.GET_BOOKINGS],
     staleTime: 4 * 60 * 1000, // ms
@@ -40,12 +39,13 @@ export default function BookingsTab() {
     )
   }
   if (isError) {
+    const userMessage = ApiClient.friendlyErrorMessage(error)
     return (
       <StatusIndicator
         title="Failed to retrieve your bookings"
         subtitle="We encountered an error while retrieving your data"
         icon=<Feather name="alert-circle" size={48} color="#EF4444" />
-        userMessage="Please try again"
+        userMessage={userMessage}
         button=<TextButton shape="circular" onPress={() => refetch()}>Retry</TextButton>
         style={styles.queryIndicator}
       />

@@ -1,8 +1,8 @@
 import { Flight } from "@/models/Flight"
-import { agent, SuperAgentRequest } from "superagent"
 import { FlightQuery, SeatClass } from "@/models/FlightQuery"
 import { Booking } from "@/models/Booking"
-import * as mockupData from "@/utils/mockupFlights"
+import axios from "axios"
+import z from "zod"
 
 /** Query keys which act as an unique identifier for identity based query hooks */
 export const QUERY_KEYS = {
@@ -19,44 +19,61 @@ const baseUrl = function() {
   return url.endsWith("/") ? url.substring(0, url.length - 1) : url
 }()
 
-const api = agent()
-api.use((req: SuperAgentRequest) => {
-  // prepend base url, to avoid specifying this on every call
-  req.url = `${baseUrl}${req.url.startsWith("/") ? "" : "/"}${req.url}`
-  if (req.url.endsWith("/")) {
-    req.url = req.url.substring(0, req.url.length - 1)
+const api = axios.create({
+  baseURL: baseUrl,
+  headers: { Accept: "application/json" },
+})
+api.interceptors.request.use(null, (error: any) => {
+  if (axios.isAxiosError(error)) {
+    const details = error.message ?? error.cause
+    console.error(`request error for path ${error.config!.url}: ${details}`)
+  } else {
+    console.error(error)
   }
+  return Promise.reject(error)
+})
+api.interceptors.response.use(null, (error: any) => {
+  if (axios.isAxiosError(error)) {
+    const details = error.message ?? error.cause
+    console.error(`response error ${error.status} for path ${error.config!.url}: ${details}'`)
+  } else {
+    console.error(error)
+  }
+  return Promise.reject(error)
 })
 
+const friendlyErrorMessage = (apiError: any): string => {
+  if (axios.isAxiosError(apiError)) {
+    if (apiError.status === undefined || apiError.cause === "Network Error") {
+      return "Server seems to be unreachable"
+    }
+    if (Math.floor(apiError.status / 100) === 5) {
+      return "Unexpected server error"
+    }
+  }
+  // server is presumably reachable, and not a 500, must be some sort of validation failure then
+  return "An unexpected error occured"
+}
+
+const dateToIso8601 = (isoStr: string): string => {
+  const d = new Date(isoStr)
+  const year = d.getFullYear()
+  const month = (d.getMonth() + 1).toString().padStart(2, "0")
+  const day = d.getDate().toString().padStart(2, "0")
+  return `${year}-${month}-${day}`
+}
+
+const getFlightsResponseSchema = z.array(Flight.schema)
 const getFlights = async (query: FlightQuery): Promise<Flight[]> => {
-  await new Promise(resolve => setTimeout(resolve, 500))
-  // const params = new URLSearchParams({
-  //   departureCity: query.departureCity,
-  //   destinationCity: query.destinationCity,
-  //   departureDate: new Date(Date.parse(query.departureDateIsoStr)).toISOString().slice(0, 10),
-  //   seatClass: query.seatClass,
-  // });
-  // const res = await fetch(`${baseUrl}/flight/search?${params.toString()}`)
-  // const body = await res.json()
-  
-  // console.log(query)
-  // const { body } = await api.get("/flight/search").query({
-  //   departureCity: query.departureCity,
-  //   destinationCity: query.destinationCity,
-  //   departureDate: new Date(Date.parse(query.departureDateIsoStr)),
-  //   returnDate: query.returnDateIsoStr !== undefined ? new Date(Date.parse(query.returnDateIsoStr)) : undefined,
-  //   // passengerCount: query.passengerCount,
-  //   seatClass: query.seatClass,
-  // })
-  // console.warn(body)
-  // if (!Array.isArray(body)) {
-  //   throw new Error("expected a json array to be returned")
-  // }
-  // // console.log(JSON.stringify(body, null, 2))
-  // return (body as unknown[]).map(Flight.fromDto)
+  const params = {
+    "departureCity": query.departureCity,
+    "arrivalCity": query.destinationCity,
+    "departureDate": dateToIso8601(query.departureDateIsoStr),
+    "timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
+  }
 
-
-  return mockupData.flights
+  const { data } = await api.get("/flights/search", { params })
+  return getFlightsResponseSchema.parse(data)
 }
 
 export type AuthResponse = {
@@ -135,6 +152,7 @@ const createBooking = async ({ flight, passengerName, chosenClass, authToken }: 
 }
 
 export const ApiClient = {
+  friendlyErrorMessage,
   getFlights,
   signIn,
   register,

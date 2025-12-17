@@ -133,17 +133,10 @@ export class Flight {
     airline: z.string(),
     price: z.number().positive(),
     paths: z.array(FlightPath.schema),
-  })
+  }).transform(val => new Flight(val.id, val.flightNr, val.airline, val.price, val.paths))
   
   /** @throws on validation failure */
   static fromDto(dto: unknown): Flight {
-    const data = Flight.schema.parse(dto)
-    return new Flight(
-      data.id,
-      data.flightNr,
-      data.airline,
-      data.price,
-      data.paths,
-    )
+    return Flight.schema.parse(dto)
   }
 }
