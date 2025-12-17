@@ -77,7 +77,7 @@ export function DateInputField({ placeholderLeading, minDate, maxDate, value, on
     <Pressable style={{ flex: 1 }} onPress={showPicker}>
       {pickerShown && (
         <RNDateTimePicker
-          value={value ?? new Date()}
+          value={value ?? minDate ?? new Date()}
           mode="date"
           minimumDate={minDate}
           maximumDate={maxDate}
