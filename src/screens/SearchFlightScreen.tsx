@@ -71,8 +71,8 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
     preconnect(process.env.EXPO_PUBLIC_API_URL)
 
     const query: FlightQuery = {
-      departureCity: formState.departureCity.toLowerCase(),
-      destinationCity: formState.destinationCity.toLowerCase(),
+      departureCity: formState.departureCity,
+      destinationCity: formState.destinationCity,
       departureDateIsoStr: formState.departureDate.toISOString(),
       returnDateIsoStr: formState.isRoundTrip ? formState.returnDate!.toISOString() : undefined,
       seatClass: formState.seatClass,
