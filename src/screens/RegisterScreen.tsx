@@ -11,9 +11,13 @@ import { Platform, StyleSheet, Text, View } from "react-native"
 import z from "zod"
 
 const registerSchema = z.object({
-  fullName: z.string().min(2, "Name must be at least 2 characters long"),
+  fullName: z.string()
+    .min(2, "Name must be at least 2 characters long")
+    .max(100, "Name must be at most 100 characters long"),
   email: z.email("Expected a valid email address"),
-  password: z.string().min(3, "A valid password consists of at least 3 characters"),
+  password: z.string()
+    .min(3, "A valid password consists of at least 3 characters")
+    .max(100, "A password must be at most 100 characters"),
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
   error: "The two passwords do not match",

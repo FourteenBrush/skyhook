@@ -11,7 +11,9 @@ import z from "zod"
 
 const loginSchema = z.object({
   email: z.email("Expected a valid email address"),
-  password: z.string().min(3, "At least 3 characters are required"),
+  password: z.string()
+    .min(3, "At least 3 characters are required")
+    .max(100, "Passwords do not exceed the 100 character limit"),
 })
 
 export default function LoginScreen() {
