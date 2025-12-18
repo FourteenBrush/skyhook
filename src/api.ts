@@ -21,7 +21,7 @@ const baseUrl = function() {
 
 const api = axios.create({
   baseURL: baseUrl,
-  headers: { Accept: "application/json" },
+  headers: { Accept: "application/json", "Content-Type": "application/json" },
 })
 api.interceptors.request.use(null, (error: any) => {
   if (axios.isAxiosError(error)) {
@@ -34,7 +34,16 @@ api.interceptors.request.use(null, (error: any) => {
 })
 api.interceptors.response.use(null, (error: any) => {
   if (axios.isAxiosError(error)) {
-    const details = error.message ?? error.cause
+    let details = error.message ?? error.cause
+    if (__DEV__ && error.status !== undefined && error.response?.data !== undefined) {
+      // attempt to log received response in debug mode
+      try {
+        const data = JSON.stringify(error.response.data)
+        details = `${details}: ${data}`
+      } catch {
+        // silently ignore response
+      }
+    }
     console.error(`response error ${error.status} for path ${error.config!.url}: ${details}`)
   } else {
     console.error("api response error:", error)
@@ -55,6 +64,26 @@ const friendlyErrorMessage = (apiError: any): string => {
   return "An unexpected error occured"
 }
 
+/** Returns an error message corresponding to a sign in or user registration error */
+const friendlyAuthErrorMessage = (apiError: any): string => {
+  if (axios.isAxiosError(apiError)) {
+    if (apiError.status === 401) {
+      return "Invalid email or password"
+    }
+    if (apiError.status === 409) {
+      return "That email is already in use"
+    }
+    if (apiError.status !== undefined) {
+      const category = Math.floor(apiError.status)
+      if (category === 4 || category === 5) {
+        return "Something went wrong while signing you in"
+      }
+    }
+  }
+  // provide general error message otherwise
+  return friendlyErrorMessage(apiError)
+}
+
 const dateToIso8601 = (isoStr: string): string => {
   const d = new Date(isoStr)
   const year = d.getFullYear()
@@ -62,6 +91,8 @@ const dateToIso8601 = (isoStr: string): string => {
   const day = d.getDate().toString().padStart(2, "0")
   return `${year}-${month}-${day}`
 }
+
+const authHeader = (authToken: string) => `Bearer ${authToken}`
 
 const getFlightsResponseSchema = z.array(Flight.schema)
 const getFlights = async (query: FlightQuery): Promise<Flight[]> => {
@@ -76,21 +107,26 @@ const getFlights = async (query: FlightQuery): Promise<Flight[]> => {
   return getFlightsResponseSchema.parse(data)
 }
 
-export type AuthResponse = {
-  authToken: string,
-}
-
 export type SignInRequest = {
   email: string,
   password: string,
 }
 
-const signIn = async ({ email, password }: SignInRequest): Promise<AuthResponse> => {
-  await new Promise(resolve => setTimeout(resolve, 3000))
+const authResponseSchema = z.object({
+  email: z.string().nonempty(),
+  fullName: z.string().nonempty(),
+  token: z.string().nonempty(),
+})
+export type AuthResponse = z.infer<typeof authResponseSchema>
 
-  return {
-    authToken: "<some token>",
+const signIn = async ({ email, password }: SignInRequest): Promise<AuthResponse> => {
+  const payload = {
+    "email": email,
+    "password": password,
   }
+
+  const { data } = await api.post("/auth/login", payload)
+  return authResponseSchema.parse(data)
 }
 
 export type RegisterRequest = {
@@ -99,18 +135,31 @@ export type RegisterRequest = {
   password: string,
 }
 
-const register = async ({ fullName, email, password }: RegisterRequest): Promise<undefined> => {
-  await new Promise(resolve => setTimeout(resolve, 500))
+const register = async ({ fullName, email, password }: RegisterRequest): Promise<AuthResponse> => {
+  const payload = {
+    "fullName": fullName,
+    "email": email,
+    "password": password,
+  }
+
+  const { data } = await api.post("/auth/register", payload)
+  return authResponseSchema.parse(data)
 }
 
-export type TokenValidationResponse = {
-  isValid: boolean,
-}
+// FIXME: do not ignore returned data, this could be useful to assure the locally stored
+// auth data (email and such) is the same as the remote data, and has not been tampered with
+const tokenValidationResponseSchema = z.object({
+  fullName: z.string().nonempty(),
+  email: z.string().nonempty(),
+  token: z.string().nonempty(),
+}).transform(_val => ({ isValid: true }))
+
+export type TokenValidationResponse = z.infer<typeof tokenValidationResponseSchema>
 
 const validateUserToken = async ({ authToken }: AuthOption): Promise<TokenValidationResponse> => {
-
-  await new Promise(resolve => setTimeout(resolve, 500))
-  return { isValid: true }
+  const payload = { "token": authToken }
+  const { data } = await api.post("/auth/status", payload)
+  return tokenValidationResponseSchema.parse(data)
 }
 
 const mockupBookings: Booking[] = []
@@ -153,6 +202,7 @@ const createBooking = async ({ flight, passengerName, chosenClass, authToken }: 
 
 export const ApiClient = {
   friendlyErrorMessage,
+  friendlyAuthErrorMessage,
   getFlights,
   signIn,
   register,
