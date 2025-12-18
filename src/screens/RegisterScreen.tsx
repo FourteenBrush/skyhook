@@ -1,6 +1,7 @@
 import { ApiClient } from "@/api"
 import { ErrorLabel, TextInputField } from "@/components/FormInputs"
 import TextButton from "@/components/TextButton"
+import { useAuth } from "@/hooks/useAuth"
 import { useForm } from "@/hooks/useForm"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { NavParams } from "@/Routes"
@@ -33,12 +34,19 @@ export default function RegisterScreen() {
     validateAndSubmit,
   } = useForm(registerSchema, { fullName: "", email: "", password: "", confirmPassword: "" })
   
-  const { mutate: register, error, isPending } = useMutation({
+  const { mutateAsync, error, isPending } = useMutation({
     mutationFn: () => ApiClient.register(formState),
     onError: (error) => console.error("sign up failed: " + error),
   })
+  const { signIn } = useAuth()
 
   const styles = useStyleSheet(getStyles)
+
+  const register = async () => {
+    await mutateAsync()
+    // sign in immediately, so we don't awkwardly stay on the register screen
+    signIn(formState.email, formState.password)
+  }
   
   return (
     <View style={styles.container}>
@@ -98,7 +106,6 @@ export default function RegisterScreen() {
           Create account
         </TextButton>
 
-        {/* FIXME: show more detailed error message, user already exists, etc.. */}
         {error != null && <ErrorLabel error={ApiClient.friendlyAuthErrorMessage(error)} />}
         
         <Text style={styles.signinTitle}>
