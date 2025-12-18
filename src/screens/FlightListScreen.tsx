@@ -70,7 +70,6 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
   return (
     <View style={styles.container}>
       {/* From -> To */}
-      {/* FIXME: pass normalized names (capitalized and such) */}
       <FlightRouteDisplay
         departure={query.departureCity}
         arrival={query.destinationCity}

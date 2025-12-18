@@ -27,7 +27,6 @@ export default function LoginScreen() {
   } = useForm(loginSchema, { email: "", password: "" })
 
   const { signIn, isLoading, error, clearError } = useAuth()
-  console.log(error)
 
   const signInAndNavigate = () => {
     signIn(formState.email, formState.password)

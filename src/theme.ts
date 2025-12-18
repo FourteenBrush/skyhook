@@ -15,7 +15,6 @@ export type ThemeData = {
   isDark: boolean,
 }
 
-// FIXME: encorporate default text colors
 export type TextTheme = {
   displayLarge: TextStyle,
   displayMedium: TextStyle,
