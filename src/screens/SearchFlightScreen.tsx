@@ -12,6 +12,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack"
 import z from "zod"
 import { useForm } from "@/hooks/useForm"
 import { NavParams } from "@/Routes"
+import { dateAtStartOfDay } from "@/utils/utils"
 
 // const passengerChoices: PickerItemProps<number>[] = [1, 2, 3, 4].map((nr) => {
 //   const label = `${nr} Passenger` + (nr > 1 ? "s" : "")
@@ -29,8 +30,8 @@ const formSchema = z.object({
   returnDate: z.date().optional(),
   seatClass: z.enum(SEAT_CLASSES),
 })
-.refine(data => data.departureDate > new Date(), {
-  message: "Departure date must be after today",
+.refine(data => dateAtStartOfDay(data.departureDate) >= dateAtStartOfDay(new Date()), {
+  message: "Departure date must be today or later",
   path: ["departureDate"],
   when: (_payload) => true,
 })

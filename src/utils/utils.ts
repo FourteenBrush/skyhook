@@ -9,3 +9,5 @@ export const formatDuration = (dur: Date) => dur.toLocaleTimeString(undefined, {
 export const formatTime = (time: Date) => time.toLocaleTimeString(undefined, { timeStyle: "short" })
 
 export const formatDate = (date: Date) => date.toLocaleDateString()
+
+export const dateAtStartOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate())
