@@ -17,6 +17,8 @@ export type AuthState = {
   userSettings: UserSettings,
   /** Error which is set when both `isSignedIn` and `isLoading` are false */
   error: any | null,
+  /** Clears the set `error`, useful for making resetting the login attempt after unmounting */
+  clearError: () => void,
   signIn: (email: string, password: string) => Promise<void>,
   signOut: () => Promise<void>,
 
@@ -59,7 +61,7 @@ type AuthAction =
   | { type: "RESTORE_TOKEN", token: string }
   | { type: "SIGN_OUT" }
   | { type: "SET_LOADING", isLoading: boolean }
-  | { type: "ABORT_WITH_ERROR", error: any }
+  | { type: "SET_ERROR", error: any }
 
 const authStateReducer = (state: InternalAuthState, action: AuthAction): InternalAuthState => {
   switch (action.type) {
@@ -83,7 +85,7 @@ const authStateReducer = (state: InternalAuthState, action: AuthAction): Interna
       return { ...state, isLoading: false, token: null }
     case "SET_LOADING":
       return { ...state, isLoading: action.isLoading }
-    case "ABORT_WITH_ERROR":
+    case "SET_ERROR":
       return { ...state, isLoading: false, token: null, error: action.error }
   }
 }
@@ -142,7 +144,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
         dispatch({ type: "RESTORE_SAVED_STATE", restoredState: isValid ? restoredState : null })
       } catch (e) {
-        dispatch({ type: "ABORT_WITH_ERROR", error: e })
+        dispatch({ type: "SET_ERROR", error: e })
       }
     }
 
@@ -158,7 +160,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
       dispatch({ type: "RESTORE_TOKEN", token: authToken })
     } catch (e) {
-      dispatch({ type: "ABORT_WITH_ERROR", error: e })
+      dispatch({ type: "SET_ERROR", error: e })
     }
   }
 
@@ -168,7 +170,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
       dispatch({ type: "SIGN_OUT" })
     } catch (e) {
       console.error("failed to remove user token after signing out " + e)
-      dispatch({ type: "ABORT_WITH_ERROR", error: e })
+      dispatch({ type: "SET_ERROR", error: e })
     }
   }
 
@@ -178,6 +180,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     authToken: state.token,
     userSettings: state.userSettings,
     error: state.error,
+    clearError: () => dispatch({ type: "SET_ERROR", error: null }),
     signIn,
     signOut,
     updateUserSetting,

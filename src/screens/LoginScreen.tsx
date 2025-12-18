@@ -1,3 +1,4 @@
+import { ApiClient } from "@/api"
 import { ErrorLabel, TextInputField } from "@/components/FormInputs"
 import TextButton from "@/components/TextButton"
 import { useAuth } from "@/hooks/useAuth"
@@ -6,6 +7,7 @@ import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { NavParams } from "@/Routes"
 import { BORDER_RADIUS_NORMAL, CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { Link } from "@react-navigation/native"
+import { useEffect } from "react"
 import { Platform, StyleSheet, Text, View } from "react-native"
 import z from "zod"
 
@@ -24,7 +26,8 @@ export default function LoginScreen() {
     validateAndSubmit,
   } = useForm(loginSchema, { email: "", password: "" })
 
-  const { signIn, isLoading, error } = useAuth()
+  const { signIn, isLoading, error, clearError } = useAuth()
+  console.log(error)
 
   const signInAndNavigate = () => {
     signIn(formState.email, formState.password)
@@ -32,6 +35,9 @@ export default function LoginScreen() {
   }
 
   const styles = useStyleSheet(getStyles)
+
+  // clear the previous login attempt error, to not greet the user with an error already
+  useEffect(clearError, [])
   
   return (
     <View style={styles.container}>
@@ -70,8 +76,7 @@ export default function LoginScreen() {
           Sign in
         </TextButton>
 
-        {error != null && <ErrorLabel error="Something went wrong while signing you in" />}
-        
+        {error != null && <ErrorLabel error={ApiClient.friendlySignInErrorMessage(error)} />}
 
         <Text style={styles.signupTitle}>
           Don't have an account?{" "}
