@@ -166,7 +166,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const signOut = async () => {
     try {
-      await SecureStore.deleteItemAsync(TOKEN_KEY)
+      await PlatformStorage.deleteValueAsync(TOKEN_KEY)
       dispatch({ type: "SIGN_OUT" })
     } catch (e) {
       console.error("failed to remove user token after signing out " + e)
