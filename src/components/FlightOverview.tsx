@@ -9,11 +9,15 @@ import { ThemeData } from "@/theme"
 import { formatDate } from "@/utils/utils"
 import { SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
 import HorizontalLine from "@/components/HorizontalLine"
+import { useAuth } from "@/hooks/useAuth"
+import { getCurrencySign } from "@/lib/preferences"
 
 export default function FlightOverview({ flight, chosenClass }: { flight: Flight, chosenClass: SeatClass }) {
   const styles = useStyleSheet(getStyles)
   const { colors, fonts } = useTheme()
+  const { userPreferences } = useAuth()
 
+  const currencySign = getCurrencySign(userPreferences.preferredCurrency)
   return (
     <>
       {/* airline and flight nr */}
@@ -37,7 +41,7 @@ export default function FlightOverview({ flight, chosenClass }: { flight: Flight
           <Text style={fonts.bodyMedium} accessibilityHint="seat class">{seatClassToCapitalized(chosenClass)}</Text>
         </View>
 
-        <Text style={styles.price} accessibilityHint="flight price">&euro;{flight.price}</Text>
+        <Text style={styles.price} accessibilityHint="flight price">{currencySign}{flight.price}</Text>
       </View>
     </>
   )

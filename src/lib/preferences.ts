@@ -17,4 +17,9 @@ export const defaultUserPreferences: UserPreferences = {
   preferredCurrency: "euro",
 }
 
+export const getCurrencySign = (preference: UserPreferences["preferredCurrency"]): string => {
+
+  return preference === "euro" ? "€" : "$"
+}
+
 export type UserPreferences = z.infer<typeof persistedPreferenceSchema>

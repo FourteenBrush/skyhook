@@ -16,6 +16,7 @@ import { EvilIcons } from "@expo/vector-icons"
 import { NavigationProp, useNavigation } from "@react-navigation/native"
 import { NavParams } from "@/Routes"
 import { useAuth } from "@/hooks/useAuth"
+import { getCurrencySign } from "@/lib/preferences"
 
 export type FlightDetailsScreenProps = {
   flight: Flight,
@@ -25,7 +26,9 @@ export type FlightDetailsScreenProps = {
 export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetailsScreenProps) {
   const styles = useStyleSheet(getStyles)
   const { fonts } = useTheme()
+  const { userPreferences } = useAuth()
 
+  const currencySign = getCurrencySign(userPreferences.preferredCurrency)
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* general flight info */}
@@ -43,7 +46,7 @@ export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetai
           <NumberOfStopsBadge stops={flight.intermediaryStopCount} />
         </View>
 
-        <Text accessibilityHint="flight price" style={styles.price}>&euro;{flight.price}</Text>
+        <Text accessibilityHint="flight price" style={styles.price}>{currencySign}{flight.price}</Text>
 
         <FlightTiming flight={flight} kind="large" />
       </Card>
@@ -169,6 +172,9 @@ function FlightBookingSection({ flight, chosenClass }: { flight: Flight, chosenC
   const { isSignedIn } = useAuth()
   const styles = useStyleSheet(getStyles)
   const { fonts } = useTheme()
+  const { userPreferences } = useAuth()
+
+  const currencySign = getCurrencySign(userPreferences.preferredCurrency)
 
   const navigateToBooking = () => {
     // FIXME: could ideally create some useProtectedRoute hook or something
@@ -182,7 +188,7 @@ function FlightBookingSection({ flight, chosenClass }: { flight: Flight, chosenC
   return (
     <Card clickable={false}>
       <View style={styles.bookingSectionPrice}>
-        <Text style={fonts.titleLarge}>&euro;{flight.price}</Text>
+        <Text style={fonts.titleLarge}>{currencySign}{flight.price}</Text>
         <Text style={fonts.bodyMedium}>per person &bull; {seatClassToCapitalized(chosenClass)}</Text>
       </View>
 

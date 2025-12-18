@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { useForm } from "@/hooks/useForm"
 import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { useTheme } from "@/hooks/useTheme"
+import { getCurrencySign } from "@/lib/preferences"
 import { Booking } from "@/models/Booking"
 import { Flight } from "@/models/Flight"
 import { SeatClass } from "@/models/FlightQuery"
@@ -39,18 +40,19 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
     errors,
     validateAndSubmit,
   } = useForm(passengerSchema, { passengerName: "" })
-  const { authToken } = useAuth()
 
+  const { userDetails, userPreferences } = useAuth()
   const queryClient = useQueryClient()
 
   const createBookingMutation = useMutation<Booking, DefaultError, { passengerName: string }>({
-    mutationFn: ({ passengerName }) => ApiClient.createBooking({ flight, passengerName, chosenClass, authToken: authToken! }),
+    mutationFn: ({ passengerName }) => ApiClient.createBooking({ flight, passengerName, chosenClass, authToken: userDetails!.authToken }),
     onSuccess: (booking) => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_BOOKINGS] })
       navigation.replace("bookingConfirmation", { booking })
     },
   })
 
+  const currencySign = getCurrencySign(userPreferences.preferredCurrency)
   return (
     <KeyboardAvoidingView behavior="padding">
       <ScrollView contentContainerStyle={styles.container}>
@@ -94,18 +96,18 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
         <Card clickable={false} accessibilityHint="pricing">
           <View style={styles.invoiceLine}>
             <Text style={styles.invoiceLineText}>Base fare</Text>
-            <Text style={fonts.titleSmall}>&euro;{flight.price}</Text>
+            <Text style={fonts.titleSmall}>{currencySign}{flight.price}</Text>
           </View>
 
           <View style={styles.invoiceLine}>
             <Text style={styles.invoiceLineText}>Taxes & fees</Text>
-            <Text style={fonts.titleSmall}>&euro;0.00</Text>
+            <Text style={fonts.titleSmall}>{currencySign}0.00</Text>
           </View>
 
           <HorizontalLine />
           <View style={styles.invoiceLine}>
             <Text style={styles.totalText}>Total</Text>
-            <Text style={styles.totalPrice}>&euro;{flight.price}</Text>
+            <Text style={styles.totalPrice}>{currencySign}{flight.price}</Text>
           </View>
         </Card>
 

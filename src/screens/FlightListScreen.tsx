@@ -15,6 +15,8 @@ import TextButton from "@/components/TextButton"
 import Card from "@/components/Card"
 import { formatDuration, formatTime } from "@/utils/utils"
 import { NavParams } from "@/Routes"
+import { useAuth } from "@/hooks/useAuth"
+import { getCurrencySign } from "@/lib/preferences"
 
 export type FlightListScreenProps = {
   query: FlightQuery,
@@ -92,7 +94,9 @@ function FlightCard({ flight, chosenClass }: { flight: Flight, chosenClass: Seat
   const styles = useStyleSheet(getStyles)
   const navigation = useNavigation<NavigationProp<NavParams>>()
   const { fonts } = useTheme()
+  const { userPreferences } = useAuth()
 
+  const currencySign = getCurrencySign(userPreferences.preferredCurrency)
   return (
     <Card
       clickable={true}
@@ -106,7 +110,7 @@ function FlightCard({ flight, chosenClass }: { flight: Flight, chosenClass: Seat
       </View>
       
       <FlightSchedule flight={flight} />
-      <Text accessibilityHint="flight price" style={styles.flightPrice}>&euro;{flight.price}</Text>
+      <Text accessibilityHint="flight price" style={styles.flightPrice}>{currencySign}{flight.price}</Text>
     </Card>
   )
 }
