@@ -76,7 +76,7 @@ export default function LoginScreen() {
           Sign in
         </TextButton>
 
-        {error != null && <ErrorLabel error={ApiClient.friendlySignInErrorMessage(error)} />}
+        {error != null && <ErrorLabel error={ApiClient.friendlyAuthErrorMessage(error)} />}
 
         <Text style={styles.signupTitle}>
           Don't have an account?{" "}

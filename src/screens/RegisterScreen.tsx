@@ -51,6 +51,7 @@ export default function RegisterScreen() {
           onChangeText={updateField.bind(null, "fullName")}
           error={errors.fullName}
           autoComplete="name"
+          autoCapitalize="words"
           label="Full name"
           placeholder="John Doe"
           accessibilityHint="full name input field"
@@ -98,7 +99,7 @@ export default function RegisterScreen() {
         </TextButton>
 
         {/* FIXME: show more detailed error message, user already exists, etc.. */}
-        {error != null && <ErrorLabel error="Something went wrong while creating an account" />}
+        {error != null && <ErrorLabel error={ApiClient.friendlyAuthErrorMessage(error)} />}
         
         <Text style={styles.signinTitle}>
           Already have an account?{" "}
