@@ -1,64 +1,57 @@
 import { ApiClient, AuthResponse, SignInRequest, TokenValidationResponse } from "@/api"
 import { createContext, PropsWithChildren, useContext, useEffect, useReducer } from "react"
-// NOTE: needs a * import as this is broken otherwise for some reason
-import * as SecureStore from "expo-secure-store"
 import { DefaultError, useMutation } from "@tanstack/react-query"
-import { Platform } from "react-native"
-import AsyncStorage from "@react-native-async-storage/async-storage"
 import z from "zod"
+import { persistedPreferenceSchema, PreferenceUpdateFunc, UserPreferences } from "@/lib/preferences"
+import { defaultUserPreferences } from "@/lib/preferences"
+import { JsonStorage, StorageOutput } from "@/lib/auth"
 
 export type AuthState = {
   isSignedIn: boolean,
   /** Accounts for both loading async state and actually performing network calls */
   isLoading: boolean,
-  /** User authentication token, always set when `isSignedIn` is true */
-  authToken: string | null,
+  /** User details, always set when `isSignedIn` is true */
+  userDetails: UserDetails | null,
   /** Associated user settings, these contain defaults when the user is not signed in */
-  userSettings: UserSettings,
+  userPreferences: UserPreferences,
   /** Error which is set when both `isSignedIn` and `isLoading` are false */
   error: any | null,
-  /** Clears the set `error`, useful for making resetting the login attempt after unmounting */
+  /** Clears the set `error`, useful for resetting the login attempt after unmounting */
   clearError: () => void,
   signIn: (email: string, password: string) => Promise<void>,
   signOut: () => Promise<void>,
 
-  /** A function to update a setting, is a no-op when `isSignedIn` is false */
-  updateUserSetting: SettingsUpdateFunc,
+  /** A function to update a preference, is a no-op when `isSignedIn` is false */
+  updateUserPreference: PreferenceUpdateFunc,
 }
 
-export type UserSettings = {
-  preferredCurrency: CurrencyPreference,
-  /** Null indicates to rely on the device default */
-  appearance: Appearance,
-  defaultTripType: TripTypePreference,
+export type UserDetails = {
+  username: string,
+  email: string,
+  authToken: string,
 }
-
-const CURRENCIES = ["dollar", "euro"] as const
-export type CurrencyPreference = (typeof CURRENCIES)[number]
-export type Appearance = "light" | "dark" | "system"
-const TRIP_TYPES = ["oneWay", "roundTrip"] as const
-export type TripTypePreference = (typeof TRIP_TYPES)[number]
-
-export type SettingsUpdateFunc = <K extends keyof Omit<UserSettings, "updateState">>(
-  key: K,
-  value: UserSettings[K],
-) => Promise<void>
 
 type InternalAuthState = {
-  token: string | null,
+  userDetails: UserDetails | null,
   // we could make this nullable but it actually doesn't matter, as these
   // will be default initialized either way
-  userSettings: UserSettings,
+  userPreferences: UserPreferences,
   isLoading: boolean,
   error: any | null,
+}
+
+// Restored persistent state
+type SavedBundle = {
+  userPreferences: StorageOutput<typeof userPreferencesStorage>,
+  userDetails: StorageOutput<typeof userDetailsStorage>,
 }
 
 const AuthContext = createContext<AuthState | null>(null)
 
 type AuthAction =
-  | { type: "RESTORE_SAVED_STATE", restoredState: SavedState | null }
-  | { type: "REFRESH_USER_SETTINGS", settings: UserSettings }
-  | { type: "RESTORE_TOKEN", token: string }
+  | { type: "RESTORE_SAVED_STATE", restoredState: SavedBundle | null }
+  | { type: "REFRESH_USER_PREFERENCES", preferences: UserPreferences }
+  | { type: "RESTORE_TOKEN", authResponse: AuthResponse }
   | { type: "SIGN_OUT" }
   | { type: "SET_LOADING", isLoading: boolean }
   | { type: "SET_ERROR", error: any }
@@ -66,43 +59,55 @@ type AuthAction =
 const authStateReducer = (state: InternalAuthState, action: AuthAction): InternalAuthState => {
   switch (action.type) {
     case "RESTORE_SAVED_STATE":
-      const { restoredState } = action
-      // use default user settings when not logged in
-      const userSettings: UserSettings = {
-        appearance: restoredState?.appearance ?? defaultUserSettings.appearance,
-        defaultTripType: restoredState?.defaultTripType ?? defaultUserSettings.defaultTripType,
-        preferredCurrency: restoredState?.preferredCurrency ?? defaultUserSettings.preferredCurrency,
+      if (action.restoredState === null) {
+        // use default user preferences when not logged in
+        return { ...state, isLoading: false, userDetails: null, userPreferences: { ...defaultUserPreferences } }
       }
-      const token = restoredState !== null ? restoredState.token : null
 
-      return { ...state, isLoading: false, token, userSettings }
-    case "REFRESH_USER_SETTINGS":
-      const settings: UserSettings = { ...action.settings }
-      return { ...state, isLoading: false, userSettings: settings }
+      const { userDetails, userPreferences } = action.restoredState
+      return { ...state, isLoading: false, userDetails, userPreferences }
+    case "REFRESH_USER_PREFERENCES":
+      const preferences: UserPreferences = { ...action.preferences }
+      return { ...state, isLoading: false, userPreferences: preferences }
     case "RESTORE_TOKEN":
-      return { ...state, isLoading: false, token: action.token }
+      const { authResponse } = action
+      const details: UserDetails = {
+        username: authResponse.fullName,
+        email: authResponse.email,
+        authToken: authResponse.token,
+      }
+      return { ...state, isLoading: false, userDetails: details }
     case "SIGN_OUT":
-      return { ...state, isLoading: false, token: null }
+      return { ...state, isLoading: false, userDetails: null }
     case "SET_LOADING":
       return { ...state, isLoading: action.isLoading }
     case "SET_ERROR":
-      return { ...state, isLoading: false, token: null, error: action.error }
+      return { ...state, isLoading: false, userDetails: null, error: action.error }
   }
 }
 
-const defaultUserSettings: UserSettings = {
-  appearance: "light",
-  defaultTripType: "roundTrip",
-  preferredCurrency: "euro",
-}
+// storage accessors
+
+const userDetailsStorage = new JsonStorage(
+  "__USER_DETAILS",
+  z.object({
+    email: z.string().nonempty(),
+    username: z.string().nonempty(),
+    authToken: z.string().nonempty(),
+  }),
+)
+const userPreferencesStorage = new JsonStorage(
+  "__USER_PREFERENCES",
+  persistedPreferenceSchema,
+)
 
 /**
  * An auth context provider, the auth check is immediately started upon mounting.
  */
 export const AuthProvider = ({ children }: PropsWithChildren) => {
   const [state, dispatch] = useReducer(authStateReducer, {
-    token: null,
-    userSettings: { ...defaultUserSettings },
+    userPreferences: { ...defaultUserPreferences },
+    userDetails: null,
     isLoading: true,
     error: null,
   })
@@ -117,12 +122,12 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     onError: (error) => console.error("validating token failed: " + error),
   })
 
-  const updateUserSetting: SettingsUpdateFunc = async (key, value) => {
-    if (state.token === null) return // no-op
+  const updateUserPreference: PreferenceUpdateFunc = async (key, value) => {
+    if (state.userDetails === null) return // no-op, not signed in
 
-    const newSettings = { ...state.userSettings, [key]: value }
-    await persistUserSettings(newSettings)
-    dispatch({ type: "REFRESH_USER_SETTINGS", settings: newSettings })
+    const newPrefs = { ...state.userPreferences, [key]: value }
+    await userPreferencesStorage.persist(newPrefs)
+    dispatch({ type: "REFRESH_USER_PREFERENCES", preferences: newPrefs })
   }
 
   useEffect(() => {
@@ -136,10 +141,10 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
           return
         }
 
-        const { isValid } = await validateTokenMutation.mutateAsync({ authToken: restoredState.token })
+        const { isValid } = await validateTokenMutation.mutateAsync({ authToken: restoredState.userDetails.authToken })
         if (!isValid) {
-          // delete token, keep user settings (not used), so the user is forced to sign in again
-          await deleteSavedToken()
+          // delete token, keep user preferences (not used), so the user is forced to sign in again
+          await userDetailsStorage.delete()
         }
 
         dispatch({ type: "RESTORE_SAVED_STATE", restoredState: isValid ? restoredState : null })
@@ -154,11 +159,11 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const signIn = async (email: string, password: string) => {
     dispatch({ type: "SET_LOADING", isLoading: true })
     try {
-      const { authToken } = await loginMutation.mutateAsync({ email, password })
-      await persistLoginState(authToken)
+      const authResponse: AuthResponse = await loginMutation.mutateAsync({ email, password })
+      await persistLoginState(authResponse)
         .catch(err => console.error("failed to persist auth state after sign in: " + err))
 
-      dispatch({ type: "RESTORE_TOKEN", token: authToken })
+      dispatch({ type: "RESTORE_TOKEN", authResponse })
     } catch (e) {
       dispatch({ type: "SET_ERROR", error: e })
     }
@@ -166,24 +171,24 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const signOut = async () => {
     try {
-      await PlatformStorage.deleteValueAsync(TOKEN_KEY)
+      await userDetailsStorage.delete()
       dispatch({ type: "SIGN_OUT" })
     } catch (e) {
-      console.error("failed to remove user token after signing out " + e)
+      console.error("failed to remove user token after signing out:", e)
       dispatch({ type: "SET_ERROR", error: e })
     }
   }
 
   const value: AuthState = {
-    isSignedIn: state.token !== null,
+    isSignedIn: state.userDetails !== null,
     isLoading: state.isLoading,
-    authToken: state.token,
-    userSettings: state.userSettings,
+    userDetails: state.userDetails,
+    userPreferences: state.userPreferences,
     error: state.error,
     clearError: () => dispatch({ type: "SET_ERROR", error: null }),
     signIn,
     signOut,
-    updateUserSetting,
+    updateUserPreference,
   }
 
   return (
@@ -201,76 +206,52 @@ export const useAuth = (): AuthState  => {
   return ctx
 }
 
-const savedStateSchema = z.object({
-  preferredCurrency: z.enum(CURRENCIES),
-  defaultTripType: z.enum(TRIP_TYPES),
-  appearance: z.enum(["light", "dark", "system"]),
-})
-type SavedState = z.infer<typeof savedStateSchema> & {
-  token: string,
-}
+// ============================== 
+//    STORAGE PERSISTENCE
+// ============================== 
 
 // TODO: support multiple users, probably via tagged state keys
-const TOKEN_KEY = "__TOKEN"
-const SETTINGS_KEY = "__SETTINGS"
 
 /** Returns null when state is incomplete or absent, rejects on failure  */
-const restoreSavedState = async (): Promise<SavedState | null> => {
-  const token = await PlatformStorage.getItemAsync(TOKEN_KEY)
-  if (token === null) return null
-  const encodedSettings = await PlatformStorage.getItemAsync(SETTINGS_KEY)
-  if (encodedSettings === null) return null
-
-  const decodedSettings = JSON.parse(encodedSettings)
+const restoreSavedState = async (): Promise<SavedBundle | null> => {
   try {
-    const settings = savedStateSchema.parse(decodedSettings)
-    return { ...settings, token }
+    const [userDetails, userPreferences] = await Promise.all([
+      userDetailsStorage.getValue(),
+      userPreferencesStorage.getValue(),
+    ])
+
+    if (userDetails === null || userPreferences === null) return null
+
+    const x = { userDetails, userPreferences }
+    console.warn(x)
+    return x
   } catch (e) {
-    console.error(e)
+    console.error("failed to parse persistent state, purging it..:", e)
     // stored data does not match validation schema, delete it so
     // it can be re-written on next sign in, this should only happen during schema definition
     // changes or when manually tampering with persisted state
-    await PlatformStorage.deleteValueAsync(SETTINGS_KEY)
+    await Promise.all([
+      userPreferencesStorage.delete(),
+      userDetailsStorage.delete(),
+    ])
     return Promise.reject(e)
   }
 }
 
-const persistLoginState = async (token: string): Promise<void> => {
+const persistLoginState = async (state: AuthResponse): Promise<void> => {
+  const userDetails: UserDetails = {
+    username: state.fullName,
+    email: state.email,
+    authToken: state.token,
+  }
   const [_, encodedSettings] = await Promise.all([
-    PlatformStorage.persistAsync(TOKEN_KEY, token),
-    PlatformStorage.getItemAsync(SETTINGS_KEY),
+    userDetailsStorage.persist(userDetails),
+    userPreferencesStorage.getValue(),
   ])
 
   if (encodedSettings === null) {
     // first time a user signed in, save default settings
-    await PlatformStorage.persistAsync(SETTINGS_KEY, JSON.stringify(defaultUserSettings))
+    await userPreferencesStorage.persist(defaultUserPreferences)
   }
 }
 
-const deleteSavedToken = async (): Promise<void> =>
-  PlatformStorage.deleteValueAsync(TOKEN_KEY)
-
-const persistUserSettings = async (settings: UserSettings): Promise<void> => {
-  await PlatformStorage.persistAsync(SETTINGS_KEY, JSON.stringify(settings))
-}
-
-// NOTE: web does not support secure store, use localStorage instead
-const PlatformStorage = {
-  async getItemAsync(key: string): Promise<string | null> {
-    return Platform.OS === "web"
-      ? AsyncStorage.getItem(key)
-      : SecureStore.getItemAsync(key)
-  },
-
-  async persistAsync(key: string, value: string): Promise<void> {
-    return Platform.OS === "web"
-      ? AsyncStorage.setItem(key, value)
-      : SecureStore.setItemAsync(key, value)
-  },
-
-  async deleteValueAsync(key: string): Promise<void> {
-    return Platform.OS === "web"
-      ? AsyncStorage.removeItem(key)
-      : SecureStore.deleteItemAsync(key)
-  }
-}

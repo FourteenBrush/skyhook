@@ -13,7 +13,7 @@ import { StyleSheet, Switch, Text, View } from "react-native"
 export default function SettingsTab() {
   const styles = useStyleSheet(getStyles)
   const { colors, fonts } = useTheme()
-  const { signOut, userSettings, updateUserSetting } = useAuth()
+  const { signOut, userDetails, userPreferences, updateUserPreference } = useAuth()
 
   return (
     <View style={styles.container}>
@@ -25,8 +25,8 @@ export default function SettingsTab() {
           </RoundedIconBackground>
 
           <View>
-            <Text style={fonts.titleMedium}>Username</Text>
-            <Text style={styles.email}>username@example.com</Text>
+            <Text style={fonts.titleMedium}>{userDetails!.username}</Text>
+            <Text style={styles.email}>{userDetails!.email}</Text>
           </View>
         </View>
 
@@ -39,7 +39,7 @@ export default function SettingsTab() {
         </TextButton>
       </Card>
 
-      {/* FIXME: show error label in the unlikely case updateUserSetting failed */}
+      {/* FIXME: show error label in the unlikely case updateUserPreference failed */}
       <SettingsCard
         title="Currency"
         subtitle="Select your preferred currency for prices"
@@ -47,8 +47,8 @@ export default function SettingsTab() {
         <BooleanControl<CurrencyPreference>
           leftOption={{ value: "dollar", text: "USD", icon: ({ color }) => <Feather name="dollar-sign" color={color} size={24} /> }}
           rightOption={{ value: "euro", text: "EUR", icon: ({ color }) => <MaterialIcons name="euro-symbol" color={color} size={24} /> }}
-          selected={userSettings.preferredCurrency === "dollar" ? "left" : "right"}
-          onChange={updateUserSetting.bind(null, "preferredCurrency")}
+          selected={userPreferences.preferredCurrency === "dollar" ? "left" : "right"}
+          onChange={updateUserPreference.bind(null, "preferredCurrency")}
         />
       </SettingsCard>
 
@@ -62,8 +62,8 @@ export default function SettingsTab() {
             { label: "Dark", value: "dark", icon: ({ color }) => <Feather name="moon" size={20} color={color} /> },
             { label: "System", value: "system", icon: ({ color }) => <Feather name="monitor" size={20} color={color} /> }
           ]}
-          selected={userSettings.appearance}
-          onChange={updateUserSetting.bind(null, "appearance")}
+          selected={userPreferences.appearance}
+          onChange={updateUserPreference.bind(null, "appearance")}
         />
       </SettingsCard>
 

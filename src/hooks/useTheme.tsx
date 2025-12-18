@@ -7,11 +7,11 @@ export const ThemeContext = createContext<ThemeData>(lightTheme)
 
 /** Provides a theme based on the os settings, depends on the auth provider */
 export const ThemeProvider = ({ children }: PropsWithChildren) => {
-  const { userSettings } = useAuth()
+  const { userPreferences } = useAuth()
   const preferredColorScheme = useColorScheme()
 
   const scheme = function() {
-    switch (userSettings.appearance) {
+    switch (userPreferences.appearance) {
       case "system": return preferredColorScheme === "dark" ? darkTheme : lightTheme
       case "light": return lightTheme
       case "dark": return darkTheme
