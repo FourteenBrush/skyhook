@@ -12,7 +12,7 @@ export type AuthState = {
   isLoading: boolean,
   /** User details, always set when `isSignedIn` is true */
   userDetails: UserDetails | null,
-  /** Associated user settings, these contain defaults when the user is not signed in */
+  /** Associated user preferences, these contain defaults when the user is not signed in */
   userPreferences: UserPreferences,
   /** Error which is set when both `isSignedIn` and `isLoading` are false */
   error: any | null,
@@ -51,7 +51,7 @@ const AuthContext = createContext<AuthState | null>(null)
 type AuthAction =
   | { type: "RESTORE_SAVED_STATE", restoredState: SavedBundle | null }
   | { type: "REFRESH_USER_PREFERENCES", preferences: UserPreferences }
-  | { type: "RESTORE_TOKEN", authResponse: AuthResponse }
+  | { type: "RESTORE_TOKEN", authResponse: AuthResponse, preferences: UserPreferences }
   | { type: "SIGN_OUT" }
   | { type: "SET_LOADING", isLoading: boolean }
   | { type: "SET_ERROR", error: any }
@@ -70,13 +70,13 @@ const authStateReducer = (state: InternalAuthState, action: AuthAction): Interna
       const preferences: UserPreferences = { ...action.preferences }
       return { ...state, isLoading: false, userPreferences: preferences }
     case "RESTORE_TOKEN":
-      const { authResponse } = action
+      const { authResponse, preferences: prefs } = action
       const details: UserDetails = {
         username: authResponse.fullName,
         email: authResponse.email,
         authToken: authResponse.token,
       }
-      return { ...state, isLoading: false, userDetails: details }
+      return { ...state, isLoading: false, userDetails: details, userPreferences: prefs }
     case "SIGN_OUT":
       return { ...state, isLoading: false, userDetails: null }
     case "SET_LOADING":
@@ -159,11 +159,10 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
   const signIn = async (email: string, password: string) => {
     dispatch({ type: "SET_LOADING", isLoading: true })
     try {
-      const authResponse: AuthResponse = await loginMutation.mutateAsync({ email, password })
-      await persistLoginState(authResponse)
-        .catch(err => console.error("failed to persist auth state after sign in: " + err))
+      const authResponse = await loginMutation.mutateAsync({ email, password })
+      const preferences = await persistLoginState(authResponse)
 
-      dispatch({ type: "RESTORE_TOKEN", authResponse })
+      dispatch({ type: "RESTORE_TOKEN", authResponse, preferences })
     } catch (e) {
       dispatch({ type: "SET_ERROR", error: e })
     }
@@ -222,9 +221,7 @@ const restoreSavedState = async (): Promise<SavedBundle | null> => {
 
     if (userDetails === null || userPreferences === null) return null
 
-    const x = { userDetails, userPreferences }
-    console.warn(x)
-    return x
+    return { userDetails, userPreferences }
   } catch (e) {
     console.error("failed to parse persistent state, purging it..:", e)
     // stored data does not match validation schema, delete it so
@@ -238,20 +235,21 @@ const restoreSavedState = async (): Promise<SavedBundle | null> => {
   }
 }
 
-const persistLoginState = async (state: AuthResponse): Promise<void> => {
+const persistLoginState = async (state: AuthResponse): Promise<UserPreferences> => {
   const userDetails: UserDetails = {
     username: state.fullName,
     email: state.email,
     authToken: state.token,
   }
-  const [_, encodedSettings] = await Promise.all([
+  const [_, preferences] = await Promise.all([
     userDetailsStorage.persist(userDetails),
     userPreferencesStorage.getValue(),
   ])
 
-  if (encodedSettings === null) {
-    // first time a user signed in, save default settings
+  if (preferences === null) {
+    // first time a user signed in, save default preferences
     await userPreferencesStorage.persist(defaultUserPreferences)
   }
+  return preferences ?? defaultUserPreferences
 }
 
