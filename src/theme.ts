@@ -1,4 +1,4 @@
-import { TextStyle } from "react-native"
+import { ColorValue, TextStyle } from "react-native"
 
 export const BORDER_RADIUS_NORMAL = 4
 export const BORDER_RADIUS_ROUNDED_BUTTON = 24
@@ -34,24 +34,24 @@ export type TextTheme = {
 }
 
 export type ColorScheme = {
-  primary: string,
-  primaryShaded: string,
-  secondary: string,
+  primary: ColorValue,
+  primaryShaded: ColorValue,
+  secondary: ColorValue,
   /** App background */
-  background: string,
-  card: string,
-  cardAlternative: string,
-  text: string,
+  background: ColorValue,
+  card: ColorValue,
+  cardAlternative: ColorValue,
+  text: ColorValue,
   /** Slightly less visible text color */
-  textSecondary: string,
-  button: string,
-  buttonOutlined: string,
-  buttonText: string,
-  border: string,
-  badge: string,
-  horizontalLine: string,
-  errorRed: string,
-  headerIcon: string,
+  textSecondary: ColorValue,
+  button: ColorValue,
+  buttonOutlined: ColorValue,
+  buttonText: ColorValue,
+  border: ColorValue,
+  badge: ColorValue,
+  horizontalLine: ColorValue,
+  errorRed: ColorValue,
+  headerIcon: ColorValue,
 }
 
 // Material design principles
