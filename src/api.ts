@@ -1,7 +1,7 @@
 import { Flight } from "@/models/Flight"
 import { FlightQuery, SeatClass } from "@/models/FlightQuery"
 import { Booking } from "@/models/Booking"
-import axios from "axios"
+import axios, { AxiosHeaders, RawAxiosRequestHeaders } from "axios"
 import z from "zod"
 
 /** Query keys which act as an unique identifier for identity based query hooks */
@@ -92,7 +92,9 @@ const dateToIso8601 = (isoStr: string): string => {
   return `${year}-${month}-${day}`
 }
 
-const authHeader = (authToken: string) => `Bearer ${authToken}`
+const authHeader = (authToken: string): RawAxiosRequestHeaders => {
+  return { Authorization: `Bearer ${authToken}` }
+}
 
 const getFlightsResponseSchema = z.array(Flight.schema)
 const getFlights = async (query: FlightQuery): Promise<Flight[]> => {
@@ -162,28 +164,16 @@ const validateUserToken = async ({ authToken }: AuthOption): Promise<TokenValida
   return tokenValidationResponseSchema.parse(data)
 }
 
-const mockupBookings: Booking[] = []
-
 export type AuthOption = {
   authToken: string,
 }
 
+const getBookingsResponseSchema = z.array(Booking.schema)
 const getBookings = async ({ authToken }: AuthOption): Promise<Array<Booking>> => {
-  return mockupBookings
-  // try {
-  //   const res = await fetch(`${baseUrl}/booking`)
-  //   const body = await res.json() as unknown
-  //   if (!Array.isArray(body)) {
-  //     throw new Error("expected a json array to be returned")
-  //   }
-  //
-  //   const items = body as unknown[]
-  //   items.forEach(u => BookingSchema.parse(u))
-  //   return (body as Booking[])
-  // } catch (e) {
-  //   console.error("failed to load bookings:", e)
-  //   throw e
-  // }
+  const { data } = await api.get("/bookings", {
+    headers: authHeader(authToken),
+  })
+  return getBookingsResponseSchema.parse(data)
 }
 
 export type CreateBookingRequest = AuthOption & {
@@ -193,11 +183,15 @@ export type CreateBookingRequest = AuthOption & {
 }
 
 const createBooking = async ({ flight, passengerName, chosenClass, authToken }: CreateBookingRequest): Promise<Booking> => {
-  await new Promise(resolve => setTimeout(resolve, 100))
-
-  const booking = new Booking(flight, chosenClass, passengerName, new Date(), "BR-023-RND")
-  mockupBookings.push(booking)
-  return booking
+  const payload = {
+    "flightId": flight.id,
+    "passengerName": passengerName,
+    "seatClass": chosenClass,
+  }
+  const { data } = await api.post("/bookings", payload, {
+    headers: authHeader(authToken),
+  })
+  return Booking.schema.parse(data)
 }
 
 export const ApiClient = {
