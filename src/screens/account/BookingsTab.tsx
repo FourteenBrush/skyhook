@@ -16,10 +16,10 @@ import FlightOverview from "@/components/FlightOverview"
 export default function BookingsTab() {
   const styles = useStyleSheet(getStyles)
   const { fonts, colors } = useTheme()
-  const { authToken } = useAuth()
+  const { userDetails } = useAuth()
 
   const { data: bookings, isPending, isError, error, refetch } = useQuery({
-    queryFn: () => ApiClient.getBookings({ authToken: authToken! }),
+    queryFn: () => ApiClient.getBookings({ authToken: userDetails!.authToken }),
     queryKey: [QUERY_KEYS.GET_BOOKINGS],
     staleTime: 4 * 60 * 1000, // ms
   })
