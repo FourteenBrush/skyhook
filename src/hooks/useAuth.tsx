@@ -78,7 +78,7 @@ const authStateReducer = (state: InternalAuthState, action: AuthAction): Interna
       }
       return { ...state, isLoading: false, userDetails: details, userPreferences: prefs }
     case "SIGN_OUT":
-      return { ...state, isLoading: false, userDetails: null }
+      return { ...state, isLoading: false, userDetails: null, userPreferences: { ...defaultUserPreferences } }
     case "SET_LOADING":
       return { ...state, isLoading: action.isLoading }
     case "SET_ERROR":
