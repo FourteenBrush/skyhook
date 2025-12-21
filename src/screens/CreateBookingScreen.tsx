@@ -27,7 +27,9 @@ export type CreateBookingScreenProps = NativeStackScreenProps<NavParams, "create
 }
 
 const passengerSchema = z.object({
-  passengerName: z.string().min(2, "Passenger name must be at least 4 characters long"),
+  passengerName: z.string()
+    .min(4, "Passenger name must be at least 4 characters long")
+    .max(128, "Passenger name must be at most 128 characters long"),
 })
 
 export default function CreateBookingScreen({ navigation, flight, chosenClass }: CreateBookingScreenProps) {
@@ -47,7 +49,10 @@ export default function CreateBookingScreen({ navigation, flight, chosenClass }:
   const createBookingMutation = useMutation<Booking, DefaultError, { passengerName: string }>({
     mutationFn: ({ passengerName }) => ApiClient.createBooking({ flight, passengerName, chosenClass, authToken: userDetails!.authToken }),
     onSuccess: (booking) => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_BOOKINGS] })
+      // insert the newly created booking into the query cache, to avoid a new fetch if used within acceptable time
+      queryClient.setQueryData<Booking[]>([QUERY_KEYS.GET_BOOKINGS], (oldData: Booking[] | undefined) => {
+        return oldData !== undefined ? [...oldData, booking] : [booking]
+      })
       navigation.replace("bookingConfirmation", { booking })
     },
   })
