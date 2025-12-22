@@ -1,7 +1,7 @@
 import { Flight } from "@/models/Flight"
 import { FlightQuery, SeatClass } from "@/models/FlightQuery"
 import { Booking } from "@/models/Booking"
-import axios, { AxiosHeaders, RawAxiosRequestHeaders } from "axios"
+import axios, { RawAxiosRequestHeaders } from "axios"
 import z from "zod"
 
 /** Query keys which act as an unique identifier for identity based query hooks */
@@ -51,7 +51,7 @@ api.interceptors.response.use(null, (error: any) => {
   return Promise.reject(error)
 })
 
-const friendlyErrorMessage = (apiError: any): string => {
+const friendlyErrorMessage = (apiError: any, opts?: { fallback: string }): string => {
   if (axios.isAxiosError(apiError)) {
     if (apiError.status === undefined || apiError.cause === "Network Error") {
       return "Server seems to be unreachable"
@@ -61,7 +61,7 @@ const friendlyErrorMessage = (apiError: any): string => {
     }
   }
   // server is presumably reachable, and not a 500, must be some sort of validation failure then
-  return "An unexpected error occured"
+  return opts?.fallback ?? "An unexpected error occured"
 }
 
 /** Returns an error message corresponding to a sign in or user registration error */
@@ -194,6 +194,13 @@ const createBooking = async ({ flight, passengerName, chosenClass, authToken }: 
   return Booking.schema.parse(data)
 }
 
+const cancelBooking = async ({ booking, authToken }: AuthOption & { booking: Booking }): Promise<Booking> => {
+  const { data } = await api.post(`/bookings/${booking.id}/cancel`, undefined, {
+    headers: authHeader(authToken),
+  })
+  return Booking.schema.parse(data)
+}
+
 export const ApiClient = {
   friendlyErrorMessage,
   friendlyAuthErrorMessage,
@@ -203,4 +210,5 @@ export const ApiClient = {
   validateUserToken,
   getBookings,
   createBooking,
+  cancelBooking,
 }
