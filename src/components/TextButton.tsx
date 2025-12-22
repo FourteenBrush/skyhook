@@ -56,6 +56,10 @@ const getStyles = ({ colors, fonts }: ThemeData, kind: ButtonKind, shape: Button
       // for outlined buttons
       borderColor,
       borderWidth,
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      gap: 4,
     },
     textContent: {
       ...fonts.labelLarge,
