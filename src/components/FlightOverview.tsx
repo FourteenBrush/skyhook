@@ -11,8 +11,14 @@ import { SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
 import HorizontalLine from "@/components/HorizontalLine"
 import { useAuth } from "@/hooks/useAuth"
 import { getCurrencySign } from "@/lib/preferences"
+import { PropsWithChildren } from "react"
 
-export default function FlightOverview({ flight, chosenClass }: { flight: Flight, chosenClass: SeatClass }) {
+export type FlightOverviewProps = PropsWithChildren & {
+  flight: Flight,
+  chosenClass: SeatClass,
+}
+
+export default function FlightOverview({ flight, chosenClass, children }: FlightOverviewProps) {
   const styles = useStyleSheet(getStyles)
   const { colors, fonts } = useTheme()
   const { userPreferences } = useAuth()
@@ -43,6 +49,8 @@ export default function FlightOverview({ flight, chosenClass }: { flight: Flight
 
         <Text style={styles.price} accessibilityHint="flight price">{currencySign}{flight.price}</Text>
       </View>
+
+      {children}
     </>
   )
 }
