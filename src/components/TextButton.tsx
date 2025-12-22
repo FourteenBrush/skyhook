@@ -19,7 +19,6 @@ export default function TextButton({
   kind = "filled",
   shape = "rectangular",
   style,
-  disabled,
   pre,
   children,
   ...props
@@ -30,7 +29,7 @@ export default function TextButton({
   )
 
   const textContent = <Text style={[styles.textContent]}>{children}</Text>
-  const opacity = disabled ? 0.2 : 1.0
+  const opacity = props.disabled ? 0.65 : 1.0
   
   return (
     <TouchableOpacity style={[styles.container, style, { opacity }]} activeOpacity={0.5} {...props}>
