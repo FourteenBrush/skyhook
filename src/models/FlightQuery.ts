@@ -4,8 +4,6 @@ export type FlightQuery = {
   destinationCity: string,
   // because Date objects are not json serializable... hopefully Temporal gets stabilized soon..
   departureDateIsoStr: string,
-  /** `undefined` on a one-way trip */
-  returnDateIsoStr: string | undefined,
   // passengerCount: number,
   seatClass: SeatClass,
 }

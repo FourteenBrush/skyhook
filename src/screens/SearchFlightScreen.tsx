@@ -14,39 +14,19 @@ import { useForm } from "@/hooks/useForm"
 import { NavParams } from "@/Routes"
 import { dateAtStartOfDay } from "@/utils/utils"
 
-// const passengerChoices: PickerItemProps<number>[] = [1, 2, 3, 4].map((nr) => {
-//   const label = `${nr} Passenger` + (nr > 1 ? "s" : "")
-//   return { label, value: nr }
-// })
-
 const citySchema = (requiredErr: string) => z.string({ error: requiredErr })
   .min(2, "At least 2 characters are required").max(100)
 
 const formSchema = z.object({
-  isRoundTrip: z.boolean(),
   departureCity: citySchema("Please enter a departure city"),
   destinationCity: citySchema("Please enter a destination city"),
   departureDate: z.date("Please enter a departure date"),
-  returnDate: z.date().optional(),
   seatClass: z.enum(SEAT_CLASSES),
 })
 .refine(data => dateAtStartOfDay(data.departureDate) >= dateAtStartOfDay(new Date()), {
   message: "Departure date must be today or later",
   path: ["departureDate"],
   when: (_payload) => true,
-})
-.refine(data => data.isRoundTrip ? (data.returnDate !== undefined) : true, {
-  message: "Please enter a return date",
-  path: ["returnDate"],
-  when: (_payload) => true, // always run, even if other properties contain errors
-})
-.refine(data => data.isRoundTrip ? data.departureDate <= data.returnDate! : true, {
-  message: "Return data must not be before departure data",
-  path: ["returnDate"],
-  // run if departureDate and returnDate are valid
-  when: (payload) => formSchema
-    .pick({ isRoundTrip: true, departureDate: true, returnDate: true })
-    .safeParse(payload.value).success,
 })
 
 const seatClasses: PickerItemProps<SeatClass>[] = SEAT_CLASSES.map((sclass) => {
@@ -62,9 +42,9 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
     errors,
     updateField,
     validateAndSubmit,
-  } = useForm(formSchema, { isRoundTrip: true, seatClass: "economy" })
+  } = useForm(formSchema, { seatClass: "economy" })
 
-  const styles = useStyleSheet(getStyles, [formState.isRoundTrip])
+  const styles = useStyleSheet(getStyles)
   const { fonts, colors } = useTheme()
   
   const navigateToFlightList = () => {
@@ -75,7 +55,6 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
       departureCity: formState.departureCity,
       destinationCity: formState.destinationCity,
       departureDateIsoStr: formState.departureDate.toISOString(),
-      returnDateIsoStr: formState.isRoundTrip ? formState.returnDate!.toISOString() : undefined,
       seatClass: formState.seatClass,
     }
     navigation.navigate("flightList", query)
@@ -89,25 +68,6 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
       <View>
         <Text style={fonts.headlineLarge}>Search Flights</Text>
 
-        <View style={styles.roundTripButtonsWrapper}>
-          <TextButton
-            kind={formState.isRoundTrip ? "filled" : "outlined"}
-            onPress={updateField.bind(null, "isRoundTrip", true)}
-            style={styles.roundTripButton}
-            accessibilityLabel="round trip flight selector"
-          >
-            Round Trip
-          </TextButton>
-          <TextButton
-            kind={formState.isRoundTrip ? "outlined" : "filled"}
-            onPress={updateField.bind(null, "isRoundTrip", false)}
-            style={styles.roundTripButton}
-            accessibilityLabel="one way flight selector"
-          >
-            One Way
-          </TextButton>
-        </View>
-        
         <TextInputField
           value={formState.departureCity}
           error={errors.departureCity}
@@ -138,27 +98,6 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
           accessibilityHint="select trip departure date"
           placeholderLeading=<MaterialCommunityIcons name="calendar-blank" size={25} color={colors.text} />
         />
-        {formState.isRoundTrip && (
-          <DateInputField
-            value={formState.returnDate}
-            error={errors.returnDate}
-            label="Return date"
-            placeholder="Select date"
-            dialogTitle="Select return date"
-            onChange={updateField.bind(null, "returnDate")}
-            minDate={formState.departureDate ?? today}
-            accessibilityHint="select trip return date"
-            placeholderLeading=<MaterialCommunityIcons name="calendar-blank" size={25} color={colors.text} />
-          />
-        )}
-        
-        {/* <Dropdown
-          items={passengerChoices}
-          onValueChange={setPassengerCount}
-          mode="dropdown"
-          label="Passengers"
-          accessibilityHint="select number of passengers"
-        /> */}
         
         <Dropdown
           items={seatClasses}
@@ -193,13 +132,6 @@ const getStyles = ({ colors }: ThemeData) => {
       borderWidth: 1,
       borderColor: colors.border,
       borderRadius: 8,
-    },
-    roundTripButtonsWrapper: {
-      marginTop: 18,
-      marginBottom: 10,
-      justifyContent: "space-between",
-      flexDirection: "row",
-      gap: 16,
     },
     roundTripButton: {
       flex: 1,
