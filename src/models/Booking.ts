@@ -4,11 +4,13 @@ import { SEAT_CLASSES, SeatClass } from "@/models/FlightQuery"
 
 export class Booking {
   constructor(
+    readonly id: number,
     readonly flight: Flight,
     readonly chosenClass: SeatClass,
     readonly passengerName: string,
     bookedAt: Date,
     readonly bookingNr: string,
+    readonly status: "cancelled" | "active",
   ) {
     this.bookedAtIsoStr = bookedAt.toISOString()
   }
@@ -30,10 +32,12 @@ export class Booking {
     status: z.enum(["active", "cancelled"]),
     bookedAt: z.iso.datetime(),
   }).transform(val => new Booking(
+    val.id,
     val.flight,
     val.seatClass,
     val.passengerName,
     new Date(val.bookedAt),
     val.bookingNr,
+    val.status,
   ))
 }
