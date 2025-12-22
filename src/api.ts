@@ -201,6 +201,13 @@ const cancelBooking = async ({ booking, authToken }: AuthOption & { booking: Boo
   return Booking.schema.parse(data)
 }
 
+const deleteBooking = async ({ booking, authToken }: AuthOption & { booking: Booking }): Promise<Booking> => {
+  await api.delete(`/bookings/${booking.id}`, {
+    headers: authHeader(authToken),
+  })
+  return booking // return original
+}
+
 export const ApiClient = {
   friendlyErrorMessage,
   friendlyAuthErrorMessage,
@@ -211,4 +218,5 @@ export const ApiClient = {
   getBookings,
   createBooking,
   cancelBooking,
+  deleteBooking,
 }

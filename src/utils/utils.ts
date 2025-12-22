@@ -10,4 +10,6 @@ export const formatTime = (time: Date) => time.toLocaleTimeString(undefined, { t
 
 export const formatDate = (date: Date) => date.toLocaleDateString()
 
+export const formatDatetime = (dt: Date) => dt.toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })
+
 export const dateAtStartOfDay = (date: Date) => new Date(date.getFullYear(), date.getMonth(), date.getDate())

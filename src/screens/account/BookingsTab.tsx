@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from "react-native"
+import { Alert, FlatList, StyleSheet, Text, View } from "react-native"
 import Card from "@/components/Card"
 import { CONTAINER_MARGIN, ThemeData } from "@/theme"
 import { useTheme } from "@/hooks/useTheme"
@@ -13,6 +13,8 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons"
 import TextButton from "@/components/TextButton"
 import FlightOverview from "@/components/FlightOverview"
 import { ErrorLabel } from "@/components/FormInputs"
+import { formatDatetime } from "@/utils/utils"
+import Badge from "@/components/Badge"
 
 export default function BookingsTab() {
   const styles = useStyleSheet(getStyles)
@@ -26,13 +28,28 @@ export default function BookingsTab() {
     staleTime: 4 * 60 * 1000, // ms
   })
 
-  const { mutate: cancelBooking, error: cancelError, isPending: isCanceling } = useMutation<Booking, DefaultError, { booking: Booking }>({
+  const {
+    mutate: cancelBooking,
+    error: cancelationError,
+    isPending: isCanceling
+  } = useMutation<Booking, DefaultError, { booking: Booking }>({
     mutationFn: ({ booking }) => ApiClient.cancelBooking({ booking, authToken: userDetails!.authToken }),
     onSuccess: (booking) => queryClient.setQueryData<Booking[]>([QUERY_KEYS.GET_BOOKINGS], (oldData: Booking[] | undefined) => {
       return oldData !== undefined
         ? oldData.filter(b => b.id !== booking.id).concat(booking)
         : [booking]
     }),
+  })
+
+  const {
+    mutate: deleteBooking,
+    error: deletionError,
+    isPending: isDeleting,
+  } = useMutation<Booking, DefaultError, { booking: Booking }>({
+    mutationFn: ({ booking }) => ApiClient.deleteBooking({ booking, authToken: userDetails!.authToken }),
+    onSuccess: (booking) => queryClient.setQueryData<Booking[]>([QUERY_KEYS.GET_BOOKINGS], (oldData: Booking[] | undefined) => {
+      return oldData?.filter(b => b.id === booking.id)
+    })
   })
 
   if (isPending) {
@@ -69,6 +86,17 @@ export default function BookingsTab() {
       ? "1 booking found"
       : `${bookings.length} bookings found`
 
+  const confirmCancelationOrDeletion = (booking: Booking) => {
+    const [onPress, message] = booking.status === "cancelled"
+      ? [() => deleteBooking({ booking }), "Are you sure you wish to delete this canceled booking?"]
+      : [() => cancelBooking({ booking }), "Are you sure you wish to cancel this booking?"]
+
+    Alert.alert("Confirm action", message, [
+      { text: "No", isPreferred: true, style: "cancel" },
+      { text: "Yes", style: "destructive", onPress }
+    ], { cancelable: true })
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.tripsTitle}>My Trips</Text>
@@ -76,13 +104,21 @@ export default function BookingsTab() {
 
       <FlatList<Booking>
         data={bookings}
-        renderItem={({ item }) => <BookingCard
-          booking={item}
-          cancelBooking={cancelBooking.bind(null, { booking: item })}
-          isCanceling={isCanceling}
-          cancelError={cancelError}
-        />}
-        style={{ marginTop: CONTAINER_MARGIN }}
+        renderItem={({ item }) => {
+          
+        const [error, isPending, fallbackErrorMessage] = item.status === "cancelled"
+          ? [cancelationError, isCanceling, "Failed to cancel this booking"]
+          : [deletionError, isDeleting, "Failed to delete this booking"]
+
+          return (<BookingCard
+            booking={item}
+            cancelOrDelete={confirmCancelationOrDeletion.bind(null, item)}
+            isActionPending={isPending}
+            error={error}
+            fallbackErrorMessage={fallbackErrorMessage}
+          />)
+        }}
+        style={styles.bookingsList}
       />
     </View>
   )
@@ -90,32 +126,43 @@ export default function BookingsTab() {
 
 type BookingCardProps = {
   booking: Booking,
-  cancelBooking: () => void,
-  isCanceling: boolean,
-  cancelError: any | null,
+  cancelOrDelete: () => void,
+  isActionPending: boolean,
+  error: any | null,
+  fallbackErrorMessage: string,
 }
 
-const BookingCard = ({ booking, cancelBooking, isCanceling, cancelError }: BookingCardProps) => {
+const BookingCard = ({ booking, cancelOrDelete, isActionPending, error, fallbackErrorMessage }: BookingCardProps) => {
   const styles = useStyleSheet(getStyles)
-  const { fonts } = useTheme()
+  const { fonts, colors } = useTheme()
+
+  const buttonText = booking.status === "cancelled"
+    ? "Delete"
+    : "Cancel Booking"
 
   return (
     <Card clickable={false}>
-      <FlightOverview flight={booking.flight} chosenClass={booking.chosenClass}>
+      <FlightOverview
+        flight={booking.flight}
+        chosenClass={booking.chosenClass}
+        rightOfAirline={booking.status === "cancelled" && <Badge kind="dark">Cancelled</Badge>}
+      >
         <Text style={fonts.bodyMedium}>Passenger: {booking.passengerName}</Text>
+        <Text style={fonts.bodyMedium}>Booked at: {formatDatetime(booking.bookedAt)}</Text>
+
         <TextButton
           kind="filled"
-          style={styles.cancelButton}
-          onPress={cancelBooking}
-          disabled={isCanceling || booking.status === "cancelled"}
+          style={styles.actionButton}
+          onPress={cancelOrDelete}
+          disabled={isActionPending}
+          pre={booking.status === "cancelled" && <MaterialCommunityIcons name="delete" size={22} color={colors.buttonText} />}
         >
-          Cancel Booking
+          {buttonText}
         </TextButton>
 
-        {cancelError !== null && <ErrorLabel error={ApiClient.friendlyErrorMessage(
-          cancelError,
-          { fallback: "Failed to cancel this booking" },
-        )} />}
+        {error !== null && <ErrorLabel error={ApiClient.friendlyErrorMessage(
+          error, { fallback: fallbackErrorMessage })
+        } />}
       </FlightOverview>
     </Card>
   )
@@ -137,9 +184,18 @@ const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
     ...fonts.titleLarge,
     paddingBottom: 8,
   },
-  cancelButton: {
+  bookingsList: {
+    marginTop: CONTAINER_MARGIN,
+    marginBottom: 30, // prevent underflow
+  },
+  actionButton: {
     marginTop: 12,
     alignSelf: "stretch",
     backgroundColor: colors.warningRed,
+  },
+  actionButtonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
 })
