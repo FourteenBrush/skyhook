@@ -11,14 +11,15 @@ import { SeatClass, seatClassToCapitalized } from "@/models/FlightQuery"
 import HorizontalLine from "@/components/HorizontalLine"
 import { useAuth } from "@/hooks/useAuth"
 import { getCurrencySign } from "@/lib/preferences"
-import { PropsWithChildren } from "react"
+import { PropsWithChildren, ReactNode } from "react"
 
 export type FlightOverviewProps = PropsWithChildren & {
   flight: Flight,
   chosenClass: SeatClass,
+  rightOfAirline?: ReactNode | undefined,
 }
 
-export default function FlightOverview({ flight, chosenClass, children }: FlightOverviewProps) {
+export default function FlightOverview({ flight, chosenClass, rightOfAirline, children }: FlightOverviewProps) {
   const styles = useStyleSheet(getStyles)
   const { colors, fonts } = useTheme()
   const { userPreferences } = useAuth()
@@ -31,6 +32,7 @@ export default function FlightOverview({ flight, chosenClass, children }: Flight
         <View style={{ flexDirection: "row", gap: 7 }}>
           <Ionicons name="airplane-outline" color={colors.primary} size={17} style={{ transform: [{ rotateZ: "-45deg" }] }} />
           <Text style={fonts.titleMedium} accessibilityHint="airline">{flight.airline}</Text>
+          {rightOfAirline}
         </View>
 
         <Badge kind="light">{flight.flightNr}</Badge>
