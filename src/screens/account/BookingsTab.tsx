@@ -48,7 +48,7 @@ export default function BookingsTab() {
   } = useMutation<Booking, DefaultError, { booking: Booking }>({
     mutationFn: ({ booking }) => ApiClient.deleteBooking({ booking, authToken: userDetails!.authToken }),
     onSuccess: (booking) => queryClient.setQueryData<Booking[]>([QUERY_KEYS.GET_BOOKINGS], (oldData: Booking[] | undefined) => {
-      return oldData?.filter(b => b.id === booking.id)
+      return oldData?.filter(b => b.id !== booking.id)
     })
   })
 
@@ -106,9 +106,9 @@ export default function BookingsTab() {
         data={bookings}
         renderItem={({ item }) => {
           
-        const [error, isPending, fallbackErrorMessage] = item.status === "cancelled"
-          ? [cancelationError, isCanceling, "Failed to cancel this booking"]
-          : [deletionError, isDeleting, "Failed to delete this booking"]
+          const [error, isPending, fallbackErrorMessage] = item.status === "cancelled"
+            ? [cancelationError, isCanceling, "Failed to cancel this booking"]
+            : [deletionError, isDeleting, "Failed to delete this booking"]
 
           return (<BookingCard
             booking={item}
