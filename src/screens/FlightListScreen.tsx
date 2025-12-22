@@ -51,7 +51,7 @@ export default function FlightListScreen({ query }: FlightListScreenProps) {
         title="Search Failed"
         subtitle="We encountered an issue while searching for flights."
         style={styles.queryIndicator}
-        icon=<Feather name="alert-circle" size={48} color="#EF4444" />
+        icon=<Feather name="alert-circle" size={48} color={colors.warningRed} />
         userMessage={userMessage}
         button=<TextButton shape="circular" onPress={() => refetch()}>Retry</TextButton>
       />

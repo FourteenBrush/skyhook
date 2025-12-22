@@ -47,6 +47,7 @@ export type ColorScheme = {
   button: ColorValue,
   buttonOutlined: ColorValue,
   buttonText: ColorValue,
+  warningRed: ColorValue,
   border: ColorValue,
   badge: ColorValue,
   horizontalLine: ColorValue,
@@ -163,6 +164,7 @@ export const lightTheme: ThemeData = {
     button: "#18181B",          // black
     buttonOutlined: "#FFF",     // white
     buttonText: "#FFF",         // white
+    warningRed: "#ef4444",
     border: "#D4D0C9",          // light gray
     badge: "#959585",           // gray
     horizontalLine: "#E0E0E0",  // white-gray like
