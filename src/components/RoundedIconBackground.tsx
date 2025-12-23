@@ -1,8 +1,8 @@
 import { PropsWithChildren } from "react"
-import { ColorValue, StyleSheet, View } from "react-native"
+import { StyleSheet, View } from "react-native"
 
 export type RoundedIconBackgroundProps = PropsWithChildren & {
-  color: ColorValue,
+  color: string,
   size: number,
 }
 

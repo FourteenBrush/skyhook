@@ -34,25 +34,25 @@ export type TextTheme = {
 }
 
 export type ColorScheme = {
-  primary: ColorValue,
-  primaryShaded: ColorValue,
-  secondary: ColorValue,
+  primary: string,
+  primaryShaded: string,
+  secondary: string,
   /** App background */
-  background: ColorValue,
-  card: ColorValue,
-  cardAlternative: ColorValue,
-  text: ColorValue,
+  background: string,
+  card: string,
+  cardAlternative: string,
+  text: string,
   /** Slightly less visible text color */
-  textSecondary: ColorValue,
-  button: ColorValue,
-  buttonOutlined: ColorValue,
-  buttonText: ColorValue,
-  warningRed: ColorValue,
-  border: ColorValue,
-  badge: ColorValue,
-  horizontalLine: ColorValue,
-  errorRed: ColorValue,
-  headerIcon: ColorValue,
+  textSecondary: string,
+  button: string,
+  buttonOutlined: string,
+  buttonText: string,
+  warningRed: string,
+  border: string,
+  badge: string,
+  horizontalLine: string,
+  errorRed: string,
+  headerIcon: string,
 }
 
 // Material design principles
