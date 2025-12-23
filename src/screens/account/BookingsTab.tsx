@@ -103,7 +103,7 @@ export default function BookingsTab() {
       <Text style={fonts.bodyMedium}>{title}</Text>
 
       <FlatList<Booking>
-        data={bookings}
+        data={bookings.sort((a, b) => (a.bookedAt < b.bookedAt) ? -1 : 1)}
         renderItem={({ item }) => {
           
           const [error, isPending, fallbackErrorMessage] = item.status === "cancelled"
@@ -147,8 +147,9 @@ const BookingCard = ({ booking, cancelOrDelete, isActionPending, error, fallback
         chosenClass={booking.chosenClass}
         rightOfAirline={booking.status === "cancelled" && <Badge kind="dark">Cancelled</Badge>}
       >
-        <Text style={fonts.bodyMedium}>Passenger: {booking.passengerName}</Text>
-        <Text style={fonts.bodyMedium}>Booked at: {formatDatetime(booking.bookedAt)}</Text>
+        <Text style={fonts.bodyMedium}>Booking nr: <Text style={styles.bookingDetail}>{booking.bookingNr}</Text></Text>
+        <Text style={fonts.bodyMedium}>Passenger: <Text style={styles.bookingDetail}>{booking.passengerName}</Text></Text>
+        <Text style={fonts.bodyMedium}>Booked at: <Text style={styles.bookingDetail}>{formatDatetime(booking.bookedAt)}</Text></Text>
 
         <TextButton
           kind="filled"
@@ -197,5 +198,8 @@ const getStyles = ({ fonts, colors }: ThemeData) => StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
+  },
+  bookingDetail: {
+    fontWeight: 500,
   },
 })
