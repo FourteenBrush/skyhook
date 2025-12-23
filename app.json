@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "skyhook",
+    "name": "Skyhook",
     "slug": "skyhook",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -34,6 +34,18 @@
         {
           "configureAndroidBackup": true,
           "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#232323",
+          "image": "./assets/images/splash-icon.png",
+          // "dark": {
+          //   "image": "./assets/images/splash-icon-dark.png",
+          //   "backgroundColor": "#000000"
+          // },
+          "imageWidth": 200
         }
       ]
     ]
