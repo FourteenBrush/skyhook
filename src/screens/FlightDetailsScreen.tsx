@@ -21,9 +21,10 @@ import { getCurrencySign } from "@/lib/preferences"
 export type FlightDetailsScreenProps = {
   flight: Flight,
   chosenClass: SeatClass,
+  showBookingSection: boolean,
 }
 
-export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetailsScreenProps) {
+export default function FlightDetailsScreen({ flight, chosenClass, showBookingSection = true }: FlightDetailsScreenProps) {
   const styles = useStyleSheet(getStyles)
   const { fonts } = useTheme()
   const { userPreferences } = useAuth()
@@ -52,7 +53,7 @@ export default function FlightDetailsScreen({ flight, chosenClass }: FlightDetai
       </Card>
       <FlightStops flight={flight} />
 
-      <FlightBookingSection flight={flight} chosenClass={chosenClass} />
+      {showBookingSection && <FlightBookingSection flight={flight} chosenClass={chosenClass} />}
     </ScrollView>
   )
 }

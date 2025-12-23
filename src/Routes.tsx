@@ -19,6 +19,7 @@ import { Booking } from "@/models/Booking"
 import AccountScreen from "@/screens/account/AccountScreen"
 import { ReactNode, useEffect } from "react"
 import BookingConfirmationScreen from "@/screens/BookingConfirmationScreen"
+import BookingDetailsScreen from "./screens/BookingDetailsScreen"
 
 /** Mapping of params needed by route names */
 export type NavParams = {
@@ -31,6 +32,7 @@ export type NavParams = {
   "register": undefined,
   "account": undefined,
   "bookingConfirmation": { booking: Booking },
+  "bookingDetails": { booking: Booking },
 }
 
 const Stack = createNativeStackNavigator<NavParams>()
@@ -75,7 +77,7 @@ export default function Routes() {
           {({ route }) => <FlightListScreen query={route.params} />}
         </Stack.Screen>
         <Stack.Screen name="flightDetails">
-          {({ route }) => <FlightDetailsScreen flight={route.params.flight} chosenClass={route.params.chosenClass} />}
+          {({ route }) => <FlightDetailsScreen flight={route.params.flight} chosenClass={route.params.chosenClass} showBookingSection />}
         </Stack.Screen>
 
         {isSignedIn ? (<>
@@ -85,6 +87,9 @@ export default function Routes() {
           <Stack.Screen name="account" component={AccountScreen} />
           <Stack.Screen name="bookingConfirmation">
             {(props) => <BookingConfirmationScreen {...props.route.params} {...props} />}
+          </Stack.Screen>
+          <Stack.Screen name="bookingDetails">
+            {({ route }) => <BookingDetailsScreen booking={route.params.booking} />}
           </Stack.Screen>
         </>) : (<>
           <Stack.Screen name="login" component={LoginScreen} options={{ animationTypeForReplace: "push" }} />

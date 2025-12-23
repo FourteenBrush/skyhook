@@ -15,6 +15,8 @@ import FlightOverview from "@/components/FlightOverview"
 import { ErrorLabel } from "@/components/FormInputs"
 import { formatDatetime } from "@/utils/utils"
 import Badge from "@/components/Badge"
+import { NavigationProp, useNavigation } from "@react-navigation/native"
+import { NavParams } from "@/Routes"
 
 export default function BookingsTab() {
   const styles = useStyleSheet(getStyles)
@@ -133,6 +135,7 @@ type BookingCardProps = {
 }
 
 const BookingCard = ({ booking, cancelOrDelete, isActionPending, error, fallbackErrorMessage }: BookingCardProps) => {
+  const navigation = useNavigation<NavigationProp<NavParams>>()
   const styles = useStyleSheet(getStyles)
   const { fonts, colors } = useTheme()
 
@@ -141,7 +144,10 @@ const BookingCard = ({ booking, cancelOrDelete, isActionPending, error, fallback
     : "Cancel Booking"
 
   return (
-    <Card clickable={false}>
+    <Card
+      clickable={true}
+      onPress={() => navigation.navigate("bookingDetails", { booking })}
+    >
       <FlightOverview
         flight={booking.flight}
         chosenClass={booking.chosenClass}
