@@ -88,9 +88,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.skyhook'
+    namespace 'dev.cluster2.skyhook'
     defaultConfig {
-        applicationId 'com.anonymous.skyhook'
+        applicationId 'dev.cluster2.skyhook'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
