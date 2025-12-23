@@ -15,7 +15,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.skyhook"
+      "bundleIdentifier": "dev.cluster2.skyhook"
     },
     "android": {
       "adaptiveIcon": {
@@ -23,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.skyhook"
+      "package": "dev.cluster2.skyhook"
     },
     "web": {
       "favicon": "./assets/favicon.png"

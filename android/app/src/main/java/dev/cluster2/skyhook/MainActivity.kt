@@ -1,4 +1,4 @@
-package com.anonymous.skyhook
+package dev.cluster2.skyhook
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

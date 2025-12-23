@@ -1,4 +1,4 @@
-package com.anonymous.skyhook
+package dev.cluster2.skyhook
 
 import android.app.Application
 import android.content.res.Configuration
