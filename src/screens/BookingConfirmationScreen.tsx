@@ -9,6 +9,7 @@ import { Feather } from "@expo/vector-icons"
 import Card from "@/components/Card"
 import FlightOverview from "@/components/FlightOverview"
 import TextButton from "@/components/TextButton"
+import { useTheme } from "@/hooks/useTheme"
 
 export type BookingConfirmationScreenProps = NativeStackScreenProps<NavParams, "bookingConfirmation"> & {
   booking: Booking,
@@ -17,6 +18,7 @@ export type BookingConfirmationScreenProps = NativeStackScreenProps<NavParams, "
 /** Screen that shows the details of a confirmed booking */
 export default function BookingConfirmationScreen({ navigation, booking }: BookingConfirmationScreenProps) {
   const styles = useStyleSheet(getStyles)
+  const { fonts } = useTheme()
   
   return (
     <View style={styles.container}>
@@ -32,7 +34,7 @@ export default function BookingConfirmationScreen({ navigation, booking }: Booki
 
       {/* booking reference */}
       <Card clickable={false} style={styles.bookingRefCard}>
-        <Text>Booking Reference</Text>
+        <Text style={fonts.bodyMedium}>Booking Reference</Text>
         <Text style={styles.bookingNr}>{booking.bookingNr}</Text>
         <Text style={styles.bookingNrSubtitle}>Save this reference for check-ins and support inquiries</Text>
       </Card>
@@ -42,7 +44,7 @@ export default function BookingConfirmationScreen({ navigation, booking }: Booki
         <FlightOverview flight={booking.flight} chosenClass={booking.chosenClass} />
         <View style={styles.passengerSection}>
           <Text style={styles.passengerLine}>Passenger</Text>
-          <Text>{booking.passengerName}</Text>
+          <Text style={fonts.bodyMedium}>{booking.passengerName}</Text>
         </View>
       </Card>
 
