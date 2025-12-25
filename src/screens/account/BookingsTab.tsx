@@ -139,6 +139,8 @@ const BookingCard = ({ booking, cancelOrDelete, isActionPending, error, fallback
   const styles = useStyleSheet(getStyles)
   const { fonts, colors } = useTheme()
 
+  const isExpired = booking.flight.departureTime >= new Date()
+
   const buttonText = booking.status === "cancelled"
     ? "Delete"
     : "Cancel Booking"
@@ -151,21 +153,26 @@ const BookingCard = ({ booking, cancelOrDelete, isActionPending, error, fallback
       <FlightOverview
         flight={booking.flight}
         chosenClass={booking.chosenClass}
-        rightOfAirline={booking.status === "cancelled" && <Badge kind="dark">Cancelled</Badge>}
+        rightOfAirline={[
+          booking.status === "cancelled" && <Badge kind="dark">Cancelled</Badge>,
+          isExpired && <Badge kind="light">Departed</Badge>,
+        ]}
       >
         <Text style={fonts.bodyMedium}>Booking nr: <Text style={styles.bookingDetail}>{booking.bookingNr}</Text></Text>
         <Text style={fonts.bodyMedium}>Passenger: <Text style={styles.bookingDetail}>{booking.passengerName}</Text></Text>
         <Text style={fonts.bodyMedium}>Booked at: <Text style={styles.bookingDetail}>{formatDatetime(booking.bookedAt)}</Text></Text>
 
-        <TextButton
-          kind="filled"
-          style={styles.actionButton}
-          onPress={cancelOrDelete}
-          disabled={isActionPending}
-          pre={booking.status === "cancelled" && <MaterialCommunityIcons name="delete" size={22} color={colors.buttonText} />}
-        >
-          {buttonText}
-        </TextButton>
+        {!isExpired && (
+          <TextButton
+            kind="filled"
+            style={styles.actionButton}
+            onPress={cancelOrDelete}
+            disabled={isActionPending}
+            pre={booking.status === "cancelled" && <MaterialCommunityIcons name="delete" size={22} color={colors.buttonText} />}
+          >
+            {buttonText}
+          </TextButton>
+        )}
 
         {error !== null && <ErrorLabel error={ApiClient.friendlyErrorMessage(
           error, { fallback: fallbackErrorMessage })
