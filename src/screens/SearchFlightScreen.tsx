@@ -26,7 +26,7 @@ const formSchema = z.object({
 .refine(data => dateAtStartOfDay(data.departureDate) >= dateAtStartOfDay(new Date()), {
   message: "Departure date must be today or later",
   path: ["departureDate"],
-  when: (_payload) => true,
+  when: (payload) => formSchema.pick({ departureDate: true }).safeParse(payload.value).success,
 })
 
 const seatClasses: PickerItemProps<SeatClass>[] = SEAT_CLASSES.map((sclass) => {
