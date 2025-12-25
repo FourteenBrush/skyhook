@@ -154,8 +154,8 @@ const BookingCard = ({ booking, cancelOrDelete, isActionPending, error, fallback
         flight={booking.flight}
         chosenClass={booking.chosenClass}
         rightOfAirline={[
-          booking.status === "cancelled" && <Badge kind="dark">Cancelled</Badge>,
-          isExpired && <Badge kind="light">Departed</Badge>,
+          booking.status === "cancelled" && <Badge key="1" kind="dark">Cancelled</Badge>,
+          isExpired && <Badge kind="light" key="2">Departed</Badge>,
         ]}
       >
         <Text style={fonts.bodyMedium}>Booking nr: <Text style={styles.bookingDetail}>{booking.bookingNr}</Text></Text>
