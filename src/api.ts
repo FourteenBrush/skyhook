@@ -160,7 +160,12 @@ export type TokenValidationResponse = z.infer<typeof tokenValidationResponseSche
 
 const validateUserToken = async ({ authToken }: AuthOption): Promise<TokenValidationResponse> => {
   const payload = { "token": authToken }
-  const { data } = await api.post("/auth/status", payload)
+  const { data, status } = await api.post("/auth/status", payload, {
+    validateStatus: (status) => status < 400 || status === 401,
+  })
+  if (status === 401) {
+    return { isValid: false }
+  }
   return tokenValidationResponseSchema.parse(data)
 }
 
