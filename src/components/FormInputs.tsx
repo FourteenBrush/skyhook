@@ -2,11 +2,11 @@ import { useStyleSheet } from "@/hooks/useStyleSheet"
 import { useTheme } from "@/hooks/useTheme"
 import { BORDER_RADIUS_NORMAL, ThemeData } from "@/theme"
 import { AntDesign } from "@expo/vector-icons"
-import RNDateTimePicker, { DateTimePickerEvent } from "@react-native-community/datetimepicker"
 import { Picker, PickerProps } from "@react-native-picker/picker"
 import { ItemValue, PickerItemProps } from "@react-native-picker/picker/typings/Picker"
 import { ReactNode, useState } from "react"
-import { View, Text, StyleSheet, TextInput, Pressable, TextInputProps, ViewProps, Keyboard, TextStyle } from "react-native"
+import { View, Text, StyleSheet, TextInput, Pressable, TextInputProps, ViewProps, TextStyle, Platform } from "react-native"
+import { DatePickerModal, enGB, registerTranslation } from "react-native-paper-dates"
 
 export type TextInputFieldProps = TextInputProps & InputFieldBaseProps
 
@@ -42,50 +42,37 @@ export type DateInputFieldProps = Omit<TextInputFieldProps, "onChangeText" | "on
   dialogTitle?: string,
 }
 
+registerTranslation("en-GB", enGB)
+
 /** Date selection input field, similar to a HTML `<input type=date />`. Accessible by default */
 export function DateInputField({ placeholderLeading, minDate, maxDate, value, onChange, dialogTitle, error, ...props }: DateInputFieldProps) {
   const styles = useStyleSheet(getStyles)
   const { colors } = useTheme()
   const [pickerShown, setPickerShown] = useState(false)
-  
-  const onPickerEvent = ({ type }: DateTimePickerEvent, date?: Date) => {
-    if (type == "dismissed" || type == "set") {
-      setPickerShown(false)
-    }
-    // NOTE: when dismissing, date refers to the current value of the picker
-    // date is probably nullable for event.type="neutralButtonPressed", which seems broken in recent versions
-    if (date !== undefined && type !== "dismissed") {
-      onChange?.(date)
-    }
-  }
-  
-  const showPicker = () => {
-    if (Keyboard.isVisible()) {
-      // NOTE: when the keyboard was shown, the picker animation appears to be following the same
-      // "sliding down" animation as the dissapearing keyboard, scheduling this the next event cycle
-      // makes it appear evenly
-      Keyboard.dismiss()
-      setTimeout(() => setPickerShown(true), 0)
-    } else {
-      setPickerShown(true)
-    }
+
+  const onConfirm = ({ date }: { date: Date | undefined }) => {
+    onChange?.(date ?? minDate ?? new Date())
+    setPickerShown(false)
   }
   
   const inputField = (
     // because for some bizarre reason, onPress and related callbacks are not called when
     // the input field is readonly or non editable (see https://github.com/facebook/react-native/issues/33649)
-    <Pressable style={{ flex: 1 }} onPress={showPicker}>
-      {pickerShown && (
-        <RNDateTimePicker
-          value={value ?? minDate ?? new Date()}
-          mode="date"
-          minimumDate={minDate}
-          maximumDate={maxDate}
-          design="material"
-          onChange={onPickerEvent}
-          title={dialogTitle}
-        />
-      )}
+    <Pressable onPress={() => setPickerShown(true)}>
+      {/* needs an non empty label to not show anything... */}
+      <DatePickerModal
+        label=" "
+        saveLabel="Save"
+        startWeekOnMonday
+        mode="single"
+        presentationStyle="pageSheet"
+        visible={pickerShown}
+        date={value ?? minDate ?? new Date()}
+        validRange={{ startDate: minDate }}
+        onConfirm={onConfirm}
+        onDismiss={() => setPickerShown(false)}
+        locale="en-GB"
+      />
       
       <TextInput
         readOnly
@@ -93,7 +80,7 @@ export function DateInputField({ placeholderLeading, minDate, maxDate, value, on
         value={value?.toLocaleDateString(undefined, { dateStyle: "full" })}
         placeholderTextColor={colors.textSecondary}
         // having a leading placeholder implies already using this style
-        style={[{ color: colors.text }, placeholderLeading === undefined && styles.input]}
+        style={[styles.dateInputContainer, placeholderLeading === undefined && styles.input]}
         {...props}
       />
     </Pressable>
@@ -137,7 +124,7 @@ export function Dropdown<T extends ItemValue>({ items, ...props }: DropdownProps
         extra wrapping with a view because a Picker doesn't do anything with most styling properties,
         additionally, it doesn't seem to like any flex related properties
       */}
-      <View style={styles.input}>
+      <View style={styles.picker}>
         <Picker style={styles.dropdown} dropdownIconColor={colors.text} {...props}>
           {items.map((item, i) => <Picker.Item key={i} {...item} />)}
         </Picker>
@@ -194,7 +181,17 @@ const getStyles = ({ fonts, colors }: ThemeData) => {
       ...fonts.titleSmall,
       fontWeight: 400,
     },
-    input: inputStyle,
+    picker: inputStyle,
+    input: {
+      ...inputStyle,
+      // all broken on web for whatever reason, great job RN
+      paddingVertical: Platform.select({ web: 8 }),
+      paddingLeft: Platform.select({ web: 6 })
+    },
+    dateInputContainer: {
+      paddingVertical: Platform.select({ web: 10 }),
+      color: colors.text,
+    },
     // we need a different class apart from input, because applying flexDirection:row to a <Picker> shifts ui
     inputWithPlaceholderLeading: {
       ...inputStyle,
@@ -207,6 +204,7 @@ const getStyles = ({ fonts, colors }: ThemeData) => {
     dropdown: {
       color: colors.text, // text color
       marginVertical: -4, // ensure dropdown has about the same height as other input fields
+      paddingVertical: Platform.select({ web: 7 })
     },
     dropdownItem: {
       ...fonts.bodyMedium,
