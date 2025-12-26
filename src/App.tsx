@@ -1,16 +1,19 @@
 import { NavigationContainer } from "@react-navigation/native"
 import * as SplashScreen from "expo-splash-screen"
 import { ThemeProvider } from "@/hooks/useTheme"
-import { StyleSheet } from "react-native"
+import { LogBox, StyleSheet } from "react-native"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context"
 import { AuthProvider } from "@/hooks/useAuth"
 import Routes from "@/Routes"
 
 // prevent hiding splash screen automatically the moment the app is loaded
-// (for auth related purposes), a call to SplashScreen.hide must be manually inserted
+// (because we still have to load auth state), a call to SplashScreen.hide must be manually inserted
 // NOTE: must be called in global scope
 SplashScreen.preventAutoHideAsync()
+
+// do not show an error overlay when an error occurs, instead only log them in the terminal
+LogBox.ignoreAllLogs(true)
 
 export default function App() {
   const queryClient = new QueryClient()
