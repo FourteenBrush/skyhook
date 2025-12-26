@@ -20,5 +20,20 @@ allprojects {
   }
 }
 
+// https://github.com/react-native-async-storage/async-storage/issues/1052
+project(':app') {
+  afterEvaluate {
+    if (tasks.findByName("preBuild")) {
+      tasks.preBuild.doFirst {
+        exec {
+          workingDir rootDir
+          commandLine './gradlew', 'generateCodegenArtifactsFromSchema'
+        }
+      }
+      println "✓ app: Will run ./gradlew generateCodegenArtifactsFromSchema before build"
+    }
+  }
+}
+
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
