@@ -139,7 +139,7 @@ const BookingCard = ({ booking, cancelOrDelete, isActionPending, error, fallback
   const styles = useStyleSheet(getStyles)
   const { fonts, colors } = useTheme()
 
-  const isExpired = booking.flight.departureTime >= new Date()
+  const isExpired = booking.flight.departureTime < new Date()
 
   const buttonText = booking.status === "cancelled"
     ? "Delete"
