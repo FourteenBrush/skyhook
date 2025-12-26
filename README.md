@@ -12,3 +12,11 @@ custom backend that provides plane and ticket data.
 ## References
 
 - [Vector icons finder](https://icons.expo.fyi/Index)
+
+## Run instructions
+
+`npx expo start`
+or
+`npm run android (with a device connected through adb/ emulator)`
+
+An `.env.example` file is available to indicate required runtime environment variables.
