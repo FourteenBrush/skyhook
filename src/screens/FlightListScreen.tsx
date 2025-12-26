@@ -68,13 +68,18 @@ function FlightList({ query, flights }: { query: FlightQuery, flights: Flight[] 
     : flights.length === 1
       ? "1 matching flight found"
       : `${flights.length} matching flights found`
+
+  // normalize names so we handle lowercase/uppercase differences from the user input
+  const [departureCity, arrivalCity] = flights.length === 0
+    ? [query.departureCity, query.destinationCity]
+    : [flights[0].departureAirport.city, flights[0].arrivalAirport.city]
   
   return (
     <View style={styles.container}>
       {/* From -> To */}
       <FlightRouteDisplay
-        departure={query.departureCity}
-        arrival={query.destinationCity}
+        departure={departureCity}
+        arrival={arrivalCity}
         size="large"
       />
       
