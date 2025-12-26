@@ -94,7 +94,7 @@ export default function SearchFlightPage({ navigation }: SearchFlightScreenProps
           placeholder="Select date"
           dialogTitle="Select departure date"
           onChange={updateField.bind(null, "departureDate")}
-          minDate={today}
+          minDate={dateAtStartOfDay(today)}
           accessibilityHint="select trip departure date"
           placeholderLeading=<MaterialCommunityIcons name="calendar-blank" size={25} color={colors.text} />
         />
