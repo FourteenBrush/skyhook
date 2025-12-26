@@ -5,6 +5,12 @@ export type PreferenceUpdateFunc = <K extends keyof Omit<UserPreferences, "updat
   value: UserPreferences[K],
 ) => Promise<void>
 
+const APPEARANCES = ["light", "dark", "system"] as const
+export type Appearance = (typeof APPEARANCES)[number]
+
+const CURRENCIES = ["euro", "dollar"] as const
+export type CurrencyPreference = (typeof CURRENCIES)[number]
+
 export const persistedPreferenceSchema = z.object({
   preferredCurrency: z.enum(["euro", "dollar"]),
   appearance: z.enum(["light", "dark", "system"]),

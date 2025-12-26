@@ -32,7 +32,9 @@ export default function FlightOverview({ flight, chosenClass, rightOfAirline, ch
         <View style={{ flexDirection: "row", gap: 7 }}>
           <Ionicons name="airplane-outline" color={colors.primary} size={17} style={{ transform: [{ rotateZ: "-45deg" }] }} />
           <Text style={fonts.titleMedium} accessibilityHint="airline">{flight.airline}</Text>
-          {rightOfAirline}
+          <View style={{ flexDirection: "row", gap: 6 }}>
+            {rightOfAirline}
+          </View>
         </View>
 
         <Badge kind="light">{flight.flightNr}</Badge>
