@@ -15,8 +15,13 @@ custom backend that provides plane and ticket data.
 
 ## Run instructions
 
-`npx expo start`
-or
-`npm run android (with a device connected through adb/ emulator)`
+```bash
+npm i
+
+npx expo start
+# or
+npm run android
+# (with an emulator or a device connected through adb)
+```
 
 An `.env.example` file is available to indicate required runtime environment variables.
