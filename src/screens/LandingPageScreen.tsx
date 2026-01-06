@@ -9,8 +9,6 @@ import { StyleSheet, Text, View, ScrollView } from "react-native"
 export default function LandingPageScreen(props: NativeStackScreenProps<NavParams, "home">) {
   const styles = useStyleSheet(getStyles)
 
-  // TODO: when auth is loading, return splash screen
-  
   return (
     <ScrollView contentContainerStyle={{ flex: 1, justifyContent: "space-between" }}>
       <View>
