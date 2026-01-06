@@ -24,4 +24,13 @@ npm run android
 # (with an emulator or a device connected through adb)
 ```
 
+# Native build
+
+```bash
+cd android
+./gradlew assembleRelease
+# Apk can be found in app/build/outputs/apk/release/app-release.apk.
+# Install this on a device with `adb install`
+```
+
 An `.env.example` file is available to indicate required runtime environment variables.
